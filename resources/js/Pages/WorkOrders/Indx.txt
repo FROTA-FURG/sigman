@@ -1,0 +1,370 @@
+import SIGMANLayout from '@/Layouts/SIGMANLayout';
+import { Head } from '@inertiajs/react';
+import { useState, useMemo } from 'react';
+import { pdf } from '@react-pdf/renderer';
+import OSPdfTemplate from './components/OSPdfTemplate';
+import CreateWorkOrderModal from '@/Pages/WorkOrders/components/CreateOSModal';
+import EditWorkOrderModal from './components/EditWorkOrderModal';
+import WorkOrderDetailsModal from './components/WorkOrderDetailsModal';
+
+export default function Index({ workOrders = [], equipments = [], users = []}) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [selectedOsId, setSelectedOsId] = useState(null);
+
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [osToEdit, setOsToEdit] = useState(null);
+
+    const [vesselFilter, setVesselFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+
+    const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+
+    const statusLabels = {
+        open: 'Aberto',
+        in_progress: 'Em Andamento',
+        completed: 'Fechado',
+        cancelled: 'Cancelado',
+    };
+
+    const selectedOs = workOrders.find(os => os.id === selectedOsId);
+    const workOrderActivities = selectedOs?.activities || [];
+
+    const handleOpenModal = () => setIsModalOpen(true);
+
+    const handleOpenDetailsModal = (id) => {
+        setSelectedOsId(id);
+        setIsDetailsModalOpen(true);
+    };
+
+    const handleRowClick = (os) => {
+        setOsToEdit(os);
+        setIsEditModalOpen(true);
+    };
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedAndFilteredWorkOrders = useMemo(() => {
+        let result = workOrders;
+        if (vesselFilter) {
+            result = result.filter(os => os.equipment?.vessel?.tag === vesselFilter);
+        }
+
+        if (statusFilter){
+            result = result.filter(os => os.status === statusFilter);
+        }
+
+        // Aplica a ordenação
+        if (sortConfig.key) {
+            result = [...result].sort((a, b) => {
+                const aValue = a[sortConfig.key] || '';
+                const bValue = b[sortConfig.key] || '';
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return result;
+    }, [workOrders, vesselFilter, statusFilter, sortConfig]);
+
+    const uniqueVessels = useMemo(() => {
+        const tags = workOrders.map(os => os.equipment?.vessel?.tag).filter(Boolean);
+        return [...new Set(tags)].sort();
+    }, [workOrders]);
+
+    const uniqueStatus = useMemo(() => {
+        const status = workOrders
+            .map(os => os.status)
+            .filter(Boolean);
+
+        return [...new Set(status)].sort();
+    }, [workOrders]);
+
+    const filteredWorkOrders = useMemo(() => {
+        if (!vesselFilter) return workOrders;
+        return workOrders.filter(os => os.equipment?.vessel?.tag === vesselFilter);
+    }, [workOrders, vesselFilter]);
+
+    // Tradução das Badges baseada no banco
+    const renderStatusBadge = (status) => {
+        switch (status) {
+            case 'completed': return <span className="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-500/20">Fechado</span>;
+            case 'open': return <span className="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-500/20">Aberto</span>;
+            case 'in_progress': return <span className="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-medium text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Em Andamento</span>;
+            case 'cancelled': return <span className="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-500/20">Cancelado</span>;
+            default: return <span className="inline-flex items-center rounded-md bg-slate-500/10 px-2 py-1 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-500/20">{status}</span>;
+        }
+    };
+
+    const renderPriorityBadge = (priority) => {
+        switch (priority) {
+            case 'critical': return <span className="text-red-400 font-bold">Crítica</span>;
+            case 'high': return <span className="text-orange-400 font-medium">Alta</span>;
+            case 'medium': return <span className="text-yellow-400">Média</span>;
+            case 'low': return <span className="text-slate-400">Baixa</span>;
+            default: return priority;
+        }
+    };  
+
+    const SortIcon = ({ columnKey }) => {
+        if (sortConfig.key !== columnKey) {
+            // Se não estiver ordenando por esta coluna, mostra um ícone apagado no hover
+            return (
+                <svg className="w-4 h-4 opacity-0 group-hover:opacity-30 transition-opacity ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+            );
+        }
+        // Se estiver ordenando, mostra a seta para cima (asc) ou para baixo (desc) azul
+        return sortConfig.direction === 'asc' ? (
+            <svg className="w-4 h-4 ml-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+            </svg>
+        ) : (
+            <svg className="w-4 h-4 ml-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        );
+    };
+
+
+    // Função para gerar e baixar o PDF em tempo real
+    const handleExportPDF = async (os) => {
+        // Gera o blob do PDF invisivelmente
+        const blob = await pdf(<OSPdfTemplate os={os} />).toBlob();
+        
+        // Cria um link temporário e simula o clique de download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `SIGMAN_OS_${os.os_number || 'Sem_Numero'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+
+    return (
+        <SIGMANLayout>
+            <Head title="Ordens de Serviço | SIGMAN" />
+
+            <CreateWorkOrderModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                equipments={equipments}
+            />
+
+            <EditWorkOrderModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)} 
+                osData={osToEdit}
+                equipments={equipments}
+            />
+
+            <WorkOrderDetailsModal 
+                isOpen={isDetailsModalOpen} 
+                onClose={() => setIsDetailsModalOpen(false)} 
+                workOrderId={selectedOsId}
+                osNumber={selectedOs?.os_number}
+                activities={workOrderActivities} 
+                users={users}
+            />
+
+
+            <div className="flex h-full flex-col space-y-4">
+                <div className="flex shrink-0 items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 className="text-xl font-bold leading-tight text-white">Ordens de Serviço</h2>
+                        <p className="text-xs text-slate-400">Gerencie e visualize o histórico de todas as OS da frota.</p>
+                    </div>
+                </div>
+
+                {/* <div className="flex shrink-0 items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 className="text-xl font-bold leading-tight text-white">Ordens de Serviço</h2>
+                        <p className="text-xs text-slate-400">Gerencie e visualize o histórico de todas as OS da frota.</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <select
+                                value={vesselFilter}
+                                onChange={(e) => setVesselFilter(e.target.value)}
+                                className="appearance-none rounded-lg border border-slate-700 bg-slate-900 py-2 pl-3 pr-10 text-sm font-medium text-slate-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="">Todas as Embarcações</option>
+                                {uniqueVessels.map(vesselTag => (
+                                    <option key={vesselTag} value={vesselTag}>
+                                        Filtrar: {vesselTag}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
+
+                        <div className="relative">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="appearance-none rounded-lg border border-slate-700 bg-slate-900 py-2 pl-3 pr-10 text-sm font-medium text-slate-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="">Todos Status</option>
+                                {uniqueStatus.map(status => (
+                                    <option key={status} value={status}>
+                                        {statusLabels[status] || status}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleOpenModal}
+                            className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
+                        >
+                            <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                            Nova OS
+                        </button>
+                    </div>
+                </div> */}
+
+                {/* <div className="flex-1 min-h-0 overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md flex flex-col">
+                    <div className="flex-1 overflow-auto custom-scrollbar">
+                        <table className="min-w-full text-left text-sm whitespace-nowrap">
+                            <thead className="sticky top-0 z-10 bg-slate-900/90 text-xs uppercase tracking-wider text-slate-400 backdrop-blur-md border-b border-slate-700/50">
+                                <tr>
+                                    <th 
+                                        className="px-4 py-3 font-medium cursor-pointer hover:text-white group select-none transition-colors"
+                                        onClick={() => handleSort('os_number')}
+                                    >
+                                        <div className="flex items-center">
+                                            N° da OS <SortIcon columnKey="os_number" />
+                                        </div>
+                                    </th>
+                                    
+                                    <th 
+                                        className="px-4 py-3 font-medium cursor-pointer hover:text-white group select-none transition-colors"
+                                        onClick={() => handleSort('ss_number')}
+                                    >
+                                        <div className="flex items-center">
+                                            N° da SS <SortIcon columnKey="os_number" />
+                                        </div>
+                                    </th>
+
+                                    <th 
+                                        className="px-4 py-3 font-medium cursor-pointer hover:text-white group select-none transition-colors"
+                                        onClick={() => handleSort('created_at')}
+                                    >
+                                        <div className="flex items-center">
+                                            Criação <SortIcon columnKey="created_at" />
+                                        </div>
+                                    </th>
+
+                                    <th className="px-4 py-3 font-medium">Emb.</th>
+                                    <th className="px-4 py-3 font-medium">Equipamento</th>
+                                    <th className="px-4 py-3 font-medium">TAG</th>
+                                    <th className="px-4 py-3 font-medium">Descrição</th>
+                                    <th className="px-4 py-3 font-medium">Manutenção</th>
+                                    <th className="px-4 py-3 font-medium">Prioridade</th>
+                                    <th className="px-4 py-3 font-medium text-center">Status</th>
+                                    <th className="px-4 py-3 font-medium text-center">Exportar</th>
+                                    <th className="px-4 py-3 font-medium">Detalhamento</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800">
+                                {sortedAndFilteredWorkOrders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="12" className="px-4 py-8 text-center text-slate-500">
+                                            {vesselFilter 
+                                                ? `Nenhuma Ordem de Serviço encontrada para a embarcação ${vesselFilter}.` 
+                                                : 'Nenhuma Ordem de Serviço encontrada.'}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    sortedAndFilteredWorkOrders.map((os) => {
+                                        const equip = os.equipment || {};
+                                        const vessel = equip.vessel || {};
+                                        
+                                        return (
+                                            <tr 
+                                                key={os.id} 
+                                                onClick={() => handleRowClick(os)} 
+                                                className="transition hover:bg-slate-800/50 cursor-pointer"
+                                            >
+                                                <td className="px-4 py-3 font-bold text-white">{os.os_number || '-'}</td>
+                                                <td className="px-4 py-3 font-bold text-white">{os.ss_number || '-'}</td>
+                                                <td className="px-4 py-3 text-slate-400 text-xs">
+                                                    {os.created_at ? os.created_at.substring(0, 10).split('-').reverse().join('/') : '-'}
+                                                </td>
+                                                <td className="px-4 py-3 font-bold text-white">{vessel.tag || '-'}</td>
+                                                <td className="px-4 py-3 text-slate-300 font-medium whitespace-normal max-w-[200px]">{equip.name || 'Equipamento Removido'}</td>
+                                                <td className="px-4 py-3 text-blue-400 font-mono text-xs">{equip.tag_number || '-'}</td>
+                                                
+                                                <td className="px-4 py-3 text-slate-300 whitespace-normal max-w-[300px]">
+                                                    <p className="truncate hover:text-clip hover:whitespace-normal transition-all" title={os.description}>
+                                                        {os.description}
+                                                    </p>
+                                                </td>
+                                                
+                                                <td className="px-4 py-3 text-slate-300 text-xs capitalize">
+                                                    {os.maintenance_type === 'corrective' ? 'Corretiva' : os.maintenance_type === 'preventive' ? 'Preventiva' : 'Preditiva'}
+                                                </td>
+                                                <td className="px-4 py-3 text-xs">{renderPriorityBadge(os.priority)}</td>
+                                                <td className="px-4 py-3 text-center">{renderStatusBadge(os.status)}</td>
+                                                
+                                                <td className="px-4 py-3 text-center">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); 
+                                                            handleExportPDF(os);
+                                                        }}
+                                                        className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"
+                                                        title="Exportar OS para PDF"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                                
+                                                <td className="px-4 py-3 text-center">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); 
+                                                            handleOpenDetailsModal(os.id);
+                                                        }}
+                                                        className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 hover:text-blue-300 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border border-blue-500/30"
+                                                    >
+                                                        Ver Atividades
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> */}
+
+            </div>
+        </SIGMANLayout>
+    );
+}

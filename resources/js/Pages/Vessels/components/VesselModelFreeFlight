@@ -1,0 +1,158 @@
+import { useMemo, Suspense, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { 
+    Environment, 
+    useGLTF, 
+    KeyboardControls, 
+    useKeyboardControls, 
+    PointerLockControls,
+    Edges, 
+    BakeShadows
+} from '@react-three/drei';
+import * as THREE from 'three';
+
+const keyboardMap = [
+    { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
+    { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
+    { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
+    { name: 'right', keys: ['ArrowRight', 'KeyD'] },
+    { name: 'up', keys: ['Space'] },
+    { name: 'down', keys: ['ShiftLeft'] },
+];
+
+// 2. O JOGADOR (Câmera flutuante, sem física)
+function SpectatorPlayer() {
+    const [, getKeys] = useKeyboardControls();
+    
+    // Ajuste a velocidade aqui (aumente se o navio for muito grande)
+    const speed = 10; 
+
+    useFrame((state, delta) => {
+        const { forward, backward, left, right, up, down } = getKeys();
+
+        // Cria o vetor de direção baseado nas teclas
+        const moveVec = new THREE.Vector3(
+            Number(right) - Number(left),
+            Number(up) - Number(down),
+            Number(backward) - Number(forward)
+        );
+
+        // Se houver algum movimento
+        if (moveVec.lengthSq() > 0) {
+            // Normaliza (evita andar mais rápido na diagonal) e ajusta pelo tempo (delta)
+            moveVec.normalize().multiplyScalar(speed * delta);
+
+            // Alinha o movimento para a direção que o mouse está olhando
+            moveVec.applyQuaternion(state.camera.quaternion);
+
+            // Move a câmera
+            state.camera.position.add(moveVec);
+        }
+        
+        console.log(
+            `Posição -> X: ${state.camera.position.x.toFixed(2)} | Y: ${state.camera.position.y.toFixed(2)} | Z: ${state.camera.position.z.toFixed(2)}`
+        );
+    });
+
+
+    // Retorna nulo pois o jogador é apenas uma câmera invisível
+    return null;
+}
+
+function ShipMesh({ modelPath }) {
+    const { scene } = useGLTF(modelPath);
+
+    // Usamos useMemo para processar o navio apenas uma vez quando ele carrega
+    const clonedScene = useMemo(() => {
+        // Clonamos para não alterar o arquivo original em cache
+        const clone = scene.clone();
+
+        // O traverse percorre toda a árvore mantendo a hierarquia intacta
+        clone.traverse((node) => {
+            if (node.isMesh) {
+                // 1. Ativa as sombras para cada peça
+                node.castShadow = true;
+                node.receiveShadow = true;
+
+                // 2. Corrige o material (evita os buracos na proa)
+                if (node.material) {
+                    node.material.side = THREE.DoubleSide;
+                }
+
+                // 3. Adiciona as Arestas (Linhas Pretas) nativamente
+                // Checamos se já tem arestas para não duplicar se o React re-renderizar
+                if (!node.userData.hasEdges) {
+                    // Cria a geometria das linhas (o 15 é o threshold de inclinação)
+                    const edgesGeometry = new THREE.EdgesGeometry(node.geometry, 15);
+                    // Define a cor e o material da linha
+                    const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+                    // Junta os dois
+                    const edgesLines = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+                    
+                    // Adiciona a linha como "filha" da peça. Assim ela acompanha a posição/rotação perfeitamente!
+                    node.add(edgesLines);
+                    
+                    // Marca que esta peça já recebeu as linhas
+                    node.userData.hasEdges = true;
+                }
+            }
+        });
+
+        return clone;
+    }, [scene]);
+
+    return (
+        <primitive 
+            object={clonedScene}  
+            scale={0.25} 
+            position={[-0.9, -1.2, -5.0]} 
+            rotation={[0, Math.PI, 0]}
+        />
+    );
+}
+
+// 4. O COMPONENTE PRINCIPAL
+export default function VesselModel({ modelPath }) {
+    const [startPlaying, setStartPlaying] = useState(false);
+
+    return (
+        // Trocamos h-screen por h-full
+        <div className="relative w-full h-full bg-slate-900">
+            {/* Overlay inicial */}
+            {!startPlaying && (
+                <div 
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm cursor-pointer"
+                    onClick={() => {
+                        setStartPlaying(true);
+                        window.focus(); 
+                    }}
+                >
+                    {/* <h2 className="text-3xl font-bold text-white mb-4">Inspeção Interna</h2> */}
+                    <p className="text-slate-300">Clique para iniciar</p>
+                    <p className="text-slate-500 mt-8 text-sm">W A S D para andar • ESPAÇO/SHIFT para Cima/Baixo • Mouse para olhar • ESC para sair</p>
+                </div>
+            )}
+
+            <KeyboardControls map={keyboardMap}>
+                {/* Definimos uma posição inicial para a câmera (x, y, z) para você não nascer no chão */}
+                <Canvas camera={{ fov: 75, position: [1.53, 1.70, 2.24] }}> {/*X: 1.83 | Y: 1.96 | Z: 2.59 */}
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[10, 10, 5]} intensity={1} />
+                    
+                    <Suspense fallback={null}>
+                        {/* O modelo do navio */}
+                        <ShipMesh modelPath={modelPath} />
+                        
+                        {/* O script de voo só é ativado quando o usuário clica */}
+                        {startPlaying && <SpectatorPlayer />}
+                    </Suspense>
+                    
+                    <Environment preset="city" />
+                    
+                    {/* Trava o mouse na tela e esconde o cursor */}
+                    {startPlaying && <PointerLockControls onUnlock={() => setStartPlaying(false)} />}
+                </Canvas>
+            </KeyboardControls>
+        </div>
+    );
+}
