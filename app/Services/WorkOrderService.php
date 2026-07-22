@@ -7,18 +7,21 @@ use App\Models\Equipment;
 
 class WorkOrderService
 {
-    public function getAllWorkOrders()
+    public function getAllWorkOrders(?string $thirdPartyId = null)
     {
-        // Traz as OS ordenadas pelas mais recentes, incluindo os dados do equipamento 
-        // e as atividades (junto com quem fez a atividade)
-        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser'])
+        // Traz as OS ordenadas pelas mais recentes, incluindo os dados do equipamento
+        // e as atividades (junto com quem fez a atividade).
+        // Se $thirdPartyId for informado, limita às OS daquela empresa terceirizada.
+        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser', 'thirdParty'])
+                        ->when($thirdPartyId, fn ($q) => $q->where('third_party_id', $thirdPartyId))
                         ->orderBy('created_at', 'desc')
                         ->get();
     }
 
     public function getWorkOrderById(string $id)
     {
-        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser'])->findOrFail($id);
+        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser', 'serviceRequest', 'approver', 'thirdParty'])
+            ->findOrFail($id);
     }
 
     public function createWorkOrder(array $data)

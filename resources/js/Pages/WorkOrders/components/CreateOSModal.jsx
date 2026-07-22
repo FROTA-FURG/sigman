@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
 const VESSELS = [
     { id: 'AS', name: 'Atlântico Sul', prefix: 'AS' },
@@ -10,6 +10,9 @@ const VESSELS = [
 
 export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] }) {
     const [mounted, setMounted] = useState(false);
+
+    // Lista de empresas terceirizadas para vincular a OS (vem das props da página)
+    const thirdParties = usePage().props.thirdParties ?? [];
     
     // Estados visuais para ajudar na filtragem
     const [selectedVesselPrefix, setSelectedVesselPrefix] = useState('');
@@ -24,6 +27,7 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
         periodicity: '',
         estimated_hours: '',
         vendor_name: '',
+        third_party_id: '',
         created_at: new Date().toISOString().split('T')[0],
     });
 
@@ -218,14 +222,18 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                 </div>
 
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Terceirizado <span className="text-slate-600">(Opcional)</span></label>
-                                    <input 
-                                        type="text" 
-                                        value={data.vendor_name} 
-                                        onChange={e => setData('vendor_name', e.target.value)}
-                                        placeholder="Ex: Naval Alpha" 
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" 
-                                    />
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Empresa Terceirizada (perfil) <span className="text-slate-600">(Opcional)</span></label>
+                                    <select
+                                        value={data.third_party_id}
+                                        onChange={e => setData('third_party_id', e.target.value)}
+                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                    >
+                                        <option value="">Nenhuma (OS interna)</option>
+                                        {thirdParties.map(tp => (
+                                            <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
+                                        ))}
+                                    </select>
+                                    {errors.third_party_id && <span className="text-xs text-red-500">{errors.third_party_id}</span>}
                                 </div>
                             </div>
 

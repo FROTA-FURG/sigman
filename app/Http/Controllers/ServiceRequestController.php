@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceRequest;
+use App\Models\ThirdParty;
 use App\Models\Vessel;
 use App\Models\Equipment;
 use App\Models\User;
+use App\Notifications\ServiceRequestCreated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class ServiceRequestController extends Controller
@@ -20,12 +24,14 @@ class ServiceRequestController extends Controller
         $vessels = Vessel::orderBy('name')->get();
         $equipments = Equipment::orderBy('name')->get();
         $users = User::orderBy('username')->get(['id', 'username', 'nickname']);
+        $thirdParties = ThirdParty::orderBy('razao_social')->get(['id', 'razao_social', 'cnpj']);
 
         return Inertia::render('ServiceRequests/Index', [
             'serviceRequests' => $serviceRequests,
             'vessels'         => $vessels,
             'equipments'      => $equipments,
-            'users'           => $users
+            'users'           => $users,
+            'thirdParties'    => $thirdParties,
         ]);
     }
 
@@ -41,6 +47,9 @@ class ServiceRequestController extends Controller
             'maintenance_type'    => 'required|in:corrective,preventive,predictive',
             'priority'            => 'required|in:low,normal,high,urgent',
             'status'              => 'required|string',
+            'vendor_cnpj'         => 'nullable|string|max:18',
+            'vendor_name'         => 'nullable|string|max:255',
+            'third_party_id'      => 'nullable|uuid|exists:third_parties,id',
         ]);
 
         // Descobre a tag da embarcação
@@ -62,7 +71,12 @@ class ServiceRequestController extends Controller
 
         $validatedData['ss_number'] = $vesselCode . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        ServiceRequest::create($validatedData);
+        $serviceRequest = ServiceRequest::create($validatedData);
+
+        // Se a SS foi atribuída a uma empresa terceirizada, avisa o(s) login(s) dela por e-mail e sino.
+        if (! empty($validatedData['third_party_id'])) {
+            $this->notifyThirdParty($serviceRequest);
+        }
 
         return redirect()->back()->with('success', 'Solicitação de Serviço criada com sucesso!');
     }
@@ -82,6 +96,7 @@ class ServiceRequestController extends Controller
             'desired_date'        => 'nullable|date',
             'vendor_cnpj'         => 'nullable|string|max:18',
             'vendor_name'         => 'nullable|string|max:255',
+            'third_party_id'      => 'nullable|uuid|exists:third_parties,id',
         ]);
 
         $serviceRequest = ServiceRequest::findOrFail($id);
@@ -96,5 +111,27 @@ class ServiceRequestController extends Controller
         $serviceRequest->delete();
 
         return redirect()->back()->with('success', 'Solicitação de Serviço excluída!');
+    }
+
+    /**
+     * Notifica os logins da empresa terceirizada vinculada à SS.
+     * Falha de envio (SMTP fora do ar) não pode derrubar a criação da SS.
+     */
+    private function notifyThirdParty(ServiceRequest $serviceRequest): void
+    {
+        $recipients = User::where('third_party_id', $serviceRequest->third_party_id)
+            ->whereNotNull('email')
+            ->get();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        try {
+            $serviceRequest->loadMissing(['vessel', 'equipment']);
+            Notification::send($recipients, new ServiceRequestCreated($serviceRequest));
+        } catch (\Throwable $e) {
+            Log::error("Falha ao notificar terceiro da SS {$serviceRequest->ss_number}: {$e->getMessage()}");
+        }
     }
 }

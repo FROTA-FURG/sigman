@@ -4,32 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Equipment;
+use App\Models\ThirdParty;
 use App\Models\WorkOrder;
+use App\Services\WorkOrderDispatchNotifier;
 use App\Services\WorkOrderService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;    
+use Inertia\Inertia;
 
 class WorkOrderController extends Controller
 {
     protected $workOrderService;
+    protected $dispatchNotifier;
 
-    public function __construct(WorkOrderService $workOrderService)
+    public function __construct(WorkOrderService $workOrderService, WorkOrderDispatchNotifier $dispatchNotifier)
     {
         $this->workOrderService = $workOrderService;
+        $this->dispatchNotifier = $dispatchNotifier;
     }
     
-    public function index()
+    public function index(Request $request)
     {
-        $workOrders = $this->workOrderService->getAllWorkOrders();
+        // O terceiro só enxerga as OS da própria empresa; os demais veem todas.
+        $thirdPartyId = $this->isThirdParty($request->user()) ? $request->user()->third_party_id : null;
+
+        $workOrders = $this->workOrderService->getAllWorkOrders($thirdPartyId);
 
         $equipments = Equipment::with('vessel')->orderBy('name')->get();
 
         $users = User::orderBy('username')->get(['id', 'username', 'nickname']);
 
+        $thirdParties = ThirdParty::orderBy('razao_social')->get(['id', 'razao_social', 'cnpj']);
+
         return Inertia::render('WorkOrders/Index', [
             'workOrders' => $workOrders,
             'equipments' => $equipments,
-            'users' => $users
+            'users' => $users,
+            'thirdParties' => $thirdParties,
         ]);
     }
 
@@ -44,10 +54,11 @@ class WorkOrderController extends Controller
             'status'           => 'required|in:open,in_progress,completed,cancelled',
             'periodicity'      => 'required|string|max:50',
             'vendor_name'      => 'nullable|string|max:255',
+            'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
             'created_at'       => 'required|date',
         ]);
-        
+
         $equipment = Equipment::with('vessel')->findOrFail($validatedData['equipment_id']);
         $vesselCode = $equipment->vessel->tag; // Ex: 'AS' ou 'CM1'
 
@@ -79,9 +90,14 @@ class WorkOrderController extends Controller
             ->with('success', 'Ordem de Serviço criada com sucesso.');
     }
 
-    public function show(string $id) // ID é string por causa do UUID
+    public function show(Request $request, string $id) // ID é string por causa do UUID
     {
         $workOrder = $this->workOrderService->getWorkOrderById($id);
+
+        // Terceiro só pode abrir OS da própria empresa.
+        if ($this->isThirdParty($request->user()) && $workOrder->third_party_id !== $request->user()->third_party_id) {
+            abort(403, 'Esta OS não pertence à sua empresa.');
+        }
 
         return Inertia::render('WorkOrders/Show', [
             'workOrder' => $workOrder
@@ -98,6 +114,7 @@ class WorkOrderController extends Controller
             'status'           => 'sometimes|in:open,in_progress,completed,cancelled',
             'periodicity'      => 'required|string|max:50',
             'vendor_name'      => 'nullable|string|max:255',
+            'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
             'created_at'       => 'required|date',
             'completed_at'     => 'nullable|date',
@@ -116,11 +133,69 @@ class WorkOrderController extends Controller
             ->with('success', 'Work Order deleted successfully.');
     }
 
+    /**
+     * O estagiário avalia a OS, mas não é ele quem a aprova: a validação final é do engenheiro.
+     */
+    private function isIntern(?User $user): bool
+    {
+        return ($user?->role->name ?? null) === 'intern';
+    }
+
+    private function isThirdParty(?User $user): bool
+    {
+        return ($user?->role->name ?? null) === 'terceiro';
+    }
+
     public function getAllWorkOrders()
     {
         // Traz a OS + Equipamento + Navio + Atividades + Quem fez a atividade + se existir uma SS vinculada
         return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser', 'serviceRequest'])
                         ->orderBy('created_at', 'desc')
                         ->get();
+    }
+
+    public function updateInternStatus(Request $request, $id)
+    {
+        $os = WorkOrder::findOrFail($id);
+
+        $os->update([
+            'intern_status' => $request->intern_status,
+            'intern_reason' => $request->intern_reason,
+            'intern_name'   => $request->intern_name,
+        ]);
+
+        return back(); 
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:open,in_progress,scheduled,completed,cancelled'
+        ]);
+
+        $os = WorkOrder::with('equipment.vessel')->findOrFail($id);
+
+        $os->update([
+            'status' => $request->status
+        ]);
+
+        // Disparar (ou agendar) é a validação final do engenheiro. Registra quem aprovou
+        // e avisa os estagiários daquela embarcação no sino do perfil.
+        $user = $request->user();
+
+        if (in_array($request->status, ['open', 'in_progress', 'scheduled'], true) && ! $this->isIntern($user)) {
+            $this->dispatchNotifier->notifyInternsOfApproval($os, $user);
+        }
+
+        // OS que entra em vigor (aberta/andamento e com a data já válida) avisa
+        // os responsáveis por e-mail e pelo sino do perfil.
+        $notified = $this->dispatchNotifier->notifyIfDispatched($os);
+
+        return back()->with(
+            'success',
+            $notified
+                ? "OS {$os->os_number} disparada. Responsáveis notificados por e-mail."
+                : "Status da OS {$os->os_number} atualizado."
+        );
     }
 }

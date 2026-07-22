@@ -24,7 +24,7 @@ const getSunday = (monday) => {
     return date;
 };
 
-export default function Index({ workOrders = [], equipments = [], users = [] }) {
+export default function Index({ auth, workOrders = [], equipments = [], users = [] }) {
     const [activeTab, setActiveTab] = useState('planning');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -150,13 +150,13 @@ export default function Index({ workOrders = [], equipments = [], users = [] }) 
                 <div className="flex items-center justify-between border-b border-slate-800">
                     <div className="flex items-center">
                         <button onClick={() => setActiveTab('planning')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'planning' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            Planejamento Geral
-                        </button>
-                        <button onClick={() => setActiveTab('weekly')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'weekly' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            Andamento Semanal
+                            Métricas
                         </button>
                         <button onClick={() => setActiveTab('future')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'future' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            OS Futuras
+                            Planejamento
+                        </button>
+                        <button onClick={() => setActiveTab('weekly')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'weekly' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
+                            Andamento
                         </button>
                     </div>
 
@@ -176,8 +176,8 @@ export default function Index({ workOrders = [], equipments = [], users = [] }) 
 
                 <div className="flex-1 min-h-0 mt-0">
                     {activeTab === 'planning' && <FullPlan workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} />}
-                    {activeTab === 'weekly' && <WeeklyProgress workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} weekStart={weekStart} weekEnd={weekEnd} />}
-                    {activeTab === 'future' && <FutureOS workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} />}
+                    {activeTab === 'weekly' && <WeeklyProgress currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} weekStart={weekStart} weekEnd={weekEnd} />}
+                    {activeTab === 'future' && <FutureOS currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} />}
                 </div>
             </div>
         </SIGMANLayout>

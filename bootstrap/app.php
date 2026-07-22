@@ -17,7 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // Restringe o perfil de terceiro a um conjunto de rotas permitido
+        $middleware->alias([
+            'third_party' => \App\Http\Middleware\HandleThirdPartyAccess::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

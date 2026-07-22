@@ -25,6 +25,7 @@ class ServiceRequest extends Model
         'budget',
         'vendor_cnpj',
         'vendor_name',
+        'third_party_id',
         'completed_at'
     ];
 
@@ -40,7 +41,13 @@ class ServiceRequest extends Model
     
     public function vessel()
     {
-        return $this->belongsTo(Vessel::class, 'vessel_id'); 
+        return $this->belongsTo(Vessel::class, 'vessel_id');
+    }
+
+    // Empresa terceirizada responsável pela SS (nulo = SS interna)
+    public function thirdParty()
+    {
+        return $this->belongsTo(ThirdParty::class);
     }
 
     public function responsibleUser()

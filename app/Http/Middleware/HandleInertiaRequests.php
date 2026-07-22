@@ -36,9 +36,26 @@ class HandleInertiaRequests extends Middleware
                     'name'     => $request->user()->username,
                     'email'    => $request->user()->email,
                     'nickname' => $request->user()->nickname,
-                    'role'     => $request->user()->role?->name, 
+                    'role' => $request->user()->role->name ?? $request->user()->role, 
+                    'vessel_id'     => $request->user()->vessel_id,
                 ] : null,
             ],
+
+            // Notificações do perfil (sino). Só as 10 mais recentes para não pesar cada request.
+            'notifications' => fn () => $request->user() ? [
+                'items' => $request->user()
+                    ->notifications()
+                    ->latest()
+                    ->take(10)
+                    ->get()
+                    ->map(fn ($notification) => [
+                        'id'      => $notification->id,
+                        'data'    => $notification->data,
+                        'read_at' => $notification->read_at,
+                        'created_at' => $notification->created_at,
+                    ]),
+                'unread_count' => $request->user()->unreadNotifications()->count(),
+            ] : null,
         ]);
     }
 }

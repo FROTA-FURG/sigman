@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WorkOrderActivity; 
+use App\Models\WorkOrder;
+use App\Models\WorkOrderActivity;
 use Illuminate\Http\Request;
 
 class WorkOrderActivityController extends Controller
@@ -16,6 +17,18 @@ class WorkOrderActivityController extends Controller
             'started_at'          => 'required|date',
             'completed_at'        => 'nullable|date|after_or_equal:started_at',
         ]);
+
+        // Terceiro só registra atividade em OS da própria empresa.
+        $user = $request->user();
+        if (($user->role->name ?? null) === 'terceiro') {
+            $ownsWorkOrder = WorkOrder::where('id', $validated['work_order_id'])
+                ->where('third_party_id', $user->third_party_id)
+                ->exists();
+
+            if (! $ownsWorkOrder) {
+                abort(403, 'Esta OS não pertence à sua empresa.');
+            }
+        }
 
         $validated['responsible_user_id'] = auth()->id();
 

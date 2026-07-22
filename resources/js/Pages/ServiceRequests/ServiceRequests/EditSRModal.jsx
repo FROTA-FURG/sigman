@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useForm, router } from '@inertiajs/react';
+import { useForm, router, usePage } from '@inertiajs/react';
 
 export default function EditServiceRequestModal({ isOpen, onClose, srData, vessels = [], equipments = [] }) {
+    const thirdParties = usePage().props.thirdParties ?? [];
     const [mounted, setMounted] = useState(false);
     const [isPriorityOpen, setIsPriorityOpen] = useState(false);
     const [cnpjError, setCnpjError] = useState('');
@@ -28,6 +29,7 @@ export default function EditServiceRequestModal({ isOpen, onClose, srData, vesse
         budget: '', // Novo campo de orçamento
         vendor_cnpj: '',
         vendor_name: '',
+        third_party_id: '',
     });
 
     const selectedPriority = priorities.find(p => p.id === data.priority) || priorities[1];
@@ -92,6 +94,7 @@ export default function EditServiceRequestModal({ isOpen, onClose, srData, vesse
                 budget: srData.budget || '', // Preenche se já existir
                 vendor_cnpj: srData.vendor_cnpj || '',
                 vendor_name: srData.vendor_name || '',
+                third_party_id: srData.third_party_id || '',
             });
 
             if (srData.equipment_id) {
@@ -158,9 +161,10 @@ export default function EditServiceRequestModal({ isOpen, onClose, srData, vesse
                     ss_number: srData.ss_number,
                     description: data.description,
                     maintenance_type: data.maintenance_type,
-                    priority: mappedPriority, 
+                    priority: mappedPriority,
                     status: 'open',
                     vendor_name: data.vendor_name,
+                    third_party_id: data.third_party_id || null,
                     created_at: new Date().toISOString().split('T')[0],
                 }, {
                     onSuccess: () => {
@@ -324,20 +328,7 @@ export default function EditServiceRequestModal({ isOpen, onClose, srData, vesse
                                 </div>
                             </div>
 
-                            <div className="border-t border-slate-800 pt-4 mt-2">
-                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Empresa / Terceirizado (Opcional)</h4>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">CNPJ</label>
-                                        <input type="text" value={data.vendor_cnpj} onChange={handleCnpjChange} placeholder="Ex: 00.000.000/0000-00" className={`w-full rounded-md border p-2 text-sm text-slate-300 focus:ring-1 focus:outline-none transition bg-slate-950 ${cnpjError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-700 focus:border-emerald-500 focus:ring-emerald-500'}`} />
-                                        {cnpjError && <span className="text-xs text-red-500 mt-1 block font-medium">{cnpjError}</span>}
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">Nome da Empresa</label>
-                                        <input type="text" value={data.vendor_name} onChange={e => setData('vendor_name', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-emerald-500" />
-                                    </div>
-                                </div>
-                            </div>
+                            
 
                         </form>
                     </div>

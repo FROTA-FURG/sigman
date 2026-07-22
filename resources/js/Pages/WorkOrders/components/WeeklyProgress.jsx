@@ -9,7 +9,8 @@ export default function WeeklyProgress({
     statusFilter,
     periodFilter,
     weekStart,
-    weekEnd
+    weekEnd,
+    currentUser
 }) {
     const filteredWorkOrders = useMemo(() => {
         let result = workOrders;
@@ -19,12 +20,28 @@ export default function WeeklyProgress({
         if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
 
         if (weekStart && weekEnd) {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas o dia
+            
+            // Verifica se a data atual está dentro do intervalo selecionado (Semana Atual)
+            const isCurrentWeek = now >= weekStart && now <= weekEnd;
+
             result = result.filter(os => {
                 if (!os.created_at) return false;
                 const [datePart] = os.created_at.split('T');
                 const [year, month, day] = datePart.split('-');
                 const osDate = new Date(year, month - 1, day, 12, 0, 0);
-                return osDate >= weekStart && osDate <= weekEnd;
+                
+                const inRange = osDate >= weekStart && osDate <= weekEnd;
+                if (!inRange) return false;
+
+                // REGRA NOVA: Na semana atual, por padrão, mostrar apenas "Aberto" ou "Em Andamento".
+                // Isso esconde as OSs "Scheduled" (Agendadas) que ainda não foram liberadas pelo Cron Job.
+                if (isCurrentWeek && !statusFilter) {
+                    if (os.status !== 'open' && os.status !== 'in_progress') return false;
+                }
+
+                return true;
             });
         }
 
@@ -100,6 +117,7 @@ export default function WeeklyProgress({
                     periodFilter={periodFilter}
                     weekStart={weekStart}
                     weekEnd={weekEnd}
+                    currentUser={currentUser}
                 />
             </div>
         </div>

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useForm, usePage } from '@inertiajs/react';
 
 export default function CreateServiceRequestModal({ isOpen, onClose, vessels = [], equipments = [], users = [] }) {
-    const { auth } = usePage().props; // Captura os dados do usuário logado
+    const { auth, thirdParties = [] } = usePage().props; // Usuário logado + empresas terceirizadas
     const [mounted, setMounted] = useState(false);
     const [isPriorityOpen, setIsPriorityOpen] = useState(false);
     const [cnpjError, setCnpjError] = useState('');
@@ -33,6 +33,7 @@ export default function CreateServiceRequestModal({ isOpen, onClose, vessels = [
         status: 'pending',
         vendor_cnpj: '', // Novo campo
         vendor_name: '', // Novo campo
+        third_party_id: '', // Empresa terceirizada com perfil no sistema
     });
 
     const selectedPriority = priorities.find(p => p.id === data.priority) || priorities[1];
@@ -283,40 +284,25 @@ export default function CreateServiceRequestModal({ isOpen, onClose, vessels = [
                                 </div>
                             </div>
 
-                            {/* NOVO BLOCO: FORNECEDOR / EMPRESA */}
-                              <div className="border-t border-slate-800 pt-4 mt-2">
-                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Empresa / Terceirizado (Opcional)</h4>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">CNPJ</label>
-                                        <input 
-                                            type="text" 
-                                            value={data.vendor_cnpj} 
-                                            onChange={handleCnpjChange} 
-                                            placeholder="Ex: 00.000.000/0000-00" 
-                                            className={`w-full rounded-md border p-2 text-sm text-slate-300 focus:ring-1 focus:outline-none transition bg-slate-950
-                                                ${cnpjError 
-                                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                                                    : 'border-slate-700 focus:border-emerald-500 focus:ring-emerald-500'
-                                                }`} 
-                                        />
-                                        {cnpjError && (
-                                            <span className="text-xs text-red-500 mt-1 block font-medium">
-                                                {cnpjError}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">Nome da Empresa</label>
-                                        <input 
-                                            type="text" 
-                                            value={data.vendor_name} 
-                                            onChange={e => setData('vendor_name', e.target.value)} 
-                                            placeholder="Ex: Prestadora Naval SS" 
-                                            className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-emerald-500" 
-                                        />
-                                    </div>
-                                </div>
+                            {/* EMPRESA TERCEIRIZADA (perfil) — se selecionada, o terceiro é avisado por e-mail */}
+                            <div className="border-t border-slate-800 pt-4 mt-2">
+                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Empresa Terceirizada <span className="text-slate-600 normal-case">(Opcional)</span></h4>
+                                <select
+                                    value={data.third_party_id}
+                                    onChange={e => setData('third_party_id', e.target.value)}
+                                    className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-emerald-500"
+                                >
+                                    <option value="">Nenhuma (sem perfil vinculado)</option>
+                                    {thirdParties.map(tp => (
+                                        <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
+                                    ))}
+                                </select>
+                                {data.third_party_id && (
+                                    <p className="mt-1.5 text-[11px] text-emerald-400/80">
+                                        A empresa selecionada será notificada por e-mail sobre esta solicitação.
+                                    </p>
+                                )}
+                                {errors.third_party_id && <span className="text-xs text-red-500">{errors.third_party_id}</span>}
                             </div>
 
                         </form>

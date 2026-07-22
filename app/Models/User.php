@@ -23,7 +23,8 @@ class User extends Authenticatable
         'password',
         'role_id',
         'vessel_id',
-        'status',        
+        'third_party_id',
+        'status',
         'last_updated_by'
     ];
 
@@ -40,5 +41,11 @@ class User extends Authenticatable
     public function vessel()
     {
         return $this->belongsTo(Vessel::class);
+    }
+
+    // Empresa terceirizada à qual este login pertence (só para role=terceiro)
+    public function thirdParty()
+    {
+        return $this->belongsTo(ThirdParty::class);
     }
 }

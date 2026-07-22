@@ -1,10 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import NotificationBell from '@/Components/NotificationBell';
 
 // Este componente é o layout base que envolve as páginas do sistema
 export default function SIGMANLayout({ children }) {
     // Pega os dados do usuário logado direto do Inertia
     const user = usePage().props.auth.user;
+
+    // Perfil determina o que aparece na sidebar
+    const roleName = String(user?.role || '').toLowerCase();
+    const isTerceiro = roleName === 'terceiro';
+    const canManageThirdParties = ['dev', 'coordinator', 'engineer'].includes(roleName);
 
     // Estado para controlar se a sidebar está expandida ou recolhida
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -48,6 +54,9 @@ export default function SIGMANLayout({ children }) {
                         {isSidebarExpanded && <span className="font-medium">Dashboard</span>}
                     </Link>
 
+                    {/* O terceiro (empresa terceirizada) só enxerga Dashboard e Ordens de Serviço */}
+                    {!isTerceiro && (
+                    <>
                     {/* Embarcações (Ícone de Âncora) */}
                     <Link href={route('vessels.index')} className={`flex items-center rounded-lg px-3 py-2 transition hover:bg-slate-800 hover:text-white ${!isSidebarExpanded && 'justify-center'}`}>
                         <svg className={`h-5 w-5 ${isSidebarExpanded ? 'mr-3' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -65,6 +74,8 @@ export default function SIGMANLayout({ children }) {
                         </svg>
                         {isSidebarExpanded && <span className="font-medium">Árvore de Equipamentos</span>}
                     </Link>
+                    </>
+                    )}
 
                     {/* Ordens de Serviço (Ícone de Prancheta mantido) */}
                     <Link href={route('work-orders.index')} className={`flex items-center rounded-lg px-3 py-2 transition hover:bg-slate-800 hover:text-white ${!isSidebarExpanded && 'justify-center'}`}>
@@ -75,6 +86,8 @@ export default function SIGMANLayout({ children }) {
                         {isSidebarExpanded && <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">12</span>}
                     </Link>
 
+                    {!isTerceiro && (
+                    <>
                     {/* Solicitações de Serviço (Ícone de Caixa de Entrada / Inbox) */}
                     <Link href={route('service-requests.index')} className={`flex items-center rounded-lg px-3 py-2 transition hover:bg-slate-800 hover:text-white ${!isSidebarExpanded && 'justify-center'}`}>
                         <svg className={`h-5 w-5 ${isSidebarExpanded ? 'mr-3' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -110,6 +123,18 @@ export default function SIGMANLayout({ children }) {
                         </svg>
                         {isSidebarExpanded && <span className="font-medium">Tripulação</span>}
                     </Link>
+
+                    {/* Terceiros (Empresas Terceirizadas) — só para managers */}
+                    {canManageThirdParties && (
+                        <Link href={route('third-parties.index')} className={`flex items-center rounded-lg px-3 py-2 transition hover:bg-slate-800 hover:text-white ${!isSidebarExpanded && 'justify-center'}`}>
+                            <svg className={`h-5 w-5 ${isSidebarExpanded ? 'mr-3' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            {isSidebarExpanded && <span className="font-medium">Terceiros</span>}
+                        </Link>
+                    )}
+                    </>
+                    )}
                 </nav>
 
                 {/* Perfil do Usuário no rodapé da Sidebar */}
@@ -134,7 +159,10 @@ export default function SIGMANLayout({ children }) {
             {/* ==========================================
                 ÁREA PRINCIPAL (Sem Top Bar)
             ========================================== */}
-            <main className="flex-1 overflow-y-auto bg-[#020d1c] p-4 sm:p-6 lg:p-8">
+            <main className="relative flex-1 overflow-y-auto bg-[#020d1c] p-4 sm:p-6 lg:p-8">
+                {/* Sino de notificações do perfil (OS disparadas) */}
+                <NotificationBell />
+
                 {/* Aqui entra o conteúdo do Dashboard.jsx */}
                 {children}
             </main>

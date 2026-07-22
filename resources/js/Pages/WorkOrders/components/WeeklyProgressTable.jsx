@@ -13,15 +13,14 @@ export default function WeeklyProgressTable({
     statusFilter,
     periodFilter,
     weekStart,
-    weekEnd 
+    weekEnd,
+    currentUser
 }) {
-    // ESTADOS DOS MODAIS DE EDIÇÃO E DETALHES
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedOsId, setSelectedOsId] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [osToEdit, setOsToEdit] = useState(null);
 
-    // ESTADOS DE ORDENAÇÃO E CHECKBOXES
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
     const [selectedIds, setSelectedIds] = useState([]);
 
@@ -37,9 +36,6 @@ export default function WeeklyProgressTable({
         setSortConfig({ key, direction });
     };
 
-    // ==========================================
-    // LÓGICA DE FILTRAGEM COM AS PROPS DO INDEX
-    // ==========================================
     const sortedAndFilteredWorkOrders = useMemo(() => {
         let result = workOrders;
 
@@ -48,12 +44,24 @@ export default function WeeklyProgressTable({
         if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
 
         if (weekStart && weekEnd) {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const isCurrentWeek = now >= weekStart && now <= weekEnd;
+
             result = result.filter(os => {
                 if (!os.created_at) return false;
                 const [datePart] = os.created_at.split('T');
                 const [year, month, day] = datePart.split('-');
                 const osDate = new Date(year, month - 1, day, 12, 0, 0);
-                return osDate >= weekStart && osDate <= weekEnd;
+                
+                const inRange = osDate >= weekStart && osDate <= weekEnd;
+                if (!inRange) return false;
+
+                if (isCurrentWeek && !statusFilter) {
+                    if (os.status !== 'open' && os.status !== 'in_progress') return false;
+                }
+
+                return true;
             });
         }
 
@@ -69,9 +77,6 @@ export default function WeeklyProgressTable({
         return result;
     }, [workOrders, vesselFilter, statusFilter, periodFilter, sortConfig, weekStart, weekEnd]);
 
-    // ==========================================
-    // LÓGICA DAS CHECKBOXES
-    // ==========================================
     const isAllFilteredSelected = sortedAndFilteredWorkOrders.length > 0 && sortedAndFilteredWorkOrders.every(os => selectedIds.includes(os.id));
 
     const toggleSelectAll = () => {
@@ -90,9 +95,6 @@ export default function WeeklyProgressTable({
         setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
     };
 
-    // ==========================================
-    // EXPORTAÇÕES DE PDF
-    // ==========================================
     const handleExportPDF = async (os) => {
         const blob = await pdf(<OSPdfTemplate os={os} />).toBlob();
         const url = URL.createObjectURL(blob);
@@ -114,46 +116,34 @@ export default function WeeklyProgressTable({
 
     const renderPeriodicityBadge = (period) => {
         switch (period) {
-            case 'docking': 
-                // Cinza
-                return <span className="text-slate-300 font-semibold">Docagem</span>; 
-            case 'monthly': 
-                // Verde Musgo / Olíva
-                return <span className="text-lime-600 font-semibold">Mensal</span>; 
-            case 'bimonthly': 
-                // Azul
-                return <span className="text-blue-500 font-semibold">Bimestral</span>; 
-            case 'quarterly': 
-                // Verde Vivo / Claro
-                return <span className="text-green-400 font-semibold">Trimestral</span>; 
-            case 'semiannual': 
-                // Laranja
-                return <span className="text-orange-500 font-semibold">Semestral</span>; 
-            case 'annual': 
-                // Vermelho Escuro
-                return <span className="text-red-600 font-semibold">Anual</span>; 
-            default: 
-                return <span className="text-slate-500 font-medium">Avulsa</span>;
+            case 'docking': return <span className="text-slate-300 font-semibold uppercase">Docagem</span>; 
+            case 'monthly': return <span className="text-lime-600 font-semibold uppercase">Mensal</span>; 
+            case 'bimonthly': return <span className="text-blue-500 font-semibold uppercase">Bimestral</span>; 
+            case 'quarterly': return <span className="text-green-400 font-semibold uppercase">Trimestral</span>; 
+            case 'semiannual': return <span className="text-orange-500 font-semibold uppercase">Semestral</span>; 
+            case 'annual': return <span className="text-red-600 font-semibold uppercase">Anual</span>; 
+            default: return <span className="text-slate-500 font-medium uppercase">Avulsa</span>;
         }
     };
     
     const renderStatusBadge = (status) => {
         switch (status) {
-            case 'completed': return <span className="text-green-400 font-semibold">Fechado</span>;
-            case 'open': return <span className="text-blue-400 font-semibold">Aberto</span>;
-            case 'in_progress': return <span className="text-yellow-400 font-semibold">Andamento</span>;
-            case 'cancelled': return <span className="text-red-400 font-semibold">Cancelado</span>;
-            default: return <span className="text-slate-400 font-semibold">{status}</span>;
+            case 'completed': return <span className="text-green-400 font-semibold uppercase">Fechado</span>;
+            case 'open': return <span className="text-blue-400 font-semibold uppercase">Aberto</span>;
+            case 'in_progress': return <span className="text-yellow-400 font-semibold uppercase">Andamento</span>;
+            case 'scheduled': return <span className="text-purple-400 font-semibold uppercase">Agendada</span>;
+            case 'cancelled': return <span className="text-red-400 font-semibold uppercase">Cancelado</span>;
+            default: return <span className="text-slate-400 font-semibold uppercase">{status}</span>;
         }
     };
 
     const renderPriorityBadge = (priority) => {
         switch (priority) {
-            case 'critical': return <span className="text-red-500 font-bold">Crítica</span>;
-            case 'high': return <span className="text-orange-400 font-bold">Alta</span>;
-            case 'medium': return <span className="text-yellow-400 font-semibold">Média</span>;
-            case 'low': return <span className="text-slate-400">Baixa</span>;
-            default: return priority;
+            case 'critical': return <span className="text-red-500 font-bold uppercase">Crítica</span>;
+            case 'high': return <span className="text-orange-400 font-bold uppercase">Alta</span>;
+            case 'medium': return <span className="text-yellow-400 font-semibold uppercase">Média</span>;
+            case 'low': return <span className="text-slate-400 uppercase">Baixa</span>;
+            default: return <span className="uppercase">{priority}</span>;
         }
     };  
 
@@ -164,10 +154,21 @@ export default function WeeklyProgressTable({
 
     return (
         <div className="flex flex-col h-full w-full relative rounded-lg">
-            <EditWorkOrderModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} osData={osToEdit} equipments={equipments} />
-            <WorkOrderDetailsModal isOpen={isDetailsModalOpen} onClose={() => setIsDetailsModalOpen(false)} workOrderId={selectedOsId} osNumber={selectedOs?.os_number} activities={workOrderActivities} users={users} />
+            <EditWorkOrderModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)} 
+                osData={osToEdit} equipments={equipments} 
+                currentUser={currentUser} 
+            />
+            <WorkOrderDetailsModal 
+                isOpen={isDetailsModalOpen} 
+                onClose={() => setIsDetailsModalOpen(false)} 
+                workOrderId={selectedOsId} 
+                osNumber={selectedOs?.os_number} 
+                activities={workOrderActivities} 
+                users={users}
+            />
 
-            {/* BOTÃO DE RELATÓRIO POSICIONADO ACIMA DA TABELA À DIREITA */}
             {selectedIds.length > 0 && (
                 <div className="absolute right-4 top-3 z-20">
                     <button 
@@ -180,7 +181,6 @@ export default function WeeklyProgressTable({
                 </div>
             )}
 
-            {/* ÁREA DA TABELA (ESTILO EXCEL) */}
             <div className="flex-1 overflow-auto bg-slate-900 border border-slate-600 custom-scrollbar mt-0">
                 <table className="min-w-full border-collapse text-left text-[11px] whitespace-nowrap">
                     <thead className="sticky top-0 z-10 bg-slate-800 border-b-2 border-slate-600 text-slate-300 uppercase shadow-sm">
@@ -188,6 +188,7 @@ export default function WeeklyProgressTable({
                             <th className="border border-slate-600 px-2 py-1.5 text-center w-8 bg-slate-700/50">
                                 <input type="checkbox" checked={isAllFilteredSelected} onChange={toggleSelectAll} className="rounded border-slate-500 bg-slate-900 text-blue-500 focus:ring-blue-500 cursor-pointer h-3 w-3" />
                             </th>
+                            <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Prazo</th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold cursor-pointer hover:bg-slate-700 select-none text-center" onClick={() => handleSort('os_number')}>OS <SortIcon columnKey="os_number" /></th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold cursor-pointer hover:bg-slate-700 select-none text-center" onClick={() => handleSort('ss_number')}>SS <SortIcon columnKey="ss_number" /></th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold cursor-pointer hover:bg-slate-700 select-none text-center" onClick={() => handleSort('created_at')}>Data<SortIcon columnKey="created_at" /></th>
@@ -197,16 +198,16 @@ export default function WeeklyProgressTable({
                             <th className="border border-slate-600 px-2 py-1.5 font-bold">Descrição</th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Tipo</th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Prioridade</th>
-                            <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Status</th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Periodicidade</th>
+                            <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Status</th>
                             <th className="border border-slate-600 px-2 py-1.5 font-bold text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {sortedAndFilteredWorkOrders.length === 0 ? (
                             <tr>
-                                <td colSpan="12" className="border border-slate-700 px-2 py-4 text-center text-slate-500 bg-slate-900">
-                                    {weekStart ? "Nenhuma OS encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
+                                <td colSpan="14" className="border border-slate-700 px-2 py-4 text-center text-slate-500 bg-slate-900">
+                                    {weekStart ? "Nenhuma OS em andamento ou aberta encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
                                 </td>
                             </tr>
                         ) : (
@@ -214,6 +215,15 @@ export default function WeeklyProgressTable({
                                 const equip = os.equipment || {};
                                 const vessel = equip.vessel || {};
                                 const isSelected = selectedIds.includes(os.id);
+
+                                // Lógica de verificação do Atraso
+                                const [dPart] = (os.created_at || '').split('T');
+                                const [y, m, d] = (dPart || '').split('-');
+                                const osDate = new Date(y, m - 1, d, 12, 0, 0);
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                // Só consideramos atrasada se a data passou E a OS não foi concluída/cancelada
+                                const isDelayed = osDate < today && os.status !== 'completed' && os.status !== 'cancelled';
                                 
                                 return (
                                     <tr 
@@ -224,8 +234,19 @@ export default function WeeklyProgressTable({
                                         <td className="border border-slate-700 px-2 py-1 text-center" onClick={(e) => e.stopPropagation()}>
                                             <input type="checkbox" checked={isSelected} onChange={(e) => toggleSelectRow(e, os.id)} className="rounded border-slate-500 bg-slate-900 text-blue-500 focus:ring-blue-500 cursor-pointer h-3 w-3" />
                                         </td>
-                                        <td className="border border-slate-700 px-2 py-1 font-mono text-blue-300">{os.os_number || '-'}</td>
-                                        <td className="border border-slate-700 px-2 py-1 font-mono text-emerald-300">{os.ss_number || '-'}</td>
+                                        <td className="border border-slate-700 px-2 py-1 text-center">
+                                            {isDelayed ? (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-red-500 ring-1 ring-inset ring-red-500/20">
+                                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-300 ring-1 ring-inset ring-slate-600">
+                                                    <svg className="h-3 w-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="border border-slate-700 px-2 py-1 font-mono text-blue-300 text-center">{os.os_number || '-'}</td>
+                                        <td className="border border-slate-700 px-2 py-1 font-mono text-emerald-300 text-center">{os.ss_number || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-slate-300 text-center">{os.created_at ? os.created_at.substring(0, 10).split('-').reverse().join('/') : '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 font-bold text-white text-center">{vessel.tag || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 font-mono text-slate-400">{equip.tag_number || '-'}</td>
@@ -233,8 +254,8 @@ export default function WeeklyProgressTable({
                                         <td className="border border-slate-700 px-2 py-1 text-slate-400 max-w-[250px] truncate" title={os.description}>{os.description}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center text-slate-300">{os.maintenance_type === 'corrective' ? 'CORR' : os.maintenance_type === 'preventive' ? 'PREV' : 'PRED'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderPriorityBadge(os.priority)}</td>
-                                        <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderStatusBadge(os.status)}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderPeriodicityBadge(os.periodicity)}</td>
+                                        <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderStatusBadge(os.status)}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button onClick={(e) => { e.stopPropagation(); handleExportPDF(os); }} className="text-slate-400 hover:text-emerald-400 transition-colors" title="Download OS Individual">

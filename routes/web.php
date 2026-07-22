@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderActivityController;
 use App\Http\Controllers\CrewController;
@@ -22,17 +25,16 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'third_party'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'third_party'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::get('/vessels', [VesselController::class, 'index'])->name('vessels.index');
     Route::get('/vessels/{id}', [VesselController::class, 'show'])->name('vessels.show');
 
@@ -54,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/work-order-activities', [WorkOrderActivityController::class, 'store'])->name('work-order-activities.store');
     Route::put('/work-order-activities/{id}', [WorkOrderActivityController::class, 'update'])->name('work-order-activities.update'); 
     Route::delete('/work-order-activities/{id}', [WorkOrderActivityController::class, 'destroy'])->name('work-order-activities.destroy');
+    Route::put('/work-orders/{id}/intern-status', [WorkOrderController::class, 'updateInternStatus'])->name('work-orders.intern-status');
+    Route::put('/work-orders/{id}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.update-status');
 
     # Users routes
     Route::get('/crew', [UserController::class, 'index'])->name('crew.index');
@@ -64,6 +68,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/crew/{id}/restore', [UserController::class, 'restore'])->name('crew.restore');
 
     Route::put('/vessels/{id}', [VesselController::class, 'update'])->name('vessels.update');
+
+    // Terceiros (empresas terceirizadas) — gestão restrita a managers
+    Route::get('/third-parties', [ThirdPartyController::class, 'index'])->name('third-parties.index');
+    Route::post('/third-parties', [ThirdPartyController::class, 'store'])->name('third-parties.store');
+    Route::put('/third-parties/{id}', [ThirdPartyController::class, 'update'])->name('third-parties.update');
+    Route::delete('/third-parties/{id}', [ThirdPartyController::class, 'destroy'])->name('third-parties.destroy');
+    Route::post('/third-parties/{id}/restore', [ThirdPartyController::class, 'restore'])->name('third-parties.restore');
+
+    // Notificações do perfil (sino)
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
 
     Route::resource('dry-dockings', DryDockingController::class);
 });

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useForm, router } from '@inertiajs/react';
+import { useForm, router, usePage } from '@inertiajs/react';
 
-export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [] }) {
+export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], currentUser }) {
     const [mounted, setMounted] = useState(false);
-    
+
+    // Empresas terceirizadas disponíveis para vincular (vem das props da página)
+    const thirdParties = usePage().props.thirdParties ?? [];
+
     const { data, setData, put, processing, errors, reset } = useForm({
         equipment_id: '',
         description: '',
@@ -13,6 +16,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         status: '',
         periodicity: '',
         vendor_name: '',
+        third_party_id: '',
         estimated_hours: '',
         created_at: '',
     });
@@ -35,6 +39,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 status: osData.status || 'open',
                 periodicity: osData.periodicity || '',
                 vendor_name: osData.vendor_name || '',
+                third_party_id: osData.third_party_id || '',
                 estimated_hours: osData.estimated_hours || '',
                 created_at: formattedDate,
             });
@@ -61,8 +66,25 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
     if (!isOpen || !mounted || !osData) return null;
 
+    // Identificação do Equipamento Atual e sua Embarcação
     const currentEq = equipments.find(x => x.id === data.equipment_id);
     const vesselPrefix = currentEq?.vessel?.tag || currentEq?.vessel?.prefix || '-';
+    const eqVesselId = currentEq?.vessel_id || currentEq?.vessel?.id;
+
+    // Lógica de Permissão de Edição Global
+    const roleName = String(currentUser?.role?.name || currentUser?.role || '').toLowerCase();
+    const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
+    const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
+    const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
+    
+    const userVesselId = currentUser?.vessel_id;
+    const isLinkedToVessel = String(eqVesselId) === String(userVesselId);
+
+    // O modal só é editável se for TI, Engenheiro, ou o Estagiário daquela exata embarcação
+    const canEdit = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
+
+    // Estilo padrão para os inputs dependendo da permissão
+    const inputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canEdit ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
 
     return createPortal(
         <>
@@ -79,11 +101,14 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                     <div className="flex shrink-0 items-center justify-between border-b border-slate-700/50 bg-slate-900 px-6 py-4">
                         <div>
                             <h3 className="text-base font-bold text-white flex items-center gap-2">
-                                Edição de Ordem de Serviço
+                                {canEdit ? 'Edição de Ordem de Serviço' : 'Visualização de Ordem de Serviço'}
                                 <span className="bg-slate-800 text-blue-400 px-2 py-0.5 rounded text-xs font-mono border border-slate-700">
                                     {osData.os_number}
                                 </span>
                             </h3>
+                            {!canEdit && (
+                                <p className="text-[10px] text-orange-400 mt-1">Você não tem permissão para editar os dados desta OS.</p>
+                            )}
                         </div>
                         
                         <button onClick={onClose} type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
@@ -94,15 +119,49 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                     <div className="custom-scrollbar flex-1 overflow-y-auto bg-slate-900 p-6">
                         <form id="editOsForm" onSubmit={submit} className="space-y-6">
                             
+                            {/* INFORMAÇÕES DE VALIDAÇÃO (SOMENTE LEITURA) */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
+                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Validação Prévia (Pelo Estagiário)
+                                </h4>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-[10px] font-medium text-slate-500 uppercase tracking-wider">Status da Validação</label>
+                                        <div className="text-sm font-bold text-white">
+                                            {osData.intern_status === 'approved' ? (
+                                                <span className="text-emerald-400 flex items-center gap-1.5"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Aprovada</span>
+                                            ) : osData.intern_status === 'waiting' ? (
+                                                <span className="text-orange-400 flex items-center gap-1.5"><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>Aguardando Insumo</span>
+                                            ) : (
+                                                <span className="text-slate-400">Pendente</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-[10px] font-medium text-slate-500 uppercase tracking-wider">Validado Por</label>
+                                        <div className="text-sm font-medium text-slate-300">{osData.intern_name || '-'}</div>
+                                    </div>
+                                    <div className="sm:col-span-3">
+                                        <label className="mb-1 block text-[10px] font-medium text-slate-500 uppercase tracking-wider">Motivo do Atraso / Falta de Material</label>
+                                        <div className="text-sm text-slate-400 bg-slate-950/50 p-2.5 rounded-md border border-slate-700/50 min-h-[44px]">
+                                            {osData.intern_reason || 'Nenhuma observação registrada.'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* IDENTIFICAÇÃO DO ATIVO */}
                             <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
                                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Identificação do Ativo</h4>
                                 
                                 <div className="grid grid-cols-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Equipamento <span className="text-red-500">*</span></label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Equipamento {canEdit && <span className="text-red-500">*</span>}</label>
                                     <select 
                                         value={data.equipment_id} 
                                         onChange={e => setData('equipment_id', e.target.value)} 
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                        disabled={!canEdit}
+                                        className={inputClasses}
                                     >
                                         <option value="">Selecione o Equipamento...</option>
                                         {equipments.map(eq => (
@@ -134,18 +193,19 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 )}
                             </div>
 
+                            {/* RESTANTE DO FORMULÁRIO */}
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. <span className="text-red-500">*</span></label>
-                                    <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} disabled={!canEdit} className={inputClasses}>
                                         <option value="corrective">Corretiva</option>
                                         <option value="preventive">Preventiva</option>
                                         <option value="predictive">Preditiva</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade <span className="text-red-500">*</span></label>
-                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} disabled={!canEdit} className={inputClasses}>
                                         <option value="low">Baixa</option>
                                         <option value="medium">Média</option>
                                         <option value="high">Alta</option>
@@ -153,17 +213,23 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status <span className="text-red-500">*</span></label>
-                                    <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select 
+                                        value={data.status} 
+                                        onChange={e => setData('status', e.target.value)} 
+                                        disabled={!canEdit}
+                                        className={inputClasses}
+                                    >
                                         <option value="open">Aberto (Não Iniciado)</option>
                                         <option value="in_progress">Em Andamento</option>
+                                        <option value="scheduled">Agendada (Futuro)</option>
                                         <option value="completed">Concluída</option>
                                         <option value="cancelled">Cancelada</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
-                                    <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                    <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} disabled={!canEdit} className={inputClasses}>
                                         <option value="">Nenhuma (Avulsa)</option>
                                         <option value="monthly">Mensal</option>
                                         <option value="bimonthly">Bimestral</option>
@@ -194,41 +260,48 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                         min="0"
                                         value={data.estimated_hours} 
                                         onChange={e => setData('estimated_hours', e.target.value)}
+                                        disabled={!canEdit}
                                         placeholder="Ex: 2.5" 
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" 
+                                        className={inputClasses} 
                                     />
                                     {errors.estimated_hours && <span className="text-xs text-red-500">{errors.estimated_hours}</span>}
                                 </div>
 
                                 <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS <span className="text-red-500">*</span></label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS {canEdit && <span className="text-red-500">*</span>}</label>
                                     <input 
                                         type="date" 
                                         value={data.created_at} 
                                         onChange={e => setData('created_at', e.target.value)}
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]"
+                                        disabled={!canEdit}
+                                        className={`${inputClasses} [color-scheme:dark]`}
                                     />
                                     {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
                                 </div>
 
                                 <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Terceirizado</label>
-                                    <input 
-                                        type="text" 
-                                        value={data.vendor_name} 
-                                        onChange={e => setData('vendor_name', e.target.value)}
-                                        placeholder="Ex: Naval Alpha" 
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" 
-                                    />
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Empresa Terceirizada (perfil)</label>
+                                    <select
+                                        value={data.third_party_id}
+                                        onChange={e => setData('third_party_id', e.target.value)}
+                                        disabled={!canEdit}
+                                        className={inputClasses}
+                                    >
+                                        <option value="">Nenhuma (OS interna)</option>
+                                        {thirdParties.map(tp => (
+                                            <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço <span className="text-red-500">*</span></label>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço {canEdit && <span className="text-red-500">*</span>}</label>
                                 <textarea 
                                     rows="4" 
                                     value={data.description} 
                                     onChange={e => setData('description', e.target.value)}
-                                    className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                    disabled={!canEdit}
+                                    className={`${inputClasses} resize-none`}
                                 />
                                 {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
                             </div>
@@ -240,16 +313,23 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                         <button 
                             type="button" 
                             onClick={handleDelete}
-                            disabled={processing}
-                            className="text-sm font-medium text-red-500 hover:text-red-400 transition-colors disabled:opacity-50 flex items-center"
+                            disabled={processing || !canEdit}
+                            className="text-sm font-medium text-red-500 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center"
                         >
                             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             Excluir OS
                         </button>
                         
                         <div className="flex gap-3">
-                            <button onClick={onClose} disabled={processing} type="button" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 disabled:opacity-50">Cancelar</button>
-                            <button type="submit" form="editOsForm" disabled={processing} className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50">
+                            <button onClick={onClose} disabled={processing} type="button" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 disabled:opacity-50">
+                                {canEdit ? 'Cancelar' : 'Fechar'}
+                            </button>
+                            <button 
+                                type="submit" 
+                                form="editOsForm" 
+                                disabled={processing || !canEdit} 
+                                className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
                                 {processing ? 'Salvando...' : 'Salvar Alterações'}
                             </button>
                         </div>
