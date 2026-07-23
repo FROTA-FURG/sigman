@@ -30,9 +30,9 @@ class DatabaseSeeder extends Seeder
             'username' => 'Ryan de Leon',
             'nickname' => 'Ryan',
             'role_id' => $devRole->id,
-            'cpf' => '111.111.222-99',
-            'email' => 'ryan@gmail.com',
-            'password' => Hash::make('senha123'),
+            'cpf' => '014.465.370-21',
+            'email' => 'ryanbleon0@gmail.com',
+            'password' => Hash::make('Senhasigman#'),
         ]);
     }
 }
