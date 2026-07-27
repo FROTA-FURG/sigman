@@ -52,6 +52,13 @@ function SpectatorPlayer() {
         // console.log(
         //     `Posição -> X: ${state.camera.position.x.toFixed(2)} | Y: ${state.camera.position.y.toFixed(2)} | Z: ${state.camera.position.z.toFixed(2)}`
         // );
+        // const anguloX = THREE.MathUtils.radToDeg(state.camera.rotation.x);
+        // const anguloY = THREE.MathUtils.radToDeg(state.camera.rotation.y);
+        // const anguloZ = THREE.MathUtils.radToDeg(state.camera.rotation.z);
+
+        // console.log(
+        //     `Angulação (Graus) -> X: ${anguloX.toFixed(2)}° | Y: ${anguloY.toFixed(2)}° | Z: ${anguloZ.toFixed(2)}°`
+        // );
     });
 
 
@@ -133,10 +140,16 @@ export default function VesselModel({ modelPath, vesselName }) {
     const getModelTransforms = (name) => {
         // Se for a Lancha Larus, retorna os valores específicos dela
         if (name === 'Lancha Larus') {
-            console.log("CHegou aqui")
             return {
                 scale: [4, 4, 4], // <-- AJUSTE A ESCALA DA LARUS AQUI
                 position: [0, -1, 0]    // <-- AJUSTE A POSIÇÃO DA LARUS AQUI
+            };
+        }
+
+        if (name === 'Atlântico Sul') {
+            return {
+                scale: [4, 4, 4], // <-- AJUSTE A ESCALA Do AS AQUI
+                position: [0, -1, 0]   // <-- AJUSTE A POSIÇÃO DO AS AQUI
             };
         }
 
@@ -156,6 +169,11 @@ export default function VesselModel({ modelPath, vesselName }) {
     if (vesselName && vesselName.toLowerCase() === 'lancha larus') {
         cameraPosition = [-1.4, -1.0, -4.9]; 
         cameraRotation = [0, THREE.MathUtils.degToRad(235), 0];
+    }
+
+    if (vesselName && vesselName.toLowerCase() === 'atlântico sul') {
+        cameraPosition = [-8, 3, -1]; 
+        cameraRotation = [THREE.MathUtils.degToRad(-24.05), THREE.MathUtils.degToRad(-50.32), THREE.MathUtils.degToRad(-20.15)];
     }
 
     return (

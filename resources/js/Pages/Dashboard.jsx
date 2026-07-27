@@ -3,66 +3,46 @@ import { Head, usePage } from '@inertiajs/react';
 
 // Importando nossos componentes modulares
 import KpiCards from '@/Components/Dashboard/KpiCards';
+import VesselTelemetryCards from '@/Components/Dashboard/VesselTelemetryCards';
 import MaintenanceStatus from '@/Components/Dashboard/MaintenanceStatus';
 import MonthlyChart from '@/Components/Dashboard/MonthlyChart';
 import MaintenanceComplianceCharts from '@/Components/Dashboard/MaintenanceComplianceCharts';
 import ServiceRequestsTable from '@/Components/Dashboard/ServiceRequestsTable';
 import WorkOrdersTable from '@/Components/Dashboard/WorkOrdersTable';
 
-export default function Dashboard() {
+export default function Dashboard({ vessels = [] }) {
     const user = usePage().props.auth.user;
 
     return (
         <SIGMANLayout>
             <Head title="Dashboard | SIGMAN" />
 
-            <div className="flex h-full flex-col space-y-4 overflow-hidden">
+            {/* Painel de parede: preenche a tela toda, sem scroll (notebook, monitor e TV) */}
+            <div className="flex h-full min-h-0 flex-col gap-3">
 
-                <div className="shrink-0 border-b border-slate-800 pb-2">
-                    <h2 className="text-xl font-bold leading-tight text-white">
-                        Painel de Controle SIGMAN
-                    </h2>
-                    <p className="text-xs text-slate-400">Acompanhe os principais indicadores de manutenção da frota.</p>
+                <div className="flex shrink-0 items-center justify-between border-b border-slate-800 pb-2">
+                    <div>
+                        <h2 className="text-lg font-bold leading-tight text-white">Painel de Controle SIGMAN</h2>
+                        <p className="text-[11px] text-slate-400">Monitoramento e indicadores de manutenção da frota.</p>
+                    </div>
                 </div>
 
                 <div className="shrink-0">
                     <KpiCards />
                 </div>
 
-                <div className="flex-1 flex flex-col gap-4 min-h-0">
-                    
-                    <div className="shrink-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-                        <div className="min-w-0 h-full">
-                            <MonthlyChart />
-                        </div>
-                        
-                        <div className="min-w-0 h-full">
-                            <MaintenanceStatus />
-                        </div>
-
-                        <div className="min-w-0 h-full">
-                            <MaintenanceComplianceCharts /> 
-                        </div>
-
-                    </div>
-
-                    
-
-                    {/* <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        
-                        <div className="min-h-0 overflow-y-auto rounded-xl ring-1 ring-slate-800 custom-scrollbar flex flex-col">
-                            <ServiceRequestsTable />
-                        </div>
-
-                        <div className="min-h-0 overflow-y-auto rounded-xl ring-1 ring-slate-800 custom-scrollbar flex flex-col">
-                            <WorkOrdersTable />
-                        </div>
-
-                    </div> */}
-
+                {/* Monitoramento da frota (telemetria) — seção principal, cresce mais */}
+                <div className="min-h-0 flex-[3]">
+                    <VesselTelemetryCards vessels={vessels} />
                 </div>
-                
+
+                {/* Indicadores compactos — última linha */}
+                <div className="grid min-h-0 flex-[2] grid-cols-1 gap-3 lg:grid-cols-3">
+                    <div className="min-h-0 min-w-0"><MonthlyChart /></div>
+                    <div className="min-h-0 min-w-0"><MaintenanceStatus /></div>
+                    <div className="min-h-0 min-w-0"><MaintenanceComplianceCharts /></div>
+                </div>
+
             </div>
         </SIGMANLayout>
     );

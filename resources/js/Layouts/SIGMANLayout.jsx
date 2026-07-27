@@ -159,7 +159,7 @@ export default function SIGMANLayout({ children }) {
             {/* ==========================================
                 ÁREA PRINCIPAL (Sem Top Bar)
             ========================================== */}
-            <main className="relative flex-1 overflow-y-auto bg-[#020d1c] p-4 sm:p-6 lg:p-8">
+            <main className="relative flex-1 overflow-y-auto bg-[#020d1c] p-3 sm:p-4">
                 {/* Sino de notificações do perfil (OS disparadas) */}
                 <NotificationBell />
 

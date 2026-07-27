@@ -69,8 +69,8 @@ export default function StaticVesselViewer({ modelPath, name }) {
     }
 
     if (name && name.toLowerCase() === 'atlântico sul') {
-        cameraPosition = [-1.2, -1.0, -5.2]; 
-        cameraRotation = [0, THREE.MathUtils.degToRad(235), 0];
+        cameraPosition = [-6.5, 0.8, -1.5];
+        cameraRotation = [0, THREE.MathUtils.degToRad(-40), 0];
     }
 
     return (

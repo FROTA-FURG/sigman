@@ -19,7 +19,7 @@ class VesselSeeder extends Seeder
                 'active_wos' => 4,
                 'pending_srs' => 2,
                 'last_inspection' => '2023-07-12',
-                'model_path' => '/models/CMI_SIGMAN.glb',
+                'model_path' => '/models/AS_SIGMAN.glb',
                 'dimensions' => ['length' => '32m', 'beam' => '8m', 'draft' => '2.5m'],
                 'builder' => 'INACE',
                 'year' => '2010'

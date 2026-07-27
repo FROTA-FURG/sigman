@@ -1,132 +1,72 @@
 import React from 'react';
-import Chart from 'react-apexcharts';
+
+/*
+ * Custos por mês — barras agrupadas (Faturamento x Custo) em CSS puro,
+ * com eixos Y (R$ mil) e X (meses) rotulados. Compacto para caber no painel.
+ */
+const DATA = [
+    { mes: 'Jan', faturamento: 100000, custo: 100000 },
+    { mes: 'Fev', faturamento: 40000, custo: 45000 },
+    { mes: 'Mar', faturamento: 42000, custo: 54000 },
+    { mes: 'Abr', faturamento: 12000, custo: 12000 },
+];
+
+const fmtK = (v) => `${Math.round(v / 1000)}`;
 
 export default function MonthlyChart() {
-    // Logic: Sample Internal Data (Matching image trend)
-    const monthlySeries = [
-        {
-            name: 'Faturamento',
-            data: [100000, 40000, 42000, 12000] // Jan, Fev, Mar, Abr
-        },
-        {
-            name: 'Custo de Manutenção',
-            data: [100000, 45000, 54000, 12000] // Jan, Fev, Mar, Abr
-        }
-    ];
-
-    // ApexCharts Configurations
-    const monthlyOptions = {
-        chart: {
-            type: 'bar',
-            background: 'transparent',
-            toolbar: { show: false },
-            fontFamily: 'inherit',
-            foreColor: '#94a3b8' // slate-400 for axis labels
-        },
-        theme: {
-            mode: 'dark'
-        },
-        // Using Slate Gray for Revenue and Vibrant Blue for Cost
-        colors: ['#64748b', '#3b82f6'], 
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '60%',
-                borderRadius: 4,
-                borderRadiusApplication: 'end', // Rounds only the top of bars
-            },
-        },
-        stroke: {
-            show: true,
-            width: 3,
-            colors: ['transparent'] // Separates grouped bars
-        },
-        
-        // Data labels enabled on top of bars (like reference image)
-        dataLabels: {
-            enabled: true,
-            formatter: (val) => (val / 1000) + ' Mil', // Format values as 'Mil'
-            style: {
-                fontSize: '11px',
-                fontWeight: 'bold',
-                colors: ['#ffffff'] // White text
-            },
-            dropShadow: {
-                enabled: true,
-                blur: 1,
-                opacity: 0.5
-            }
-        },
-        
-        xaxis: {
-            categories: ['Janeiro', 'Fevereiro', 'Março', 'Abril'],
-            labels: {
-                style: {
-                    fontSize: '13px',
-                }
-            }
-        },
-        yaxis: {
-            labels: {
-                // Formatting Y-axis to match 'Mil' labels
-                formatter: (val) => (val / 1000) + ' Mil',
-                style: {
-                    fontSize: '10px',
-                }
-            },
-            title: {
-                // text: 'Soma de Faturamento e Custo de...',
-                style: {
-                    color: '#94a3b8',
-                    fontWeight: 500,
-                    fontSize: '11px'
-                }
-            }
-        },
-        legend: {
-            position: 'top',
-            horizontalAlign: 'right',
-            labels: {
-                colors: '#f1f5f9' // slate-100 for legend text
-            },
-            markers: {
-                width: 10,
-                height: 10,
-                radius: 12
-            }
-        },
-        tooltip: {
-            y: {
-                // Currency formatting in tooltip hover
-                formatter: (val) => 'R$ ' + val.toLocaleString()
-            }
-        },
-        grid: {
-            borderColor: '#334155', // slate-700 grid lines
-            strokeDashArray: 4, // Dashed lines
-        }
-    };
+    const rawMax = Math.max(...DATA.flatMap((d) => [d.faturamento, d.custo]));
+    // Arredonda o topo para um múltiplo "redondo" de 25 mil
+    const max = Math.ceil(rawMax / 25000) * 25000;
+    const ticks = [max, max * 0.75, max * 0.5, max * 0.25, 0]; // topo -> base
 
     return (
-        // Mantemos min-w-0, mas o segredo está no bloco de baixo
-        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-blue-500/50">
-            
-            <div className="flex shrink-0 items-center justify-between border-b border-slate-700/50 px-4 py-2 sm:px-6">
-                <h3 className="text-base font-semibold text-white">
-                   Faturamento X Custo de Manutenção
-                </h3>
-            </div>
-            
-            <div className="block w-full max-w-full p-2 sm:p-4 pl-0">
-                <Chart
-                    options={monthlyOptions}
-                    series={monthlySeries}
-                    type="bar"
-                    height={280}
-                    width="100%"
-                />
+        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-sky-500/50">
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2.5">
+                <h3 className="text-sm font-semibold text-white">Custos por Mês <span className="text-[10px] font-normal text-slate-500">(R$ mil)</span></h3>
+                <div className="flex items-center gap-3 text-[10px] font-medium">
+                    <span className="flex items-center gap-1 text-sky-400"><span className="h-2 w-2 rounded-full bg-sky-400" />Faturamento</span>
+                    <span className="flex items-center gap-1 text-orange-400"><span className="h-2 w-2 rounded-full bg-orange-400" />Custo</span>
+                </div>
             </div>
 
+            <div className="flex flex-1 gap-1.5 px-3 pb-2 pt-3">
+                {/* Eixo Y (valores em R$ mil) */}
+                <div className="flex flex-col">
+                    <div className="flex flex-1 flex-col justify-between pr-1 text-right text-[9px] tabular-nums text-slate-500">
+                        {ticks.map((t) => <span key={t} className="leading-none">{fmtK(t)}</span>)}
+                    </div>
+                    <div className="h-[14px]" /> {/* alinha com os rótulos do eixo X */}
+                </div>
+
+                {/* Área do gráfico */}
+                <div className="flex flex-1 flex-col">
+                    <div className="relative flex-1">
+                        {/* Linhas de grade horizontais */}
+                        {ticks.map((t, i) => (
+                            <div key={i} className="absolute left-0 right-0 border-t border-slate-800/70" style={{ top: `${(i / (ticks.length - 1)) * 100}%` }} />
+                        ))}
+                        {/* Barras */}
+                        <div className="absolute inset-0 flex items-end justify-around">
+                            {DATA.map((d) => (
+                                <div key={d.mes} className="flex h-full w-full items-end justify-center gap-1">
+                                    <div className="group relative flex w-1/3 max-w-[20px] items-end justify-center rounded-t bg-sky-500/90 shadow-[0_0_8px_rgba(56,189,248,0.35)] transition-all hover:bg-sky-400"
+                                         style={{ height: `${(d.faturamento / max) * 100}%` }}>
+                                        <span className="absolute -top-4 whitespace-nowrap text-[9px] font-bold text-sky-300 opacity-0 transition group-hover:opacity-100">R$ {fmtK(d.faturamento)} mil</span>
+                                    </div>
+                                    <div className="group relative flex w-1/3 max-w-[20px] items-end justify-center rounded-t bg-orange-500/90 shadow-[0_0_8px_rgba(249,115,22,0.35)] transition-all hover:bg-orange-400"
+                                         style={{ height: `${(d.custo / max) * 100}%` }}>
+                                        <span className="absolute -top-4 whitespace-nowrap text-[9px] font-bold text-orange-300 opacity-0 transition group-hover:opacity-100">R$ {fmtK(d.custo)} mil</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {/* Eixo X (meses) */}
+                    <div className="flex justify-around pt-1 text-[10px] font-medium text-slate-400">
+                        {DATA.map((d) => <span key={d.mes} className="w-full text-center">{d.mes}</span>)}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Vessel;
 use App\Models\WorkOrder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +21,14 @@ class DashboardController extends Controller
             return $this->thirdPartyDashboard($user->third_party_id);
         }
 
-        return Inertia::render('Dashboard');
+        return Inertia::render('Dashboard', [
+            // Embarcações reais da frota. A telemetria (localização, motor, óleo etc.)
+            // ainda não existe — é simulada no front até a integração dos sensores.
+            'vessels' => Vessel::orderBy('name')->get([
+                'id', 'name', 'type', 'status', 'navigation_status', 'health_score', 'location',
+                'last_inspection', 'builder', 'year',
+            ]),
+        ]);
     }
 
     private function thirdPartyDashboard(?string $thirdPartyId)

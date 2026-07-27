@@ -33,6 +33,8 @@ class VesselController extends Controller
                 'tag' => $vessel->tag,
                 'type' => $vessel->type ?? $vessel->class, 
                 'status' => $vessel->status,
+                'navigationStatus' => $vessel->navigation_status ?? 'Atracada',
+                'location' => $vessel->location,
                 'healthScore' => $vessel->health_score,
                 'activeWOs' => $vessel->active_wos,
                 'pendingSRs' => $vessel->pending_srs,
@@ -68,6 +70,7 @@ class VesselController extends Controller
             'type' => $vessel->type ?? $vessel->class, 
             'status' => $vessel->status,                                    // Ex: "Operacional" ou "Com Problema"
             'navigationStatus' => $vessel->navigation_status ?? 'Atracada', // Ex: "Navegando" ou "Atracada"
+            'location' => $vessel->location,
             'healthScore' => $vessel->health_score,
             'activeWOs' => $vessel->active_wos,
             'pendingSRs' => $vessel->pending_srs,

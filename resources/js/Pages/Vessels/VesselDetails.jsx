@@ -153,7 +153,10 @@ export default function VesselShow({ vessel, equipments = [], users = [] }) {
                             <div className="rounded-lg bg-slate-900/50 p-4 border border-slate-800">
                                 <span className="text-xs text-slate-400 uppercase font-semibold">Índice de Saúde</span>
                                 <div className="mt-1 flex items-end gap-2">
-                                    <span className="text-3xl font-black text-yellow-500">{vessel.healthScore}%</span>
+                                    <span className={`text-3xl font-black ${vessel.healthScore >= 90 ? 'text-emerald-500' : vessel.healthScore >= 70 ? 'text-yellow-500' : 'text-red-500'}`}>{vessel.healthScore}%</span>
+                                </div>
+                                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                                    <div className={`h-full rounded-full ${vessel.healthScore >= 90 ? 'bg-emerald-500' : vessel.healthScore >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${vessel.healthScore}%` }} />
                                 </div>
                             </div>
                             <div className="rounded-lg bg-slate-900/50 p-4 border border-slate-800">
@@ -162,6 +165,44 @@ export default function VesselShow({ vessel, equipments = [], users = [] }) {
                                     <span className="text-xl font-bold text-white">{vessel.lastInspection}</span>
                                 </div>
                             </div>
+                            <div className="rounded-lg bg-slate-900/50 p-4 border border-slate-800">
+                                <span className="text-xs text-slate-400 uppercase font-semibold">Localização</span>
+                                <div className="mt-1 flex items-center gap-1.5">
+                                    <svg className="h-4 w-4 shrink-0 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <span className="text-sm font-bold text-white">{vessel.location || 'Não informada'}</span>
+                                </div>
+                            </div>
+                            <div className="rounded-lg bg-slate-900/50 p-4 border border-slate-800">
+                                <span className="text-xs text-slate-400 uppercase font-semibold">Navegação</span>
+                                <div className="mt-1.5">{renderNavigationBadge(vessel.navigationStatus)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TELEMETRIA (dados futuros — sensores ainda não integrados) */}
+                    <div className="rounded-xl bg-[#0b203c]/90 border border-slate-800 p-6 shadow-lg backdrop-blur-md">
+                        <div className="mb-4 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-white">Telemetria</h3>
+                            <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-400/80 ring-1 ring-inset ring-sky-500/20">Em breve</span>
+                            <span className="ml-auto text-[11px] text-slate-500">Sensores ainda não integrados</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            {[
+                                { label: 'Posição', unit: 'GPS' },
+                                { label: 'Velocidade', unit: 'kn' },
+                                { label: 'Temp. Motor', unit: '°C' },
+                                { label: 'Pressão Óleo', unit: 'bar' },
+                                { label: 'Combustível', unit: '%' },
+                                { label: 'Bateria', unit: 'V' },
+                                { label: 'Rumo', unit: '°' },
+                                { label: 'Horímetro', unit: 'h' },
+                            ].map((m) => (
+                                <div key={m.label} className="flex flex-col items-center rounded-lg border border-dashed border-slate-700/70 bg-slate-900/30 py-3 text-center">
+                                    <svg className="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                    <span className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">{m.label}</span>
+                                    <span className="text-sm font-bold text-slate-600">— <span className="text-[10px] font-medium text-slate-600">{m.unit}</span></span>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
