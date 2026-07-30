@@ -13,14 +13,20 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    // Perfis que podem excluir a própria conta (espelha o MANAGER_ROLES de ThirdPartyController)
+    private const SELF_DELETE_ROLES = ['dev', 'coordinator', 'engineer'];
+
     /**
      * Display the user's profile form.
      */
     public function edit(Request $request): Response
     {
+        $roleName = $request->user()->role->name ?? null;
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'canDeleteAccount' => in_array($roleName, self::SELF_DELETE_ROLES, true),
         ]);
     }
 
@@ -45,6 +51,12 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $roleName = $request->user()->role->name ?? null;
+
+        if (! in_array($roleName, self::SELF_DELETE_ROLES, true)) {
+            abort(403, 'Seu perfil não tem permissão para excluir a própria conta.');
+        }
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);

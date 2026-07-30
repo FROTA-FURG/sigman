@@ -139,17 +139,23 @@ export default function SIGMANLayout({ children }) {
 
                 {/* Perfil do Usuário no rodapé da Sidebar */}
                 <div className="border-t border-slate-800 p-4">
-                    <div className="flex items-center">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white shadow-inner">
-                            {(user.nickname || user.username).charAt(0)}
-                        </div>
-                        {isSidebarExpanded && (
-                            <div className="ml-3 overflow-hidden">
-                                <p className="truncate text-sm font-medium text-white">{user.name}</p>
-                                <p className="truncate text-xs text-slate-500">{user.email}</p>
+                    <div className={isSidebarExpanded ? 'flex items-center' : 'flex flex-col items-center gap-2'}>
+                        <Link
+                            href={route('profile.edit')}
+                            title="Minha Conta"
+                            className={`flex items-center rounded-lg transition hover:bg-slate-800/60 ${isSidebarExpanded ? 'min-w-0 flex-1 px-1 py-1' : ''}`}
+                        >
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white shadow-inner">
+                                {(user.nickname || user.username).charAt(0)}
                             </div>
-                        )}
-                        <Link href={route('logout')} method="post" as="button" className={`text-slate-500 hover:text-white transition ${isSidebarExpanded ? 'ml-auto' : 'mx-auto mt-3'}`}>
+                            {isSidebarExpanded && (
+                                <div className="ml-3 min-w-0 overflow-hidden">
+                                    <p className="truncate text-sm font-medium text-white">{user.name}</p>
+                                    <p className="truncate text-xs text-slate-500">{user.email}</p>
+                                </div>
+                            )}
+                        </Link>
+                        <Link href={route('logout')} method="post" as="button" className={`shrink-0 text-slate-500 hover:text-white transition ${isSidebarExpanded ? 'ml-2' : ''}`}>
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         </Link>
                     </div>

@@ -21,11 +21,8 @@ export default function Index({ users, roles, vessels, historyUsers }) {
     
     const loggedInUser = users?.find(user => user.id === auth?.user?.id);
     const currentUserRoleName = loggedInUser?.role?.name || '';
-    const canManageUsers = ['dev', 'Coordinator', 'Engineer'].includes(currentUserRoleName);
+    const canManageUsers = ['dev', 'coordinator', 'engineer'].includes(currentUserRoleName);
 
-    console.log("Nome da Role: ", currentUserRoleName);
-    console.log("Pode gerenciar usuários? ", canManageUsers);
-    
     const [searchQuery, setSearchQuery] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);

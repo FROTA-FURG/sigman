@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::post('/crew', [UserController::class, 'store'])->name('crew.store');
     Route::get('/crew/{id}', [UserController::class, 'show'])->name('crew.show');
     Route::put('/crew/{id}', [UserController::class, 'update'])->name('crew.update');
+    Route::put('/crew/{id}/reset-password', [UserController::class, 'resetPassword'])->name('crew.reset-password');
     Route::delete('/crew/{id}', [UserController::class, 'destroy'])->name('crew.destroy');
     Route::post('/crew/{id}/restore', [UserController::class, 'restore'])->name('crew.restore');
 

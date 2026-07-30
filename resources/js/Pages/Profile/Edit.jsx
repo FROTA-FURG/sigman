@@ -1,39 +1,39 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit({ mustVerifyEmail, status, canDeleteAccount }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
+        <SIGMANLayout>
+            <Head title="Minha Conta | SIGMAN" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
+            <div className="mx-auto max-w-3xl space-y-4">
+                <div>
+                    <h1 className="text-xl font-bold text-white">Minha Conta</h1>
+                    <p className="mt-1 text-sm text-slate-400">
+                        Gerencie suas informações de perfil e a senha de acesso ao sistema.
+                    </p>
                 </div>
+
+                <div className="rounded-xl bg-[#0b203c]/90 p-6 shadow-xl ring-1 ring-slate-800 backdrop-blur-md">
+                    <UpdateProfileInformationForm
+                        mustVerifyEmail={mustVerifyEmail}
+                        status={status}
+                    />
+                </div>
+
+                <div className="rounded-xl bg-[#0b203c]/90 p-6 shadow-xl ring-1 ring-slate-800 backdrop-blur-md">
+                    <UpdatePasswordForm />
+                </div>
+
+                {canDeleteAccount && (
+                    <div className="rounded-xl bg-[#0b203c]/90 p-6 shadow-xl ring-1 ring-slate-800 backdrop-blur-md">
+                        <DeleteUserForm />
+                    </div>
+                )}
             </div>
-        </AuthenticatedLayout>
+        </SIGMANLayout>
     );
 }
