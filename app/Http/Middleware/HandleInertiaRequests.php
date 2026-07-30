@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\DryDocking;
+use App\Models\ServiceRequest;
+use App\Models\WorkOrder;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -55,6 +58,20 @@ class HandleInertiaRequests extends Middleware
                         'created_at' => $notification->created_at,
                     ]),
                 'unread_count' => $request->user()->unreadNotifications()->count(),
+            ] : null,
+
+            // Contadores dos badges da sidebar. O terceiro só vê a contagem das próprias OS
+            // (mesmo escopo aplicado em WorkOrderController@index).
+            'sidebarCounts' => fn () => $request->user() ? [
+                'workOrders' => WorkOrder::query()
+                    ->when(
+                        ($request->user()->role->name ?? null) === 'terceiro',
+                        fn ($query) => $query->where('third_party_id', $request->user()->third_party_id)
+                    )
+                    ->whereIn('status', ['open', 'in_progress'])
+                    ->count(),
+                'serviceRequests' => ServiceRequest::where('status', 'pending')->count(),
+                'dryDockings' => DryDocking::whereIn('status', ['planning', 'in_progress'])->count(),
             ] : null,
         ]);
     }

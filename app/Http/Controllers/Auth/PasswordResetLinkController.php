@@ -41,11 +41,23 @@ class PasswordResetLinkController extends Controller
         );
 
         if ($status == Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
+            return back()->with('status', 'Enviamos um link de redefinição de senha para o seu e-mail.');
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans($status)],
+            'email' => [$this->translateStatus($status)],
         ]);
+    }
+
+    /**
+     * O SIGMAN é todo em português — as strings padrão do Password broker vêm em inglês.
+     */
+    private function translateStatus(string $status): string
+    {
+        return match ($status) {
+            Password::INVALID_USER => 'Não encontramos nenhum usuário com esse e-mail.',
+            Password::RESET_THROTTLED => 'Aguarde um pouco antes de solicitar outro link de redefinição.',
+            default => 'Não foi possível enviar o link de redefinição. Tente novamente.',
+        };
     }
 }

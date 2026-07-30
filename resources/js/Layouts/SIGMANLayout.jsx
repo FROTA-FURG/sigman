@@ -5,7 +5,9 @@ import NotificationBell from '@/Components/NotificationBell';
 // Este componente é o layout base que envolve as páginas do sistema
 export default function SIGMANLayout({ children }) {
     // Pega os dados do usuário logado direto do Inertia
-    const user = usePage().props.auth.user;
+    const { auth, sidebarCounts } = usePage().props;
+    const user = auth.user;
+    const counts = sidebarCounts || {};
 
     // Perfil determina o que aparece na sidebar
     const roleName = String(user?.role || '').toLowerCase();
@@ -83,7 +85,11 @@ export default function SIGMANLayout({ children }) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                         {isSidebarExpanded && <span className="font-medium">Ordens de Serviço</span>}
-                        {isSidebarExpanded && <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">12</span>}
+                        {isSidebarExpanded && !!counts.workOrders && (
+                            <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">
+                                {counts.workOrders}
+                            </span>
+                        )}
                     </Link>
 
                     {!isTerceiro && (
@@ -94,7 +100,11 @@ export default function SIGMANLayout({ children }) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
                         {isSidebarExpanded && <span className="font-medium">Solicitações de Serviço</span>}
-                        {isSidebarExpanded && <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">4</span>}
+                        {isSidebarExpanded && !!counts.serviceRequests && (
+                            <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">
+                                {counts.serviceRequests}
+                            </span>
+                        )}
                     </Link>
 
                     {/* Docagens (Ícone de Caixa de Entrada / Inbox) */}
@@ -106,11 +116,11 @@ export default function SIGMANLayout({ children }) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         {isSidebarExpanded && <span className="font-medium">Docagens</span>}
-                        
-                        {/* Este badge pode puxar a quantidade de docagens com status 'planning' ou 'in_progress' */}
-                        {isSidebarExpanded && (
+
+                        {/* Quantidade de docagens com status 'planning' ou 'in_progress' */}
+                        {isSidebarExpanded && !!counts.dryDockings && (
                             <span className="ml-auto rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-semibold text-blue-400">
-                                2
+                                {counts.dryDockings}
                             </span>
                         )}
                     </Link>

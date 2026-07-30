@@ -184,7 +184,7 @@ export default function Index({ users, roles, vessels, historyUsers }) {
 
             <div className="flex h-full flex-col space-y-6">
                 
-                <div className="flex shrink-0 items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex shrink-0 items-center justify-between border-b border-slate-800 pb-4 mr-10">
                     <div>
                         <h2 className="text-xl font-bold leading-tight text-white">Tripulação e Equipe Técnica</h2>
                         <p className="text-xs text-slate-400">Gerencie os funcionários, cargos e alocações da frota.</p>

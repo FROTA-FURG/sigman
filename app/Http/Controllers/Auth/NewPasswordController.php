@@ -59,11 +59,24 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', __($status));
+            return redirect()->route('login')->with('status', 'Sua senha foi redefinida com sucesso! Faça login com a nova senha.');
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans($status)],
+            'email' => [$this->translateStatus($status)],
         ]);
+    }
+
+    /**
+     * O SIGMAN é todo em português — as strings padrão do Password broker vêm em inglês.
+     */
+    private function translateStatus(string $status): string
+    {
+        return match ($status) {
+            Password::INVALID_USER => 'Não encontramos nenhum usuário com esse e-mail.',
+            Password::INVALID_TOKEN => 'Este link de redefinição de senha é inválido ou já expirou.',
+            Password::RESET_THROTTLED => 'Aguarde um pouco antes de tentar novamente.',
+            default => 'Não foi possível redefinir a senha. Tente novamente.',
+        };
     }
 }
