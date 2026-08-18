@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import VesselScopeSelect from './VesselScopeSelect';
 
 const roleMap = {
     'Coordinator': 'Coordenador',
@@ -18,6 +19,7 @@ export default function EditUserModal({ isOpen, onClose, user, roles, vessels })
         cpf: '',
         phone: '',
         vessel_id: '',
+        has_fleet_access: false,
         role_id: '',
         status: 'Active',
     });
@@ -45,6 +47,7 @@ export default function EditUserModal({ isOpen, onClose, user, roles, vessels })
                 cpf: user.cpf || '',
                 phone: user.phone || '',
                 vessel_id: user.vessel_id || '',
+                has_fleet_access: Boolean(user.has_fleet_access),
                 role_id: user.role_id || '',
                 status: user.status || 'Active',
             });
@@ -209,22 +212,15 @@ export default function EditUserModal({ isOpen, onClose, user, roles, vessels })
                                 {errors.role_id && <span className="text-xs text-red-500">{errors.role_id}</span>}
                             </div>
 
-                            <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1">Embarcação Base</label>
-                                <select
-                                    value={data.vessel_id || ''}
-                                    onChange={e => setData('vessel_id', e.target.value)}
-                                    className={`w-full rounded-md border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ${errors.vessel_id ? 'border-red-500' : ''}`}
-                                >
-                                    <option value="">Sem embarcação (Não Alocado)</option>
-                                    {vessels && vessels.map(v => (
-                                        <option key={v.id} value={v.id}>
-                                            {v.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.vessel_id && <p className="mt-1 text-xs text-red-500">{errors.vessel_id}</p>}
-                            </div>
+                            <VesselScopeSelect
+                                roles={roles}
+                                vessels={vessels}
+                                roleId={data.role_id}
+                                vesselId={data.vessel_id}
+                                hasFleetAccess={data.has_fleet_access}
+                                onChange={(scope) => setData(d => ({ ...d, ...scope }))}
+                                error={errors.vessel_id || errors.has_fleet_access}
+                            />
 
 
                             <div className="col-span-2">

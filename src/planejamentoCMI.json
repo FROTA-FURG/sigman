@@ -1,0 +1,1300 @@
+{
+    "legendas": {
+        "FFCCCCCC": "Docagem",
+        "FF6AA84F": "Mensal",
+        "FF0000FF": "Bimestral",
+        "FF00FF00": "Trimestral",
+        "FFFF9900": "Semestral",
+        "FF980000": "Anual"
+    },
+    "equipamentos": [
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Verificação do anticongelante ou anticorrosivo no líquido de arrefecimento",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "9.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "36.0": "Trimestral"
+                },
+                {
+                    "48.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Limpeza do sistema de arrefecimento e troca de líquido de arrefecimento \n(Manual MCP p. 29)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "18.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Substituição do elemento do filtro do vacuômetro (Manual MCP p. 57) ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "18.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Substituição do cartucho de segurança após remover o elemento do filtro de ar \n(Manual do MCP p. 59)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "18.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Verifícação da correia de trânsmissão ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "9.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "36.0": "Trimestral"
+                },
+                {
+                    "48.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Verifícação e ajustes das folgas das válvulas de injetores",
+            "periodicidade": "Docagem",
+            "datas": []
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Bomba de água salgada - Verificar rotor e trocar se necessário.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Limpar a caixa de mar e filtro ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "9.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "36.0": "Trimestral"
+                },
+                {
+                    "48.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Motor - Trocar óleo, substituir filtro de óleo.",
+            "periodicidade": "350 hr/Trimestral",
+            "datas": [
+                {
+                    "9.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "36.0": "Trimestral"
+                },
+                {
+                    "48.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Fixação do motor - veríficar fixações e apertar parafusos, veríficar condições dos  isoladores de vibração.)",
+            "periodicidade": "semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Ânodos de zinco - Verificar condições e trocar se necessário",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Trocar filtro de ventilação do cárter",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Sistema de admissão de ar - Veríficar sistema, mangueiras, braçadeiras e \napertar se necessário.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Filtros - Trocar elementos dos filtros primários e secundários de combustível, Remover \na água e limpar o separador de água.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Correias - Veríficar desgastes das correias Checar tensão de mola do tensor.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Sistema de resfriamento - Veríficar sistema, mangueiras, abraçadeiras, testar pressão da tampa do radiador e testar pressão do sistema.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Trocador de calor - Remover e inspecionar trocador de calor e componentes, \nlimpar o núcleo, reinstalar e apertar parafusos.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Motor - Verificar rotações, conexões de aterramento.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Bomba de água salgada - Verificar rotor e trocar se necessário.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "49.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Motor - Checar e ajustar folgas nas válvulas.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Verificar se o amortecedor de vibração do virabrequim de borracha está rompida, faltando um pedaço ou apresentar alguma inconsistência, substituir. \nVerificação - (1° - posicione o relógio comparador de forma que a sonda entre em \ncontato com o diâmetro externo do amortecedor.\n2° - Com o motor na temperatura operacional gire o virabrequim.\n3° - Observe a leitura do relógio comparador, a excentricidade não pode ultrapassar 1,50 mm)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Bomba de água salgada - Remover e limpar interior, inspecionar e trocar\n engrenagem, reinstalar e apertar parafusos.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Sistema de resfriamento - Testar pressão na tampa e sistema, drenar e descarregar fluído, \ntestar termostatos, limpar sistemas e recarregar com novo fluído",
+            "periodicidade": "Sexênio",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Termostatos - Inspecionar interior da carcaça, trocar juntas, \ntestar temperatura de abertura e fechamento.\n(1° - Inspecione visualmente a área ao redor da carcaça do termostato.\n2° - Drene parcialmente o sistema de refrigerante\n3° - Remova a carcaça do termostato e descarte a junta\n4° - Inspecione e teste os termostatos quanto à temperatura de abertura adequada. ",
+            "periodicidade": "Sexênio",
+            "datas": [
+                {
+                    "49.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB/BE",
+            "descricao_do_eqto": "Guincho de pesca N1GRD-H2.000-80",
+            "atividade": "Revisão de todas as conexões hidráulicas.",
+            "periodicidade": "Bimestral",
+            "datas": [
+                {
+                    "6.0": "Bimestral"
+                },
+                {
+                    "14.0": "Bimestral"
+                },
+                {
+                    "22.0": "Bimestral"
+                },
+                {
+                    "30.0": "Bimestral"
+                },
+                {
+                    "38.0": "Bimestral"
+                },
+                {
+                    "46.0": "Bimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB/BE",
+            "descricao_do_eqto": "Guincho de pesca N1GRD-H2.000-80",
+            "atividade": "Verificar vazamentos de óleo nas caixas redutoras.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB/BE",
+            "descricao_do_eqto": "Guincho de pesca N1GRD-H2.000-80",
+            "atividade": "Verificar aperto dos parafusos do equipamento (mancais, caixa redutora e motor elétrico).",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB/BE",
+            "descricao_do_eqto": "Guincho de pesca N1GRD-H2.000-80",
+            "atividade": "Verificar aperto dos parafusos de fixaçãos do equipamento no convés.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB/BE",
+            "descricao_do_eqto": "Guincho de pesca N1GRD-H2.000-80",
+            "atividade": "Verificar o funcionamento das botoeiras de emergência.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "52.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GTCBB",
+            "descricao_do_eqto": "Guindaste Naval - MUNCK",
+            "atividade": "Sistema elétrico - Inspecionar Contactores, verificar contatos\n verificar níveis de tensão e corrente.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GTCBB",
+            "descricao_do_eqto": "Guindaste Naval - MUNCK",
+            "atividade": "Sistema elétrico - Limpar painéis internamente com jato de ar seco e \nexternamente com pano úmido.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GTCBB",
+            "descricao_do_eqto": "Guindaste Naval - MUNCK",
+            "atividade": "Sistema elétrico - Reapertar os pontos de contato e fazer a limpeza dos mesmos.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "52.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBB/BE",
+            "descricao_do_eqto": "Caixa redutora BB - TWIN DISC",
+            "atividade": "Trocador de calor - Verificação das hastes de zinco e caso mais da metade da haste esteja desgastada, efetuar a substituição.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBB/BE",
+            "descricao_do_eqto": "Caixa redutora BB - TWIN DISC",
+            "atividade": "Caixa reversora - Trocar o óleo, substituir o filtro e limpar o filtro de sucção.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "52.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH02",
+            "descricao_do_eqto": "Central hidráulica Munck e Guincho da âncora - NAVALSUL",
+            "atividade": "Sistema hidráulico - Inspecionar acoplamento flexível e mangueiras",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH02",
+            "descricao_do_eqto": "Central hidráulica Munck e Guincho da âncora - NAVALSUL",
+            "atividade": "Sistema hidráulico - Inspecionar motor e válvulas de alívio.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH02",
+            "descricao_do_eqto": "Central hidráulica Munck e Guincho da âncora - NAVALSUL",
+            "atividade": "Sistema hidráulico - Veríficar vedações/raspadores",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "18.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH01",
+            "descricao_do_eqto": "Central hidráulica do Guincho de Pesca e Oceanográfico - NAVALSUL",
+            "atividade": "Sistema hidráulico - Limpar o filtro de ar, trocar o respiro do reservatório quando estiver \"saturado\".",
+            "periodicidade": "Bimestral",
+            "datas": [
+                {
+                    "6.0": "Bimestral"
+                },
+                {
+                    "15.0": "Bimestral"
+                },
+                {
+                    "26.0": "Bimestral"
+                },
+                {
+                    "36.0": "Bimestral"
+                },
+                {
+                    "46.0": "Bimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH01",
+            "descricao_do_eqto": "Central hidráulica do Guincho de Pesca e Oceanográfico - NAVALSUL",
+            "atividade": "Sistema hidráulico - Reapertar parafusos e conexões.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "2.0": "Semestral"
+                },
+                {
+                    "28.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH03",
+            "descricao_do_eqto": "Central hidráulica do Leme - Dtecto",
+            "atividade": "Sistema hidráulico - Trocar o óleo e substituir o filtro (Acompanhamento com análise de óleo)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "30.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Compressor - Limpar a parte externa do equipamento com detergente neutro",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Válvula de segurança - Verificar o funcionamento da válvula de segurança",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Filtro de Ar - Remover e inspecionar o elemento filtrante do filtro de ar, em caso de obstrução, faça a substituição.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Pressostato - Verificar o funcionamento do pressostato",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Elétrica - Inspecionar as conexões elétricas para proceder o reaperto caso necessário e verificar a integridade dos fios elétricos.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Volante - Verificar o alinhamento da polia com volante ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Correia - Verificar o tensionamento da correia e seu estado de uso.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SAA-CDA01",
+            "descricao_do_eqto": "Compressor de ar",
+            "atividade": "Motor - Verificar o funcionamento do motor elétrico. ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "50.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB ",
+            "descricao_do_eqto": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+            "atividade": "Guincho - Verificar a lubrificação dos rolamentos e buchas, barulhos ou ruídos, vibrações anormais no equipamento.",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "32.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB ",
+            "descricao_do_eqto": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+            "atividade": "Guincho - Revisar todas as conexões hidráulicas e Verificar o desgaste dos roletes do espalhador de cabo.",
+            "periodicidade": "Bimestral",
+            "datas": [
+                {
+                    "2.0": "Mensal"
+                },
+                {
+                    "6.0": "Mensal"
+                },
+                {
+                    "10.0": "Mensal"
+                },
+                {
+                    "14.0": "Mensal"
+                },
+                {
+                    "18.0": "Mensal"
+                },
+                {
+                    "22.0": "Mensal"
+                },
+                {
+                    "26.0": "Mensal"
+                },
+                {
+                    "30.0": "Mensal"
+                },
+                {
+                    "34.0": "Mensal"
+                },
+                {
+                    "38.0": "Mensal"
+                },
+                {
+                    "42.0": "Mensal"
+                },
+                {
+                    "46.0": "Mensal"
+                },
+                {
+                    "50.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB ",
+            "descricao_do_eqto": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+            "atividade": "Guincho - Verificar vazamentos de óleo nas caixas redutoras, verificar aperto dos parafusos do equipamento (mancais, caixa redutora e motor elétrico).",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "5.0": "Bimestral"
+                },
+                {
+                    "14.0": "Bimestral"
+                },
+                {
+                    "22.0": "Bimestral"
+                },
+                {
+                    "30.0": "Bimestral"
+                },
+                {
+                    "38.0": "Bimestral"
+                },
+                {
+                    "46.0": "Bimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB ",
+            "descricao_do_eqto": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+            "atividade": "Guincho - Verificar aperto dos parafusos do equipamento (mancais, caixa redutora e motor elétrico).",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "24.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "52.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB ",
+            "descricao_do_eqto": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+            "atividade": "Guincho - Verificar o funcionamento das botoeiras.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "5.0": "Semestral"
+                },
+                {
+                    "32.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEL-SAOBB",
+            "descricao_do_eqto": "Separadora água e óleo",
+            "atividade": "Tanques - Abrir os tanques de gravidade e de absorção, a fim de verificar a presença de iodo sedimentado. Se esse for o caso, remova-os e limpe os tanques.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "48.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEL-SAOBB",
+            "descricao_do_eqto": "Separadora água e óleo",
+            "atividade": "Tanques - Verificar a camada interna dos tanques e pinte-os, se necessário.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "48.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEL-SAOBB",
+            "descricao_do_eqto": "Separadora água e óleo",
+            "atividade": "Válvula do pistão - Verificar as vedações da válvula do pistão",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "48.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEL-SAOBB",
+            "descricao_do_eqto": "Separadora água e óleo",
+            "atividade": "Separador - Verificar a resistência e os eletrodos.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "48.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SOC",
+            "descricao_do_eqto": "Sistema de óleo combustível",
+            "atividade": "Tanque - Abrir todos os tanques e analizar os níveis de corrosão das paredes",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "21.0": "Semestral"
+                },
+                {
+                    "48.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": " Inspeção termografica / Cabeçotes",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Inspeção termográfica /Bloco do motor",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Inspeção Termográfica/Bloco do motor ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Inspeção Termográfica/Cabeçotes",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBB",
+            "descricao_do_eqto": "Caixa redutora BB - TWIN DISC",
+            "atividade": "Inspeção termográfica /Caixa reversora BB",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBE",
+            "descricao_do_eqto": "Caixa redutora BE - TWIN DISC",
+            "atividade": "Inspeção termográfica/ Caixa reversora  BE",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Inspeção de Ruído /Cabeçotes",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-MCPBB/BE",
+            "descricao_do_eqto": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+            "atividade": "Inspeção de Ruído /Bloco do motor",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBB",
+            "descricao_do_eqto": "Caixa redutora BB - TWIN DISC",
+            "atividade": "Inspeção de Ruído/ Reversora ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBE",
+            "descricao_do_eqto": "Caixa redutora BE - TWIN DISC",
+            "atividade": "Inspeção de Ruído/ Reversora ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Inspeção de Ruído / Bloco do motor",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SEE-MCABB/BE",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+            "atividade": "Inspeção de Ruído /Cabeçotes",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "10.0": "Semestral"
+                },
+                {
+                    "36.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SOC",
+            "descricao_do_eqto": "Sistema de óleo combustível",
+            "atividade": "Tanque - Realizar a limpeza e pintura dos tanques (Docagem)",
+            "periodicidade": "Bi-Anual",
+            "datas": []
+        },
+        {
+            "tag": "CM01-SPP-CREBB",
+            "descricao_do_eqto": "Caixa redutora BB - TWIN DISC",
+            "atividade": "Coletar amostras de óleo para análise de resíduos",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "21.0": "Semestral"
+                },
+                {
+                    "48.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SPP-CREBE",
+            "descricao_do_eqto": "Caixa redutora BE - TWIN DISC",
+            "atividade": "Coletar amostras de óleo para análise de resíduos",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "21.0": "Semestral"
+                },
+                {
+                    "48.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH01",
+            "descricao_do_eqto": "Unidade Eletro Hidráulica 01 - NavalSul",
+            "atividade": "Coletar amostras de óleo para análise de resíduos (RESERVATÓRIO)",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "23.0": "Trimestral"
+                },
+                {
+                    "37.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH02",
+            "descricao_do_eqto": "Unidade Eletro Hidráulica 02 - NavalSul",
+            "atividade": "Coletar amostras de óleo para análise de resíduos (RESERVATÓRIO)",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "23.0": "Trimestral"
+                },
+                {
+                    "37.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SHI-UEH03",
+            "descricao_do_eqto": "Unidade Eletro Hidráulica 03 - Dtecto",
+            "atividade": "Coletar amostras de óleo para análise de resíduos (RESERVATÓRIO)",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "23.0": "Trimestral"
+                },
+                {
+                    "37.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-AFLBB",
+            "descricao_do_eqto": "A - Frame Lateral ",
+            "atividade": "Limpar e aplicar graxa de Lítio (Texaco Marfak MP-02) na bucha",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "22.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-AFLBB",
+            "descricao_do_eqto": "A - Frame Lateral ",
+            "atividade": "Limpar e substituir o filtro ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "22.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-AFRBB",
+            "descricao_do_eqto": "A - Frame de Ré",
+            "atividade": "Limpar e aplicar graxa de Lítio (Texaco Marfak MP-02) na bucha",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "22.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-TREBB",
+            "descricao_do_eqto": "Tambor de rede",
+            "atividade": "Limpar e aplicar graxa de cálcio (Ipiranga Ipiflex li Moly 2 ) nas catracas ou travas do tambor",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "22.0": "Anual"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB",
+            "descricao_do_eqto": "Guincho de pesca BB",
+            "atividade": "Limpar e aplicar graxa de lítio (Texaco Marfak MP-02) no espalhador e cilindro hidráulico",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "22.0": "Trimestral"
+                },
+                {
+                    "38.0": "Trimestral"
+                },
+                {
+                    "50.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GPEBB",
+            "descricao_do_eqto": "Guincho de pesca BB",
+            "atividade": "Limpar e aplicar graxa de lítio (Texaco Marfak MP-02) na bucha",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "46.0": "Semestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GOCBB",
+            "descricao_do_eqto": "Guincho Oceanografico",
+            "atividade": "Limpar e aplicar graxa de lítio (Texaco Marfak MP-02) no espalhador",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GOCBB",
+            "descricao_do_eqto": "Guincho Oceanografico",
+            "atividade": "Limpar e aplicar graxa de lítio (Texaco Marfak MP-02) na bucha",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "22.0": "Semestral"
+                },
+                {
+                    "46.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "CM01-SMC-GESBB",
+            "descricao_do_eqto": "Guincho de Espinhel",
+            "atividade": "Limpar e aplicar graxa de lítio (Texaco Marfak MP-02) no cilindro hidraulico ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "10.0": "Trimestral"
+                },
+                {
+                    "30.0": "Trimestral"
+                },
+                {
+                    "46.0": "Trimestral"
+                }
+            ]
+        },
+        {
+            "tag": "ítem 9",
+            "descricao_do_eqto": "Segundo o manuel do MCP - Pede para que a troca do líquido de arrefecimento seja feito a cada 6000 hr ou 5 anos\nJá a questão da limpeza do arrefecimento não tem período específico.",
+            "atividade": null,
+            "periodicidade": null,
+            "datas": []
+        }
+    ]
+}

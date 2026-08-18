@@ -4,6 +4,7 @@ import OSPdfTemplate from './OSPdfTemplate';
 import ReportPdfTemplate from './ReportPdfTemplate';
 import EditWorkOrderModal from './EditWorkOrderModal';
 import WorkOrderDetailsModal from './WorkOrderDetailsModal';
+import { getISOWeek } from '@/utils/weeks';
 
 export default function WeeklyProgressTable({ 
     workOrders = [], 
@@ -12,6 +13,8 @@ export default function WeeklyProgressTable({
     vesselFilter,
     statusFilter,
     periodFilter,
+    typeFilter,
+    planFilter,
     weekStart,
     weekEnd,
     currentUser
@@ -42,6 +45,8 @@ export default function WeeklyProgressTable({
         if (vesselFilter) result = result.filter(os => os.equipment?.vessel?.tag === vesselFilter);
         if (statusFilter) result = result.filter(os => os.status === statusFilter);
         if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
+        if (typeFilter) result = result.filter(os => os.maintenance_type === typeFilter);
+        if (planFilter) result = result.filter(os => Boolean(os.in_52_week_plan) === (planFilter === 'yes'));
 
         if (weekStart && weekEnd) {
             const now = new Date();
@@ -75,7 +80,7 @@ export default function WeeklyProgressTable({
             });
         }
         return result;
-    }, [workOrders, vesselFilter, statusFilter, periodFilter, sortConfig, weekStart, weekEnd]);
+    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, sortConfig, weekStart, weekEnd]);
 
     const isAllFilteredSelected = sortedAndFilteredWorkOrders.length > 0 && sortedAndFilteredWorkOrders.every(os => selectedIds.includes(os.id));
 
@@ -116,17 +121,28 @@ export default function WeeklyProgressTable({
 
     const renderPeriodicityBadge = (period) => {
         switch (period) {
-            case 'docking': return <span className="text-slate-300 font-semibold uppercase">Docagem</span>; 
-            case 'monthly': return <span className="text-lime-600 font-semibold uppercase">Mensal</span>; 
+            case 'docking': return <span className="text-slate-300 font-semibold uppercase">Docagem</span>;
+            case 'daily': return <span className="text-pink-400 font-semibold uppercase">Diário</span>;
+            case 'weekly': return <span className="text-cyan-400 font-semibold uppercase">Semanal</span>;
+            case 'biweekly': return <span className="text-teal-400 font-semibold uppercase">Quinzenal</span>;
+            case 'monthly': return <span className="text-lime-600 font-semibold uppercase">Mensal</span>;
             case 'bimonthly': return <span className="text-blue-500 font-semibold uppercase">Bimestral</span>; 
             case 'quarterly': return <span className="text-green-400 font-semibold uppercase">Trimestral</span>; 
             case 'semiannual': return <span className="text-orange-500 font-semibold uppercase">Semestral</span>; 
-            case 'annual': return <span className="text-red-600 font-semibold uppercase">Anual</span>; 
+            case 'annual': return <span className="text-red-600 font-semibold uppercase">Anual</span>;
+            case 'biennial': return <span className="text-purple-400 font-semibold uppercase">Bianual</span>;
+            case 'triennial': return <span className="text-indigo-400 font-semibold uppercase">Trianual</span>;
+            case 'quadrennial': return <span className="text-violet-400 font-semibold uppercase">Quadrienal</span>;
+            case 'sexennial': return <span className="text-fuchsia-400 font-semibold uppercase">Sexênio</span>;
             default: return <span className="text-slate-500 font-medium uppercase">Avulsa</span>;
         }
     };
     
-    const renderStatusBadge = (status) => {
+    const renderStatusBadge = (status, isInactive = false) => {
+        // status='cancelled' por baixo é o que tira a OS inativada das
+        // métricas, mas na tela isso é bem diferente de "cancelada de vez".
+        if (isInactive) return <span className="text-orange-400 font-semibold uppercase">Inativada</span>;
+
         switch (status) {
             case 'completed': return <span className="text-green-400 font-semibold uppercase">Fechado</span>;
             case 'open': return <span className="text-blue-400 font-semibold uppercase">Aberto</span>;
@@ -247,7 +263,15 @@ export default function WeeklyProgressTable({
                                         </td>
                                         <td className="border border-slate-700 px-2 py-1 font-mono text-blue-300 text-center">{os.os_number || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 font-mono text-emerald-300 text-center">{os.ss_number || '-'}</td>
-                                        <td className="border border-slate-700 px-2 py-1 text-slate-300 text-center">{os.created_at ? os.created_at.substring(0, 10).split('-').reverse().join('/') : '-'}</td>
+                                        <td className="border border-slate-700 px-2 py-1 text-slate-300 text-center">
+                                            {os.created_at ? (
+                                                <div className="flex flex-col leading-tight">
+                                                    <span>{os.created_at.substring(0, 10).split('-').reverse().join('/')}</span>
+                                                    {/* O plano é mapeado por semana do ano — SEM 32, SEM 33... */}
+                                                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Sem {getISOWeek(osDate)}</span>
+                                                </div>
+                                            ) : '-'}
+                                        </td>
                                         <td className="border border-slate-700 px-2 py-1 font-bold text-white text-center">{vessel.tag || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 font-mono text-slate-400">{equip.tag_number || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-slate-300 max-w-[150px] truncate" title={equip.name}>{equip.name || '-'}</td>
@@ -255,7 +279,7 @@ export default function WeeklyProgressTable({
                                         <td className="border border-slate-700 px-2 py-1 text-center text-slate-300">{os.maintenance_type === 'corrective' ? 'CORR' : os.maintenance_type === 'preventive' ? 'PREV' : 'PRED'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderPriorityBadge(os.priority)}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderPeriodicityBadge(os.periodicity)}</td>
-                                        <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderStatusBadge(os.status)}</td>
+                                        <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderStatusBadge(os.status, os.is_inactive)}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button onClick={(e) => { e.stopPropagation(); handleExportPDF(os); }} className="text-slate-400 hover:text-emerald-400 transition-colors" title="Download OS Individual">

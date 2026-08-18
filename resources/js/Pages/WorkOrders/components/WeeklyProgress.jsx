@@ -8,6 +8,8 @@ export default function WeeklyProgress({
     vesselFilter,
     statusFilter,
     periodFilter,
+    typeFilter,
+    planFilter,
     weekStart,
     weekEnd,
     currentUser
@@ -18,6 +20,8 @@ export default function WeeklyProgress({
         if (vesselFilter) result = result.filter(os => os.equipment?.vessel?.tag === vesselFilter);
         if (statusFilter) result = result.filter(os => os.status === statusFilter);
         if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
+        if (typeFilter) result = result.filter(os => os.maintenance_type === typeFilter);
+        if (planFilter) result = result.filter(os => Boolean(os.in_52_week_plan) === (planFilter === 'yes'));
 
         if (weekStart && weekEnd) {
             const now = new Date();
@@ -46,7 +50,7 @@ export default function WeeklyProgress({
         }
 
         return result;
-    }, [workOrders, vesselFilter, statusFilter, periodFilter, weekStart, weekEnd]);
+    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, weekStart, weekEnd]);
 
     const isWeekly = Boolean(weekStart && weekEnd);
     const weeksMultiplier = isWeekly ? 1 : 52;
@@ -115,6 +119,8 @@ export default function WeeklyProgress({
                     vesselFilter={vesselFilter}
                     statusFilter={statusFilter}
                     periodFilter={periodFilter}
+                    typeFilter={typeFilter}
+                    planFilter={planFilter}
                     weekStart={weekStart}
                     weekEnd={weekEnd}
                     currentUser={currentUser}

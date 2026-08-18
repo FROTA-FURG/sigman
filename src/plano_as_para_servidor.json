@@ -1,0 +1,1166 @@
+{
+  "gerado_em": "2026-08-16",
+  "origem": "Plano 52 semanas AS.xlsx (aba 'Plano de 52 Semanas AS')",
+  "embarcacao": {
+    "nome": "Atlântico Sul",
+    "tag": "AS"
+  },
+  "regras": {
+    "ano_referencia": 2026,
+    "data_corte_concluidas": "2026-08-14",
+    "observacao": "OS com data até a data de corte entram como 'completed'; as demais entram como 'open' (pendente de aprovação do engenheiro). Horas vêm do número escrito na célula colorida da semana."
+  },
+  "equipamentos": [
+    {
+      "tag": "AS01-SPP-MCP01",
+      "nome": "Motor de Combustão Principal MWM TD 440-8"
+    },
+    {
+      "tag": "AS01-SMP-MCA01",
+      "nome": "Motor de Combustão Auxiliar V12 - MWM - D232"
+    },
+    {
+      "tag": "AS01-SMP-MCA02",
+      "nome": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2"
+    },
+    {
+      "tag": "AS01-SMP-MCA03",
+      "nome": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3"
+    },
+    {
+      "tag": "AS01-SMP-MCA04",
+      "nome": "Motor auxiliar de Emergência Scania DSI11 - MCA 4"
+    },
+    {
+      "tag": "AS01-SMP-COM01",
+      "nome": "Compressor de Ar - Atlas Copco - LT3-30BM"
+    },
+    {
+      "tag": "AS01-SMP-COM02",
+      "nome": "Compressor de Ar - Motomil - CMAV - 20/200"
+    },
+    {
+      "tag": "AS01-SPP-CRE01",
+      "nome": "Caixa Redutora MCP (Caixa reversora) - Reintjes"
+    },
+    {
+      "tag": "AS01-SMP-CRE02",
+      "nome": "Caixa Redutor MCA01 -"
+    },
+    {
+      "tag": "AS01-SMC-CRE03",
+      "nome": "Caixa Redutora Molinete - Marine"
+    },
+    {
+      "tag": "AS01-SHI-UHI01",
+      "nome": "Unidade Hidráulica 01 (Oceaniográfico)"
+    },
+    {
+      "tag": "AS01-SHI-UHI02",
+      "nome": "Unidade Hidráulica 02 (Grande) -"
+    },
+    {
+      "tag": "AS01-SHI-UEH03",
+      "nome": "Unidade Hidráulica 03 (Pequeno) -"
+    },
+    {
+      "tag": "AS01-SHI-UEH01",
+      "nome": "Unidade Eletro Hidráulica (Leme) - Racine"
+    },
+    {
+      "tag": "AS01-SMC-UHI03",
+      "nome": "Unidade Hidráulica (Munk) - Madal / SA"
+    }
+  ],
+  "ordens_servico": [
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar a folga das válvulas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-23",
+      "horas_estimadas": 2.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar os bicos de admissão no regulador de velocidade",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-02-09",
+      "horas_estimadas": 16.0,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar os bicos de admissão no regulador de velocidade",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-08-24",
+      "horas_estimadas": 16.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-02-09",
+      "horas_estimadas": 4.0,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-03-30",
+      "horas_estimadas": 4.0,
+      "status": "completed",
+      "concluida_em": "2026-03-30",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-29",
+      "horas_estimadas": 4.0,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-31",
+      "horas_estimadas": 4.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-10-12",
+      "horas_estimadas": 4.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e controlar as bombas de óleo e de água",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-11-23",
+      "horas_estimadas": 4.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-02-09",
+      "horas_estimadas": 2.0,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-03-30",
+      "horas_estimadas": 2.0,
+      "status": "completed",
+      "concluida_em": "2026-03-30",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-29",
+      "horas_estimadas": 2.0,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-31",
+      "horas_estimadas": 2.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-10-12",
+      "horas_estimadas": 2.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-11-23",
+      "horas_estimadas": 2.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Controlar as rodas dentadas do acionamento de comando",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-23",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar as válvulas de partida, as válvulas de gaveta e a válvula de partida principal, assim como os tubos com videoscopia",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-23",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpeza das válvulas e entrada de ar e superalimentação com videoscopia",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-23",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar e examinar o garrafão de ar comprimido.",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-23",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Limpar os tubos do escapamento e de ar de superalimentação.",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-16",
+      "horas_estimadas": 8.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-16",
+      "horas_estimadas": null,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-16",
+      "horas_estimadas": null,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-MCP01",
+      "descricao": "Verificação do torque de aperto (85,3 Nm) nos parafusos do volante traseiro.",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-11-16",
+      "horas_estimadas": 8.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Verificar a fixação do amortecedor de vibração (4.5 - 5.0 Kgf.m)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Examinar as escovas do motor de arranque e alternador (Verificar com o Gabriel)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Testar os bicos injetores (verificar se possivel anualmente)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Controlar a pressão de compressão (verificar se possivel anualmente)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": " troca  dos rolamentos da bomba d'agua e da polia esticadora.",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 8.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": null,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA01",
+      "descricao": "Testar válvula termostática",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-24",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Verificar a folga das válvulas  (verificar a disponibilidade anualmente)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 4.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Verificar as escovas do motor de partida e alternador",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "biennial",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Verificar as escovas do motor de partida e alternador",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "biennial",
+      "data": "2026-12-14",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Testar os bicos injetores ",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 0.2,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Controlar a pressão de contrapressão",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Controlar os rolamentos da bomba d'agua",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 8.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA02",
+      "descricao": "Testar a válvula termostática",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-24",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Verificar as escorvas do motor de partida e alternador",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Testar e limpar os bicos injetores",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.2,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Controlar a pressão de compressão",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Controlar os rolamentos da bomba d'agua",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-07",
+      "horas_estimadas": 8.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Testar os instrumentos de controle",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA03",
+      "descricao": "Testar a válvula termostática",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Limpeza do sistema de refrigeração (limpeza(quimica ou vareteamento), teste de estanquiedade)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-09-14",
+      "horas_estimadas": 16.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Subtituição da válvula de ventilação fechada do cárter(pdf Manual)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-02-09",
+      "horas_estimadas": 4.0,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Subtituição da válvula de ventilação fechada do cárter(pdf Manual)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-08-24",
+      "horas_estimadas": 4.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Verificação do injetor",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.2,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Inspeção de verificação de ruido",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-29",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-29",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-11-02",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-MCA04",
+      "descricao": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "annual",
+      "data": "2026-08-31",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM01",
+      "descricao": "Substituir a válvula de retenção ou dispositivo de descarga",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-02-09",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM01",
+      "descricao": "Substituir a válvula de retenção ou dispositivo de descarga",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-08-24",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM01",
+      "descricao": "Substituir os discos das válvulas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-02-09",
+      "horas_estimadas": 1.0,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM01",
+      "descricao": "Substituir os discos das válvulas",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-08-24",
+      "horas_estimadas": 1.0,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM02",
+      "descricao": "Verificar tensionamento e alinhamento da correia",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-02-09",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-02-09",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-COM02",
+      "descricao": "Verificar tensionamento e alinhamento da correia",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-08-24",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-CRE01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SPP-CRE01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-CRE02",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMP-CRE02",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMC-CRE03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMC-CRE03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "semiannual",
+      "data": "2026-09-28",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI02",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI02",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UHI02",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SHI-UEH01",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMC-UHI03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-06-22",
+      "horas_estimadas": 0.5,
+      "status": "completed",
+      "concluida_em": "2026-06-22",
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMC-UHI03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-08-17",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    },
+    {
+      "tag_equipamento": "AS01-SMC-UHI03",
+      "descricao": "Coletar amostra para análise de óleo",
+      "tipo_manutencao": "preventive",
+      "periodicidade": "quarterly",
+      "data": "2026-12-07",
+      "horas_estimadas": 0.5,
+      "status": "open",
+      "concluida_em": null,
+      "plano_52_semanas": true
+    }
+  ]
+}

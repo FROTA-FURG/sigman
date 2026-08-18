@@ -7,22 +7,7 @@ import FullPlan from './components/FullPlan';
 import FutureOS from './components/FutureOS';
 import CreateWorkOrderModal from '@/Pages/WorkOrders/components/CreateOSModal';
 import WeekPickerModal from './components/WeekPickerModal';
-
-const getMonday = (d) => {
-    const date = new Date(d);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    date.setDate(diff);
-    date.setHours(0, 0, 0, 0);
-    return date;
-};
-
-const getSunday = (monday) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + 6);
-    date.setHours(23, 59, 59, 999);
-    return date;
-};
+import { getMonday, getSunday, formatWeekRange } from '@/utils/weeks';
 
 export default function Index({ auth, workOrders = [], equipments = [], users = [] }) {
     const [activeTab, setActiveTab] = useState('planning');
@@ -33,6 +18,9 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
     const [vesselFilter, setVesselFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [periodFilter, setPeriodFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');   // classe: corretiva/preventiva/preditiva
+    const [planFilter, setPlanFilter] = useState('');   // '' todas | 'yes' só do plano | 'no' só avulsas
+    const [internStatusFilter, setInternStatusFilter] = useState(''); // '' todas | pending | waiting | approved
     const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
     const [weekEnd, setWeekEnd] = useState(() => getSunday(getMonday(new Date())));
 
@@ -41,17 +29,10 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
     const uniquePeriods = useMemo(() => [...new Set(workOrders.map(os => os.periodicity).filter(Boolean))].sort(), [workOrders]);
     
     const statusLabels = { open: 'Aberto', in_progress: 'Em Andamento', completed: 'Fechado', cancelled: 'Cancelado' };
-    const periodLabels = { monthly: 'Mensal', bimonthly: 'Bimestral', quarterly: 'Trimestral', semiannual: 'Semestral', annual: 'Anual', docking: 'Docagem' };
+    const typeLabels = { corrective: 'Corretiva', preventive: 'Preventiva', predictive: 'Preditiva' };
+    const periodLabels = { daily: 'Diário', weekly: 'Semanal', biweekly: 'Quinzenal', monthly: 'Mensal', bimonthly: 'Bimestral', quarterly: 'Trimestral', semiannual: 'Semestral', annual: 'Anual', biennial: 'Bianual', triennial: 'Trianual', quadrennial: 'Quadrienal', sexennial: 'Sexênio', docking: 'Docagem' };
 
-    const formatBr = (date) => {
-        if (!date) return '';
-        const d = String(date.getDate()).padStart(2, '0');
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const y = String(date.getFullYear()).slice(-2);
-        return `${d}/${m}/${y}`;
-    };
-
-    const displayWeekRange = weekStart && weekEnd ? `${formatBr(weekStart)} à ${formatBr(weekEnd)}` : 'Todas as Datas';
+    const displayWeekRange = formatWeekRange(weekStart, weekEnd);
 
     return (
         <SIGMANLayout>
@@ -81,7 +62,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                     </button>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-5 overflow-y-auto pb-20" style={{ maxHeight: 'calc(100% - 8rem)' }}>
                     <div>
                         <div className="flex items-center justify-between mb-2">
                             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Período Semanal</label>
@@ -91,12 +72,12 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                                 </button>
                             )}
                         </div>
-                        <button onClick={() => setIsWeekPickerOpen(true)} className="w-full flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors">
-                            <div className="flex items-center gap-2">
-                                <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                {displayWeekRange}
+                        <button onClick={() => setIsWeekPickerOpen(true)} className="w-full flex items-center justify-between gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors">
+                            <div className="flex min-w-0 items-center gap-2">
+                                <svg className="w-4 h-4 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="truncate">{displayWeekRange}</span>
                             </div>
-                            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                            <svg className="w-4 h-4 shrink-0 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                     </div>
 
@@ -117,23 +98,56 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                     </div>
 
                     <div>
+                        <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Classe</label>
+                        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <option value="">Todas as Classes</option>
+                            <option value="corrective">Corretiva</option>
+                            <option value="preventive">Preventiva</option>
+                            <option value="predictive">Preditiva</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Plano de 52 Semanas</label>
+                        <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <option value="">Plano e Avulsas</option>
+                            <option value="yes">Somente do Plano</option>
+                            <option value="no">Somente Avulsas</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Periodicidade</label>
                         <select value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                             <option value="">Todas as Periodicidades</option>
                             {uniquePeriods.map(p => <option key={p} value={p}>{periodLabels[p] || p}</option>)}
                         </select>
                     </div>
+
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Aprovação do Estagiário</label>
+                        <select value={internStatusFilter} onChange={(e) => setInternStatusFilter(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2.5 pl-3 pr-8 text-sm font-medium text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <option value="">Todas</option>
+                            <option value="approved">Aprovadas (Pronta p/ Disparo)</option>
+                            <option value="waiting">Aguardando</option>
+                            <option value="pending">Pendente de Checagem</option>
+                        </select>
+                        <p className="mt-1.5 text-[11px] text-slate-500">Vale só na aba Planejamento, onde a checagem do estagiário aparece.</p>
+                    </div>
                 </div>
 
                 <div className="absolute bottom-6 left-6 right-6">
                     <button 
-                        onClick={() => { 
-                            setVesselFilter(''); 
-                            setStatusFilter(''); 
-                            setPeriodFilter(''); 
-                            setWeekStart(getMonday(new Date())); 
-                            setWeekEnd(getSunday(getMonday(new Date()))); 
-                        }} 
+                        onClick={() => {
+                            setVesselFilter('');
+                            setStatusFilter('');
+                            setPeriodFilter('');
+                            setTypeFilter('');
+                            setPlanFilter('');
+                            setInternStatusFilter('');
+                            setWeekStart(getMonday(new Date()));
+                            setWeekEnd(getSunday(getMonday(new Date())));
+                        }}
                         className="w-full rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-700 transition-colors"
                     >
                         Limpar Todos os Filtros
@@ -164,7 +178,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                         <button onClick={() => setIsSidebarOpen(true)} className="flex items-center gap-2 rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-700 transition-colors">
                             <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                             Filtros
-                            {(vesselFilter || statusFilter || periodFilter || weekStart) && <span className="flex h-2 w-2 rounded-full bg-blue-500"></span>}
+                            {(vesselFilter || statusFilter || periodFilter || typeFilter || planFilter || internStatusFilter || weekStart) && <span className="flex h-2 w-2 rounded-full bg-blue-500"></span>}
                         </button>
 
                         <button onClick={() => setIsCreateModalOpen(true)} className="flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors">
@@ -175,9 +189,9 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                 </div>
 
                 <div className="flex-1 min-h-0 mt-0">
-                    {activeTab === 'planning' && <FullPlan workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} />}
-                    {activeTab === 'weekly' && <WeeklyProgress currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} weekStart={weekStart} weekEnd={weekEnd} />}
-                    {activeTab === 'future' && <FutureOS currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} />}
+                    {activeTab === 'planning' && <FullPlan workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} />}
+                    {activeTab === 'weekly' && <WeeklyProgress currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} weekStart={weekStart} weekEnd={weekEnd} />}
+                    {activeTab === 'future' && <FutureOS currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} internStatusFilter={internStatusFilter} />}
                 </div>
             </div>
         </SIGMANLayout>

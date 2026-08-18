@@ -41,7 +41,7 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
         let totalOverdue = 0;
         let totalAhead = 0; 
         let awaitingApproval = [];
-        const periodCounts = { monthly: 0, bimonthly: 0, quarterly: 0, semiannual: 0, annual: 0, docking: 0, avulsa: 0 };
+        const periodCounts = { daily: 0, weekly: 0, biweekly: 0, monthly: 0, bimonthly: 0, quarterly: 0, semiannual: 0, annual: 0, biennial: 0, triennial: 0, quadrennial: 0, sexennial: 0, docking: 0, avulsa: 0 };
 
         workOrders.forEach(os => {
             const isActive = activeStatuses.includes(os.status);
@@ -72,12 +72,19 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
         });
 
         const pieData = [
-            { name: 'Mensal', value: periodCounts.monthly, color: '#65a30d' }, 
+            { name: 'Diário', value: periodCounts.daily, color: '#ec4899' },
+            { name: 'Semanal', value: periodCounts.weekly, color: '#06b6d4' },
+            { name: 'Quinzenal', value: periodCounts.biweekly, color: '#14b8a6' },
+            { name: 'Mensal', value: periodCounts.monthly, color: '#65a30d' },
             { name: 'Bimestral', value: periodCounts.bimonthly, color: '#3b82f6' }, 
             { name: 'Trimestral', value: periodCounts.quarterly, color: '#4ade80' }, 
             { name: 'Semestral', value: periodCounts.semiannual, color: '#f97316' }, 
-            { name: 'Anual', value: periodCounts.annual, color: '#dc2626' }, 
-            { name: 'Docagem', value: periodCounts.docking, color: '#cbd5e1' }, 
+            { name: 'Anual', value: periodCounts.annual, color: '#dc2626' },
+            { name: 'Bianual', value: periodCounts.biennial, color: '#c084fc' },
+            { name: 'Trianual', value: periodCounts.triennial, color: '#818cf8' },
+            { name: 'Quadrienal', value: periodCounts.quadrennial, color: '#a78bfa' },
+            { name: 'Sexênio', value: periodCounts.sexennial, color: '#e879f9' },
+            { name: 'Docagem', value: periodCounts.docking, color: '#cbd5e1' },
             { name: 'Avulsa', value: periodCounts.avulsa, color: '#64748b' }, 
         ].filter(item => item.value > 0); 
 

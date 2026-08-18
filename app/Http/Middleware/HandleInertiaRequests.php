@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                     'nickname' => $request->user()->nickname,
                     'role' => $request->user()->role->name ?? $request->user()->role, 
                     'vessel_id'     => $request->user()->vessel_id,
+                    'has_fleet_access' => $request->user()->has_fleet_access,
                 ] : null,
             ],
 

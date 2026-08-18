@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'vessel_id',
+        'has_fleet_access', // responde por toda a frota, não por uma embarcação só
         'third_party_id',
         'status',
         'last_updated_by'
@@ -33,6 +34,17 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts = [
+        'has_fleet_access' => 'boolean',
+    ];
+
+    /**
+     * Cargos que podem responder por toda a frota. Estagiário e marinheiro
+     * são tripulação de um navio específico; terceiro é empresa externa e
+     * não é vinculado a embarcação nenhuma.
+     */
+    public const FLEET_CAPABLE_ROLES = ['dev', 'coordinator', 'engineer', 'technician'];
+
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -41,6 +53,16 @@ class User extends Authenticatable
     public function vessel()
     {
         return $this->belongsTo(Vessel::class);
+    }
+
+    /** Este usuário enxerga/responde pela embarcação informada? */
+    public function coversVessel(?string $vesselId): bool
+    {
+        if ($this->has_fleet_access) {
+            return true;
+        }
+
+        return $vesselId !== null && $this->vessel_id === $vesselId;
     }
 
     // Empresa terceirizada à qual este login pertence (só para role=terceiro)

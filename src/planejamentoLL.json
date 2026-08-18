@@ -1,0 +1,1577 @@
+{
+    "legendas": {
+        "FFCCCCCC": "Quinzenal",
+        "FF6AA84F": "Mensal",
+        "FF0000FF": "Bimestral",
+        "FF00FF00": "Trimestral",
+        "FFFF9900": "Semestral",
+        "FF980000": "Anual",
+        "FFFF00FF": "Bianual",
+        "FF8E7CC3": "Trianual",
+        "FF3C78D8": "Quadrienal"
+    },
+    "equipamentos": [
+        {
+            "tag": "LL01-SHA",
+            "descricao_do_eqto": "Bomba de água salgada 2 BB, BO.",
+            "atividade": "Efetuar Lubrificação (verificar os pontos de lubrificação). ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHA",
+            "descricao_do_eqto": "Bomba de água salgada 2 BB, BO.",
+            "atividade": "Desmontagem e Inspeção da bomba de água salgada (Não desmonta, só se verificação de rotor).",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Sistema Hidráulico",
+            "atividade": "Desmontagem e revisão geral da Bomba Hidráulica.",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Sistema Hidráulico",
+            "atividade": "Inspeção de limpeza do filtro de sucção(Substituir se necessario).",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Examine o cabo do guincho de pesca (sinais de danos, como desgaste, dobras ou corrosão).",
+            "periodicidade": "Anual ",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Lubrifique os componentes necessários, rolamentos, engrenagens e cabos do guincho(Graxa biodegradável).",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Troque o óleo da caixa de câmbio e coletar amostra ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Ajuste a tensão do cabo conforme necessário para evitar aperto excessivo ou folga.",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Inspecionar aperto dos parafusos do guincho e da base",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Pesca",
+            "atividade": "Verificar desgaste dos cabeços",
+            "periodicidade": "Anual ",
+            "datas": [
+                {
+                    "20.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Molinete",
+            "atividade": "Inspecionar corrente do guincho molinete(estado físico, corrosão e integridade de elos). ",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Molinete",
+            "atividade": "Substitua as pastilhas ou componentes dos freios se apresentarem sinais de desgaste.",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Molinete",
+            "atividade": "Lubrifique os componentes necessários, rolamentos, engrenagens e cabos do guincho ",
+            "periodicidade": "Bimestral",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SHI",
+            "descricao_do_eqto": "Guincho de Molinete",
+            "atividade": "Troca do óleo da caixa de câmbio ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "19.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE ",
+            "atividade": "Efetuar coleta de amostra de óleo para análise e posterior coleta.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Troca de fluido de arrefecimento",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Troca do elemento filtro lubrificante",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Troca do elemento filtro diesel",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Troca do elemento filtro separador (racor)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Limpeza do aftercooler",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Troca do filtro de ar ",
+            "periodicidade": "Semestral/500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Limpar trocador de óleo inox",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar se o filtro de ar está obstruído",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Limpeza do pré-filtro Diesel da bomba injetora (copinho)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar a válvula termostática (Caso necessário realizar a troca)",
+            "periodicidade": "Anual ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Limpeza do caracol frio do turbo com querozene",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar rotor do turbocompressor, folgas axiais e radiais, aletas, etc",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar ânodos de zinco (Caso necessário realizar troca)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Inspecionar trocador de calor do óleo lubrificante e trocar vedações",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Regulagem da bomba injetora ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Teste da esqueidade do arrefecimento por quilha",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Revisão do alternador e do motor de partida. Verificar coxins dos mesmos.",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Inspeção do Sistema de Escapamento",
+            "periodicidade": "3000h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Trocar anéis de fogo dos pistões ",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Testar sensores de pressão e temperatura",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Substituir junta do cabeçote e vedações ",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar via videoscopia a presença de desgaste interno das camisas ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Inspecionar os coxins",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar estanqueidade do sistema de escapamento",
+            "periodicidade": "100h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar funcionamento das tomadas de monitoramento do painel",
+            "periodicidade": "250h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Trocar óleo e substituir filtro ",
+            "periodicidade": "350h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar nível do óleo da transmissão",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar desobstrução do filtro de respiro do selo da bomba d'água",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar condição de aperto dos elementos de fixação dos componentes externos",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar funcionamento e lubrificar articulações",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Substituir filtro de combustível ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Substituir filtro externo de óleo hidráulico ",
+            "periodicidade": "2000h ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Substituir correias (1) - verificar condição dos coxins do alternador",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar/Ajustar folgas de válvulas",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar amortecedor de vibrações junto à trinca e vazamentos ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Remover e testar bicos injetores - substituir elementos de vedação",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Remover e testar bomba injetora",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar condição das mangueiras (trincas e ressecamento)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Medir compressão dos cilindros",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar condição do isolamento do chicote elétrico",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Lubrificar articulação do volante",
+            "periodicidade": "Semestral/1000h ",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar nível e adicionar óleo lubrificante",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar nível de óleo do sistema de embreagem",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Desmontar cabeçotes (verificar desgaste de válvulas, sedes e guia) Videoscopia.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar desgaste de balancins, hastes e tuchos",
+            "periodicidade": "Trianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Substituir óleo lubrificante",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar estado e desgaste de molas de válvulas",
+            "periodicidade": "Trianual",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBE",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BE",
+            "atividade": "Verificar estado de rolamentos",
+            "periodicidade": "Quadrienal",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Efetuar coleta de amostra de óleo para análise e posterior coleta.",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Troca de fluido de arrefecimento",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Troca do elemento filtro lubrificante",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Troca do elemento filtro diesel",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Troca do elemento filtro separador (racor)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Limpeza do aftercooler",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Troca do filtro de ar ",
+            "periodicidade": "Semestral/500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Limpar trocador de óleo inox",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar se o filtro de ar está obstruído",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Limpeza do pré-filtro Diesel da bomba injetora (copinho)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar a válvula termostática (Caso necessário realizar a troca)",
+            "periodicidade": "Anual ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Limpeza do caracol frio do turbo com querozene",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar rotor do turbocompressor, folgas axiais e radiais, aletas, etc",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar ânodos de zinco (Caso necessário realizar troca)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Inspecionar trocador de calor do óleo lubrificante e trocar vedações",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Regulagem da bomba injetora ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Teste da esqueidade do arrefecimento por quilha",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Revisão do alternador e do motor de partida. Verificar coxins dos mesmos.",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Inspeção do Sistema de Escapamento",
+            "periodicidade": "3000h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Trocar anéis de fogo dos pistões ",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Testar sensores de pressão e temperatura",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Substituir junta do cabeçote e vedações ",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar via videoscopia a presença de desgaste interno das camisas ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Inspecionar os coxins",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar estanqueidade do sistema de escapamento",
+            "periodicidade": "100h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar funcionamento das tomadas de monitoramento do painel",
+            "periodicidade": "250h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Trocar óleo e substituir filtro ",
+            "periodicidade": "350h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar nível do óleo da transmissão",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar desobstrução do filtro de respiro do selo da bomba d'água",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar condição de aperto dos elementos de fixação dos componentes externos",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar funcionamento e lubrificar articulações",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Substituir filtro de combustível ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Substituir filtro externo de óleo hidráulico ",
+            "periodicidade": "2000h ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Substituir correias (1) - verificar condição dos coxins do alternador",
+            "periodicidade": "1000h ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar/Ajustar folgas de válvulas",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar amortecedor de vibrações junto à trinca e vazamentos ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Remover e testar bicos injetores - substituir elementos de vedação",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Remover e testar bomba injetora",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar condição das mangueiras (trincas e ressecamento)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Medir compressão dos cilindros",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar condição do isolamento do chicote elétrico",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Lubrificar articulação do volante",
+            "periodicidade": "Semestral/1000h ",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar nível e adicionar óleo lubrificante",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar nível de óleo do sistema de embreagem",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Desmontar cabeçotes (verificar desgaste de válvulas, sedes e guia) Videoscopia.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar desgaste de balancins, hastes e tuchos",
+            "periodicidade": "Trianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Substituir óleo lubrificante",
+            "periodicidade": "Mensal",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar estado e desgaste de molas de válvulas",
+            "periodicidade": "Trianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-MCPBB",
+            "descricao_do_eqto": "Motor de Combustão Principal OM 366 LA BB",
+            "atividade": "Verificar estado de rolamentos",
+            "periodicidade": "Bianual",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Verificar acoplamentos de entrada, lado do motor, aperto dos parafusos e juntas ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Verificação de coxins",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Substituição de óleo",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Verificar acoplamentos de saída, aperto dos parafusos e juntas ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Inspecionar via videoscopia a situação das engrenagens",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "43.0": "FFFFFF00"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Efetuar coleta de amostra de óleo                                ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "43.0": "FFFFFF00"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Limpeza do filtro de sucção",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Troca do filtro sucção",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Lubrificar as partes externas móveis",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Apertar todos fixadores rosceados externos",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Ajustar a ligação do controle de mudança",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Trocar filtro de óleo ",
+            "periodicidade": " Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Checar instrumentos de controle, medição e acionamento.",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Troca dos Ânodos de sacrificio",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBE",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BE",
+            "atividade": "Limpeza e verificação do trocador de calor ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "40.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Verificar acoplamentos de entrada, lado do motor, aperto dos parafusos e juntas ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Verificação de coxins",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Substituição de óleo",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Verificar acoplamentos de saída, aperto dos parafusos e juntas ",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Inspecionar via videoscopia a situação das engrenagens",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "43.0": "FFFFFF00"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Efetuar coleta de amostra de óleo                                ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "43.0": "FFFFFF00"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Limpeza do filtro de sucção",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Troca do filtro sucção",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Lubrificar as partes externas móveis",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Apertar todos fixadores rosceados externos",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Ajustar a ligação do controle de mudança",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Trocar filtro de óleo ",
+            "periodicidade": " Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Checar instrumentos de controle, medição e acionamento.",
+            "periodicidade": "500h",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Troca dos Ânodos de sacrificio",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        },
+        {
+            "tag": "LL01-SPP-REVBB",
+            "descricao_do_eqto": "Caixa Reversora ZF 220BB",
+            "atividade": "Limpeza e verificação do trocador de calor ",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "41.0": "Mensal"
+                }
+            ]
+        }
+    ]
+}

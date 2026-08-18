@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::delete('/work-order-activities/{id}', [WorkOrderActivityController::class, 'destroy'])->name('work-order-activities.destroy');
     Route::put('/work-orders/{id}/intern-status', [WorkOrderController::class, 'updateInternStatus'])->name('work-orders.intern-status');
     Route::put('/work-orders/{id}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.update-status');
+    Route::post('/work-orders/{id}/inactivate', [WorkOrderController::class, 'inactivate'])->name('work-orders.inactivate');
 
     # Users routes
     Route::get('/crew', [UserController::class, 'index'])->name('crew.index');

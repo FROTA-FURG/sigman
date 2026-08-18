@@ -1,5 +1,6 @@
 *.log
 .DS_Store
+CREDENTIALS.md
 .env
 .env.backup
 .env.production
@@ -22,3 +23,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+src/.venv
+src/__pycache__
+src/*.lock
+src/.~lock.*#

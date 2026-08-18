@@ -15,6 +15,8 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         priority: '',
         status: '',
         periodicity: '',
+        in_52_week_plan: false,
+        engineer_comment: '',
         vendor_name: '',
         third_party_id: '',
         estimated_hours: '',
@@ -38,6 +40,8 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 priority: osData.priority || 'medium',
                 status: osData.status || 'open',
                 periodicity: osData.periodicity || '',
+                in_52_week_plan: Boolean(osData.in_52_week_plan),
+                engineer_comment: osData.engineer_comment || '',
                 vendor_name: osData.vendor_name || '',
                 third_party_id: osData.third_party_id || '',
                 estimated_hours: osData.estimated_hours || '',
@@ -82,6 +86,12 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
     // O modal só é editável se for TI, Engenheiro, ou o Estagiário daquela exata embarcação
     const canEdit = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
+
+    // A observação do engenheiro é da gestão. O estagiário até abre este modal
+    // (edita outros campos da OS da embarcação dele), mas o campo fica só de
+    // leitura — a trava de verdade está no servidor, isto aqui é a interface.
+    const isCoordenador = roleName.includes('coordinator') || roleName.includes('coordenador');
+    const canComment = isTI || isEngenheiro || isCoordenador;
 
     // Estilo padrão para os inputs dependendo da permissão
     const inputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canEdit ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
@@ -149,6 +159,40 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* OBSERVAÇÃO DO ENGENHEIRO */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
+                                <div className="mb-2 flex items-center justify-between gap-2">
+                                    <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                        <svg className="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z" /></svg>
+                                        Observação do Engenheiro
+                                    </h4>
+                                    {osData.engineer_comment_by && (
+                                        <span className="text-[10px] text-slate-500">
+                                            Último registro: {osData.engineer_comment_by}
+                                            {osData.engineer_comment_at ? ` em ${new Date(osData.engineer_comment_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}` : ''}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {canComment ? (
+                                    <>
+                                        <textarea
+                                            rows="3"
+                                            value={data.engineer_comment}
+                                            onChange={e => setData('engineer_comment', e.target.value)}
+                                            placeholder="Oriente a equipe, responda o que o estagiário apontou, registre uma decisão de planejamento..."
+                                            className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-2.5 text-sm text-slate-300 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">Pode ser reescrito a qualquer momento; salvar com o campo vazio remove a observação.</p>
+                                    </>
+                                ) : (
+                                    <div className="min-h-[44px] whitespace-pre-wrap rounded-md border border-slate-700/50 bg-slate-950/50 p-2.5 text-sm text-slate-400">
+                                        {osData.engineer_comment || 'Nenhuma observação registrada pelo engenheiro.'}
+                                    </div>
+                                )}
+                                {errors.engineer_comment && <span className="text-xs text-red-500">{errors.engineer_comment}</span>}
                             </div>
 
                             {/* IDENTIFICAÇÃO DO ATIVO */}
@@ -231,16 +275,37 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
                                     <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} disabled={!canEdit} className={inputClasses}>
                                         <option value="">Nenhuma (Avulsa)</option>
+                                        <option value="daily">Diário</option>
+                                        <option value="weekly">Semanal</option>
+                                        <option value="biweekly">Quinzenal</option>
                                         <option value="monthly">Mensal</option>
                                         <option value="bimonthly">Bimestral</option>
                                         <option value="quarterly">Trimestral</option>
                                         <option value="semiannual">Semestral</option>
                                         <option value="annual">Anual</option>
+                                        <option value="biennial">Bianual</option>
+                                        <option value="triennial">Trianual</option>
+                                        <option value="quadrennial">Quadrienal</option>
+                                        <option value="sexennial">Sexênio</option>
                                         <option value="docking">Docagem</option>
                                     </select>
                                     {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
                                 </div>
                             </div>
+
+                            <label className={`flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors ${canEdit ? 'cursor-pointer hover:border-slate-600' : 'cursor-not-allowed opacity-60'}`}>
+                                <input
+                                    type="checkbox"
+                                    checked={data.in_52_week_plan}
+                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
+                                    disabled={!canEdit}
+                                    className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed"
+                                />
+                                <span>
+                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
+                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
+                                </span>
+                            </label>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
                                 <div className="sm:col-span-1">

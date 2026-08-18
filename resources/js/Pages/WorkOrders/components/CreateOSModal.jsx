@@ -25,6 +25,7 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
         priority: 'medium',
         status: 'open',
         periodicity: '',
+        in_52_week_plan: false,
         estimated_hours: '',
         vendor_name: '',
         third_party_id: '',
@@ -172,16 +173,36 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
                                     <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
                                         <option value="">Nenhuma (Avulsa)</option>
+                                        <option value="daily">Diário</option>
+                                        <option value="weekly">Semanal</option>
+                                        <option value="biweekly">Quinzenal</option>
                                         <option value="monthly">Mensal</option>
                                         <option value="bimonthly">Bimestral</option>
                                         <option value="quarterly">Trimestral</option>
                                         <option value="semiannual">Semestral</option>
                                         <option value="annual">Anual</option>
+                                        <option value="biennial">Bianual</option>
+                                        <option value="triennial">Trianual</option>
+                                        <option value="quadrennial">Quadrienal</option>
+                                        <option value="sexennial">Sexênio</option>
                                         <option value="docking">Docagem</option>
                                     </select>
                                     {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
                                 </div>
                             </div>
+
+                            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors hover:border-slate-600">
+                                <input
+                                    type="checkbox"
+                                    checked={data.in_52_week_plan}
+                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
+                                    className="mt-0.5 h-4 w-4 cursor-pointer rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500"
+                                />
+                                <span>
+                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
+                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
+                                </span>
+                            </label>
 
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço <span className="text-red-500">*</span></label>

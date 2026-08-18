@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use App\Models\Role;
+use App\Models\User;
 use App\Models\Vessel;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -48,10 +50,13 @@ class UserController extends Controller
             'cpf'      => 'required|string|max:14|unique:users,cpf', 
             'phone'    => 'nullable|string|max:15',
             'password' => 'required|string|min:8',
-            'role_id'  => 'required|uuid|exists:roles,id', 
-            'vessel_id'  => 'required|uuid|exists:vessels,id', 
+            'role_id'  => 'required|uuid|exists:roles,id',
+            'vessel_id'  => 'nullable|uuid|exists:vessels,id',
+            'has_fleet_access' => 'boolean',
             'status'   => 'required|string'
         ]);
+
+        $this->validateVesselScope($request, $validatedData);
 
         // Opcional: Registra quem criou o usuário
         $validatedData['last_updated_by'] = auth()->user()->username ?? 'Sistema';
@@ -81,9 +86,12 @@ class UserController extends Controller
             'cpf'      => 'required|string|max:14|unique:users,cpf,'.$id,
             'phone'    => 'nullable|string|max:20',
             'role_id'  => 'required|uuid|exists:roles,id',
-            'vessel_id'  => 'required|uuid|exists:vessels,id',
+            'vessel_id'  => 'nullable|uuid|exists:vessels,id',
+            'has_fleet_access' => 'boolean',
             'status'   => 'required|string'
         ]);
+
+        $this->validateVesselScope($request, $validatedData);
 
         $validatedData['last_updated_by'] = auth()->user()->username;
 
@@ -125,6 +133,34 @@ class UserController extends Controller
 
         if (! in_array($roleName, self::MANAGER_ROLES, true)) {
             abort(403, 'Acesso restrito à gestão de tripulação.');
+        }
+    }
+
+    /**
+     * O vínculo com embarcação tem três estados (toda a frota / uma / nenhuma),
+     * mas nem todo cargo pode usar os três: só coordenador, engenheiro, técnico
+     * (e o dev) respondem pela frota inteira. Estagiário e marinheiro são
+     * tripulação de um navio específico, então precisam de uma embarcação.
+     *
+     * A trava fica aqui no servidor porque esconder a opção no formulário não
+     * impede um request forjado.
+     */
+    private function validateVesselScope(Request $request, array $data): void
+    {
+        $roleName = Role::find($data['role_id'])?->name;
+        $wantsFleet = filter_var($data['has_fleet_access'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        if ($wantsFleet && ! in_array($roleName, User::FLEET_CAPABLE_ROLES, true)) {
+            throw ValidationException::withMessages([
+                'has_fleet_access' => 'Este cargo não pode responder por toda a frota; selecione uma embarcação.',
+            ]);
+        }
+
+        $crewRoles = ['intern', 'seaman'];
+        if (in_array($roleName, $crewRoles, true) && empty($data['vessel_id'])) {
+            throw ValidationException::withMessages([
+                'vessel_id' => 'Estagiário e marinheiro precisam estar vinculados a uma embarcação.',
+            ]);
         }
     }
 

@@ -23,11 +23,18 @@ const MAINTENANCE_TYPE = {
 };
 
 const PERIODICITY = {
+    daily: 'Diário',
+    weekly: 'Semanal',
+    biweekly: 'Quinzenal',
     monthly: 'Mensal',
     bimonthly: 'Bimestral',
     quarterly: 'Trimestral',
     semiannual: 'Semestral',
     annual: 'Anual',
+    biennial: 'Bianual',
+    triennial: 'Trianual',
+    quadrennial: 'Quadrienal',
+    sexennial: 'Sexênio',
     docking: 'Docagem',
 };
 
@@ -76,7 +83,12 @@ function Card({ title, children, className = '' }) {
 }
 
 export default function Show({ workOrder }) {
-    const status = STATUS[workOrder.status];
+    // status='cancelled' por baixo é o que tira a OS inativada das
+    // métricas (ver WorkOrderService::inactivateWorkOrder), mas aqui na
+    // tela isso é bem diferente de "cancelada de vez".
+    const status = workOrder.is_inactive
+        ? { label: 'Inativada', classes: 'bg-orange-500/10 text-orange-400 border-orange-500/30' }
+        : STATUS[workOrder.status];
     const priority = PRIORITY[workOrder.priority];
     const equipment = workOrder.equipment ?? {};
     const vessel = equipment.vessel ?? {};
@@ -153,6 +165,17 @@ export default function Show({ workOrder }) {
                             <Field label="Periodicidade">
                                 {PERIODICITY[workOrder.periodicity] ?? workOrder.periodicity}
                             </Field>
+                            <Field label="Plano de 52 Semanas">
+                                {workOrder.in_52_week_plan ? (
+                                    <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-400">
+                                        Pertence ao plano
+                                    </span>
+                                ) : (
+                                    <span className="rounded-full border border-slate-700 px-3 py-1 text-xs font-bold text-slate-400">
+                                        Avulsa
+                                    </span>
+                                )}
+                            </Field>
                             <Field label="Data Prevista">{formatDate(workOrder.created_at)}</Field>
                             <Field label="Horas Estimadas">
                                 {workOrder.estimated_hours ? `${workOrder.estimated_hours} h` : null}
@@ -173,6 +196,51 @@ export default function Show({ workOrder }) {
                             </Field>
                         </dl>
                     </Card>
+
+                    {/* REPROGRAMAÇÃO (só aparece quando tem alguma ponta da cadeia de inativação) */}
+                    {(workOrder.is_inactive || workOrder.rescheduled_from) && (
+                        <Card title="Reprogramação" className="lg:col-span-2">
+                            <dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+                                {workOrder.rescheduled_from && (
+                                    <Field label="Substitui a OS" className="sm:col-span-2">
+                                        <Link
+                                            href={route('work-orders.show', workOrder.rescheduled_from.id)}
+                                            className="font-mono font-bold text-blue-400 hover:text-blue-300 hover:underline"
+                                        >
+                                            {workOrder.rescheduled_from.os_number}
+                                        </Link>
+                                        <span className="ml-2 text-slate-500">
+                                            (inativada em {formatDate(workOrder.rescheduled_from.inactivated_at)})
+                                        </span>
+                                    </Field>
+                                )}
+                                {workOrder.is_inactive && (
+                                    <>
+                                        <Field label="Inativada por">
+                                            {workOrder.inactivated_by_user?.nickname || workOrder.inactivated_by_user?.username || '—'}
+                                        </Field>
+                                        <Field label="Inativada em">{formatDateTime(workOrder.inactivated_at)}</Field>
+                                        <Field label="Motivo" className="sm:col-span-2">
+                                            {workOrder.inactivation_reason || 'Nenhum motivo registrado.'}
+                                        </Field>
+                                        {workOrder.rescheduled_to && (
+                                            <Field label="Reprogramada para a OS" className="sm:col-span-2">
+                                                <Link
+                                                    href={route('work-orders.show', workOrder.rescheduled_to.id)}
+                                                    className="font-mono font-bold text-orange-400 hover:text-orange-300 hover:underline"
+                                                >
+                                                    {workOrder.rescheduled_to.os_number}
+                                                </Link>
+                                                <span className="ml-2 text-slate-500">
+                                                    (em {formatDate(workOrder.rescheduled_to.created_at)})
+                                                </span>
+                                            </Field>
+                                        )}
+                                    </>
+                                )}
+                            </dl>
+                        </Card>
+                    )}
 
                     {/* AVALIAÇÃO DO ESTAGIÁRIO */}
                     <Card title="Avaliação do Estagiário" className="lg:col-span-2">

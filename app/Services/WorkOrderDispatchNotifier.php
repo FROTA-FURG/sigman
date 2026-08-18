@@ -139,10 +139,11 @@ class WorkOrderDispatchNotifier
             ->whereNotNull('email')
             ->get();
 
-        // Prioriza o engenheiro da embarcação da OS. Se ninguém estiver vinculado
-        // àquela embarcação, avisa todos os engenheiros para a OS não ficar órfã.
-        $ofVessel = $engineers->where('vessel_id', $vesselId);
-        $recipients = $ofVessel->isNotEmpty() ? $ofVessel->values() : $engineers;
+        // Responsáveis pela OS: os engenheiros daquela embarcação + os que
+        // respondem pela frota inteira. Se ninguém cobrir a embarcação, avisa
+        // todos os engenheiros para a OS não ficar órfã.
+        $responsible = $engineers->filter(fn ($engineer) => $engineer->coversVessel($vesselId));
+        $recipients = $responsible->isNotEmpty() ? $responsible->values() : $engineers;
 
         // Se a OS pertence a um terceiro, o(s) login(s) dele também são avisados.
         if ($workOrder->third_party_id) {

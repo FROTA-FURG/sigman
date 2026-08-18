@@ -1,0 +1,971 @@
+{
+    "legendas": {
+        "FFCCCCCC": "Quinzenal",
+        "FF6AA84F": "Mensal",
+        "FF0000FF": "Bimestral",
+        "FF00FF00": "Trimestral",
+        "FFFF9900": "Semestral",
+        "FF980000": "Anual"
+    },
+    "equipamentos": [
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Controlar a folga das válvulas",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Anual",
+                    "horas": 2.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpar os bicos de admissão no regulador de velocidade",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Semestral",
+                    "horas": 16.0
+                },
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "Semestral",
+                    "horas": 16.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpar e controlar as bombas de óleo e de água",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "30/03 à 05/04",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "12/10 à 18/10",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Trimestral",
+                    "horas": 4.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Controlar o funcionamento e examinar o grau de sujeira e de desgaste de todas as válvulas, separadores de água, filtros e cilindros do telecomando pneumático, e substituir as peças danificadas",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                },
+                {
+                    "semana": "30/03 à 05/04",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                },
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                },
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                },
+                {
+                    "semana": "12/10 à 18/10",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                },
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Trimestral",
+                    "horas": 2.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Controlar as rodas dentadas do acionamento de comando",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpar as válvulas de partida, as válvulas de gaveta e a válvula de partida principal, assim como os tubos com videoscopia",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Anual",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpeza das válvulas e entrada de ar e superalimentação com videoscopia",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Anual",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpar e examinar o garrafão de ar comprimido.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "23/11 à 29/11",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Limpar os tubos do escapamento e de ar de superalimentação.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "16/11 à 22/11",
+                    "periodicidade": "Anual",
+                    "horas": 8.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Inspeção de verificação de ruido",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "16/11 à 22/11",
+                    "periodicidade": "Anual",
+                    "horas": null
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "16/11 à 22/11",
+                    "periodicidade": "Anual",
+                    "horas": null
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-MCP01",
+            "descricao_do_eqto": "Motor de Combustão Principal MWM TD 440-8",
+            "atividade": "Verificação do torque de aperto (85,3 Nm) nos parafusos do volante traseiro.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "16/11 à 22/11",
+                    "periodicidade": "Anual",
+                    "horas": 8.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Verificar a fixação do amortecedor de vibração (4.5 - 5.0 Kgf.m)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Examinar as escovas do motor de arranque e alternador (Verificar com o Gabriel)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Testar os bicos injetores (verificar se possivel anualmente)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Controlar a pressão de compressão (verificar se possivel anualmente)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Inspeção de verificação de ruido",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": " troca  dos rolamentos da bomba d'agua e da polia esticadora.",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 8.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": null
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA01",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar V12 - MWM - D232",
+            "atividade": "Testar válvula termostática",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "FF990000",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Verificar a folga das válvulas  (verificar a disponibilidade anualmente)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 4.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Verificar as escovas do motor de partida e alternador",
+            "periodicidade": "biAnual",
+            "datas": [
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "FF990000",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "14/12 à 20/12",
+                    "periodicidade": "FF990000",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Testar os bicos injetores ",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.2
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Inspeção de verificação de ruido",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Controlar a pressão de contrapressão",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Controlar os rolamentos da bomba d'agua",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 8.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA02",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 2",
+            "atividade": "Testar a válvula termostática",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "FF990000",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Verificar as escorvas do motor de partida e alternador",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Inspeção de verificação de ruido",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Testar e limpar os bicos injetores",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.2
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Controlar a pressão de compressão",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Controlar os rolamentos da bomba d'agua",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Lavar o sistema interno de arrefecimento (motor e radiador)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/09 à 13/09",
+                    "periodicidade": "Anual",
+                    "horas": 8.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Testar os instrumentos de controle",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA03",
+            "descricao_do_eqto": "Motor de Combustão Auxiliar - MWM - TD225.6 - MCA 3",
+            "atividade": "Testar a válvula termostática",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "Anual",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Limpeza do sistema de refrigeração (limpeza(quimica ou vareteamento), teste de estanquiedade)",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "14/09 à 20/09",
+                    "periodicidade": "Anual",
+                    "horas": 16.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Subtituição da válvula de ventilação fechada do cárter(pdf Manual)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Semestral",
+                    "horas": 4.0
+                },
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "Semestral",
+                    "horas": 4.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Verificação do injetor",
+            "periodicidade": "Anual",
+            "datas": [
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Anual",
+                    "horas": 0.2
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Inspeção de verificação de ruido",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Inspeção de termografia (Cabeçote, Bloco e turbina)",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "29/06 à 05/07",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "02/11 à 08/11",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-MCA04",
+            "descricao_do_eqto": "Motor auxiliar de Emergência Scania DSI11 - MCA 4",
+            "atividade": "Verificação das correias(trooca anual e inspeção quinzenal checklist caderno)",
+            "periodicidade": "Annual",
+            "datas": [
+                {
+                    "semana": "31/08 à 06/09",
+                    "periodicidade": "FF990000",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-COM01",
+            "descricao_do_eqto": "Compressor de Ar - Atlas Copco - LT3-30BM",
+            "atividade": "Substituir a válvula de retenção ou dispositivo de descarga",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-COM01",
+            "descricao_do_eqto": "Compressor de Ar - Atlas Copco - LT3-30BM",
+            "atividade": "Substituir os discos das válvulas",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Semestral",
+                    "horas": 1.0
+                },
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "Semestral",
+                    "horas": 1.0
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-COM02",
+            "descricao_do_eqto": "Compressor de Ar - Motomil - CMAV - 20/200",
+            "atividade": "Verificar tensionamento e alinhamento da correia",
+            "periodicidade": "Semestral",
+            "datas": [
+                {
+                    "semana": "09/02 à 15/02",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "24/08 à 30/08",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SPP-CRE01",
+            "descricao_do_eqto": "Caixa Redutora MCP (Caixa reversora) - Reintjes",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Semestra",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMP-CRE02",
+            "descricao_do_eqto": "Caixa Redutor MCA01 -",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Semestra",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMC-CRE03",
+            "descricao_do_eqto": "Caixa Redutora Molinete - Marine",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Semestra",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "28/09 à 04/10",
+                    "periodicidade": "Semestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SHI-UHI01",
+            "descricao_do_eqto": "Unidade Hidráulica 01 (Oceaniográfico) ",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SHI-UHI02",
+            "descricao_do_eqto": "Unidade Hidráulica 02 (Grande) -",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SHI-UEH03",
+            "descricao_do_eqto": "Unidade Hidráulica 03 (Pequeno) - ",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SHI-UEH01",
+            "descricao_do_eqto": "Unidade Eletro Hidráulica (Leme) - Racine",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                }
+            ]
+        },
+        {
+            "tag": "AS01-SMC-UHI03",
+            "descricao_do_eqto": "Unidade Hidráulica (Munk) - Madal / SA",
+            "atividade": "Coletar amostra para análise de óleo",
+            "periodicidade": "Trimestral",
+            "datas": [
+                {
+                    "semana": "22/06 à 28/06",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "17/08 à 23/08",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                },
+                {
+                    "semana": "07/12 à 13/12",
+                    "periodicidade": "Trimestral",
+                    "horas": 0.5
+                }
+            ]
+        }
+    ]
+}

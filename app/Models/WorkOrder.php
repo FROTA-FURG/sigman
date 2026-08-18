@@ -23,6 +23,7 @@ class WorkOrder extends Model
         'maintenance_type',
         'priority',
         'periodicity',
+        'in_52_week_plan', // OS faz parte do Plano de 52 Semanas (cronograma anual), não é avulsa
         'status',
         'vendor_name',
         'third_party_id',
@@ -30,6 +31,14 @@ class WorkOrder extends Model
         'intern_status',   // Status da OS (Aprovado estagiário e encaminhado para o engenheiro)
         'intern_reason',   // Razão pelo atraso da OS (se aplicável)
         'intern_name',     // Nome do estagiário responsável por aprovar a OS
+        'engineer_comment',    // Observação do engenheiro no planejamento (antes do disparo)
+        'engineer_comment_by',
+        'engineer_comment_at',
+        'is_inactive',          // Ocorrência não vai acontecer na data marcada; foi reprogramada
+        'inactivated_at',
+        'inactivated_by',
+        'inactivation_reason',
+        'rescheduled_from_id',  // Nesta OS: aponta pra OS antiga que ela substituiu
         'completed_at',
         'dispatched_at',   // Quando a OS foi disparada e os responsáveis avisados por e-mail
         'approved_by',     // Engenheiro que deu a validação final na OS
@@ -38,6 +47,10 @@ class WorkOrder extends Model
     ];
 
     protected $casts = [
+        'in_52_week_plan' => 'boolean',
+        'engineer_comment_at' => 'datetime',
+        'is_inactive'      => 'boolean',
+        'inactivated_at'   => 'datetime',
         'completed_at'  => 'datetime',
         'dispatched_at' => 'datetime',
         'approved_at'   => 'datetime',
@@ -76,5 +89,22 @@ class WorkOrder extends Model
     public function thirdParty()
     {
         return $this->belongsTo(ThirdParty::class);
+    }
+
+    public function inactivatedByUser()
+    {
+        return $this->belongsTo(User::class, 'inactivated_by');
+    }
+
+    /** A OS antiga que esta substituiu (quando esta nasceu de uma inativação). */
+    public function rescheduledFrom()
+    {
+        return $this->belongsTo(WorkOrder::class, 'rescheduled_from_id');
+    }
+
+    /** A OS nova que substituiu esta (quando esta foi inativada e reprogramada). */
+    public function rescheduledTo()
+    {
+        return $this->hasOne(WorkOrder::class, 'rescheduled_from_id');
     }
 }

@@ -52,7 +52,8 @@ class WorkOrderController extends Controller
             'maintenance_type' => 'required|in:corrective,preventive,predictive',
             'priority'         => 'required|in:low,medium,high,critical',
             'status'           => 'required|in:open,in_progress,completed,cancelled',
-            'periodicity'      => 'required|string|max:50',
+            'periodicity'      => 'nullable|string|max:50',
+            'in_52_week_plan'  => 'boolean',
             'vendor_name'      => 'nullable|string|max:255',
             'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
@@ -112,15 +113,24 @@ class WorkOrderController extends Controller
             'maintenance_type' => 'sometimes|in:corrective,preventive,predictive',
             'priority'         => 'sometimes|in:low,medium,high,critical',
             'status'           => 'sometimes|in:open,in_progress,completed,cancelled',
-            'periodicity'      => 'required|string|max:50',
+            'periodicity'      => 'nullable|string|max:50',
+            'in_52_week_plan'  => 'boolean',
             'vendor_name'      => 'nullable|string|max:255',
             'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
+            'engineer_comment' => 'nullable|string|max:5000',
             'created_at'       => 'required|date',
             'completed_at'     => 'nullable|date',
         ]);
 
-        $this->workOrderService->updateWorkOrder($id, $validatedData);
+        // A observação do engenheiro é dele: estagiário e marinheiro abrem o
+        // mesmo modal (podem editar outros campos da OS da sua embarcação),
+        // então o campo é descartado se quem enviou não for da gestão.
+        if (array_key_exists('engineer_comment', $validatedData) && ! $this->canComment($request->user())) {
+            unset($validatedData['engineer_comment']);
+        }
+
+        $this->workOrderService->updateWorkOrder($id, $validatedData, $request->user());
 
         return redirect()->back()->with('success', 'Work Order updated successfully.');
     }
@@ -146,6 +156,18 @@ class WorkOrderController extends Controller
         return ($user?->role->name ?? null) === 'terceiro';
     }
 
+    /** Quem pode deixar a observação do engenheiro na OS. */
+    private function canComment(?User $user): bool
+    {
+        return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
+    }
+
+    /** Quem pode inativar/reprogramar uma OS do plano -- decisão de planejamento, não de execução. */
+    private function canInactivate(?User $user): bool
+    {
+        return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
+    }
+
     public function getAllWorkOrders()
     {
         // Traz a OS + Equipamento + Navio + Atividades + Quem fez a atividade + se existir uma SS vinculada
@@ -156,15 +178,61 @@ class WorkOrderController extends Controller
 
     public function updateInternStatus(Request $request, $id)
     {
-        $os = WorkOrder::findOrFail($id);
-
-        $os->update([
-            'intern_status' => $request->intern_status,
-            'intern_reason' => $request->intern_reason,
-            'intern_name'   => $request->intern_name,
+        $validated = $request->validate([
+            'intern_status' => 'required|in:pending,approved,waiting',
+            'intern_reason' => 'nullable|string|max:2000',
         ]);
 
-        return back(); 
+        $os = WorkOrder::findOrFail($id);
+
+        $reason = trim((string) ($validated['intern_reason'] ?? ''));
+
+        $os->update([
+            'intern_status' => $validated['intern_status'],
+            'intern_reason' => $reason === '' ? null : $reason,
+            // Vem de quem está logado, não do corpo do request: antes o nome
+            // era enviado pelo front e dava para assinar a validação com o
+            // nome de outra pessoa.
+            'intern_name'   => $request->user()?->nickname ?: $request->user()?->username,
+        ]);
+
+        return back();
+    }
+
+    /**
+     * A ocorrência marcada não vai acontecer: inativa a OS e cria a
+     * próxima, conforme a periodicidade ou numa nova data escolhida pelo
+     * engenheiro (que também reancora as ocorrências futuras da mesma
+     * tarefa -- ver WorkOrderService::inactivateWorkOrder).
+     */
+    public function inactivate(Request $request, string $id)
+    {
+        if (! $this->canInactivate($request->user())) {
+            abort(403, 'Só dev, coordenador ou engenheiro podem inativar/reprogramar uma OS.');
+        }
+
+        $validated = $request->validate([
+            'modo' => 'required|in:periodicidade,nova_data',
+            'nova_data' => 'required_if:modo,nova_data|nullable|date',
+            'motivo' => 'nullable|string|max:2000',
+        ]);
+
+        $resultado = $this->workOrderService->inactivateWorkOrder(
+            $id,
+            $validated['modo'],
+            $request->user(),
+            $validated['nova_data'] ?? null,
+            $validated['motivo'] ?? null,
+        );
+
+        $mensagem = "OS {$resultado['antiga']->os_number} inativada. Reprogramada para {$resultado['nova']->os_number}, em "
+            . $resultado['nova']->created_at->format('d/m/Y') . '.';
+
+        if ($resultado['reancoradas'] > 0) {
+            $mensagem .= " {$resultado['reancoradas']} ocorrência(s) futura(s) da mesma tarefa foram reancoradas a partir da nova data.";
+        }
+
+        return back()->with('success', $mensagem);
     }
 
     public function updateStatus(Request $request, $id)
