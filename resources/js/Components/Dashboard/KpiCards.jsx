@@ -39,8 +39,8 @@ export default function KpiCards({ kpis }) {
                <div className="overflow-hidden rounded-xl bg-[#0b203c]/90 p-2.5 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-blue-500">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Embarcações</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">{vessels.operational}</p>
+                            <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Embarcações Operacionais</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{vessels.operational}<span className="text-sm font-medium text-slate-500">/{vessels.total}</span></p>
                         </div>
                         <div className="rounded-full bg-blue-500/10 p-1.5 text-blue-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
