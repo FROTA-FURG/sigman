@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, usePage } from '@inertiajs/react';
+import BrDateInput from '@/Components/BrDateInput';
 
 const VESSELS = [
     { id: 'AS', name: 'Atlântico Sul', prefix: 'AS' },
@@ -233,11 +234,10 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
 
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS <span className="text-red-500">*</span></label>
-                                    <input 
-                                        type="date" 
-                                        value={data.created_at} 
-                                        onChange={e => setData('created_at', e.target.value)}
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]"
+                                    <BrDateInput
+                                        value={data.created_at}
+                                        onChange={value => setData('created_at', value)}
+                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
                                     />
                                     {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
                                 </div>

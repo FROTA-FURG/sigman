@@ -1,9 +1,10 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
-import { Head, usePage} from '@inertiajs/react';
+import { Head, Link, usePage} from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
 import CreateNodeModal from './Equipments/CreateNodeModal';
 import EditNodeModal from './Equipments/EditNodeModal';
 import DeleteNodeModal from './Equipments/DeleteNodeModal';
+import ImageLightbox from './components/ImageLightbox';
 
 // Definição das Estruturas Fixas
 const VESSELS = [
@@ -161,6 +162,7 @@ export default function Index({ equipmentTree }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     
     const allowedRoles = ['intern', 'coordinator', 'engineer', 'dev'];
     const hasPermission = auth?.user && allowedRoles.includes(auth.user.role);
@@ -208,6 +210,13 @@ export default function Index({ equipmentTree }) {
             <CreateNodeModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} selectedParent={selectedNode} />
             <EditNodeModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} nodeData={selectedNode} />
             <DeleteNodeModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} nodeData={selectedNode} />
+            {isLightboxOpen && (
+                <ImageLightbox
+                    src={`/storage/${selectedNode?.image_url}`}
+                    alt={selectedNode?.name}
+                    onClose={() => setIsLightboxOpen(false)}
+                />
+            )}
                 
             <div className="flex h-full flex-col space-y-4">
                 
@@ -250,37 +259,65 @@ export default function Index({ equipmentTree }) {
                         {selectedNode ? (
                             <>
                                 <div className="border-b border-slate-700/50 bg-slate-900/50 p-6 flex items-start justify-between">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
-                                                {selectedNode.type === 'vessel' ? 'Embarcação' : selectedNode.type === 'section' ? 'Seção' : selectedNode.type === 'system' ? 'Sistema' : selectedNode.type === 'equipment' ? 'Equipamento' : 'Componente'}
-                                            </span>
-                                            {selectedNode.tag && <span className="rounded bg-slate-800 px-2 py-0.5 text-xs font-mono text-slate-300 ring-1 ring-slate-700">{selectedNode.tag}</span>}
+                                    <div className="flex items-start gap-4">
+                                        {['equipment', 'component'].includes(selectedNode.type) && (
+                                            selectedNode.image_url ? (
+                                                <img
+                                                    src={`/storage/${selectedNode.image_url}`}
+                                                    alt={selectedNode.name}
+                                                    onClick={() => setIsLightboxOpen(true)}
+                                                    className="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-700 cursor-zoom-in hover:ring-blue-500 transition"
+                                                />
+                                            ) : (
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-900 ring-1 ring-slate-700">
+                                                    <svg className="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                </div>
+                                            )
+                                        )}
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
+                                                    {selectedNode.type === 'vessel' ? 'Embarcação' : selectedNode.type === 'section' ? 'Seção' : selectedNode.type === 'system' ? 'Sistema' : selectedNode.type === 'equipment' ? 'Equipamento' : 'Componente'}
+                                                </span>
+                                                {selectedNode.tag && <span className="rounded bg-slate-800 px-2 py-0.5 text-xs font-mono text-slate-300 ring-1 ring-slate-700">{selectedNode.tag}</span>}
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-white">{selectedNode.name}</h3>
                                         </div>
-                                        <h3 className="text-2xl font-bold text-white">{selectedNode.name}</h3>
                                     </div>
                                     <div className="flex flex-col items-end gap-3">
                                         {renderStatus(selectedNode.status)}
-                                        
-                                        {canEditOrDelete && (
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <button 
-                                                    onClick={() => setIsEditModalOpen(true)}
-                                                    className="flex items-center rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white ring-1 ring-inset ring-slate-700"
+
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {['equipment', 'component'].includes(selectedNode.type) && (
+                                                <Link
+                                                    href={route('equipments.show', selectedNode.id)}
+                                                    className="flex items-center rounded-md bg-blue-600/10 px-3 py-1.5 text-xs font-medium text-blue-400 transition hover:bg-blue-600/20 hover:text-blue-300 ring-1 ring-inset ring-blue-600/20"
                                                 >
-                                                    <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                                    Editar
-                                                </button>
-                                                
-                                                <button 
-                                                    onClick={() => setIsDeleteModalOpen(true)}
-                                                    className="flex items-center rounded-md bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 hover:text-red-300 ring-1 ring-inset ring-red-500/20"
-                                                >
-                                                    <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    Excluir
-                                                </button>
-                                            </div>
-                                        )}
+                                                    <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                                    Ver Página Completa
+                                                </Link>
+                                            )}
+
+                                            {canEditOrDelete && (
+                                                <>
+                                                    <button
+                                                        onClick={() => setIsEditModalOpen(true)}
+                                                        className="flex items-center rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white ring-1 ring-inset ring-slate-700"
+                                                    >
+                                                        <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                        Editar
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => setIsDeleteModalOpen(true)}
+                                                        className="flex items-center rounded-md bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 hover:text-red-300 ring-1 ring-inset ring-red-500/20"
+                                                    >
+                                                        <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        Excluir
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -321,12 +358,23 @@ export default function Index({ equipmentTree }) {
                                     )}
 
                                     <h4 className="text-sm font-semibold text-white mb-4 border-b border-slate-800 pb-2">Ordens de Serviço Relacionadas</h4>
-                                    
-                                    {/* Ocultado provisoriamente porque o módulo de OS ainda não existe */}
-                                    <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
-                                        <svg className="h-10 w-10 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        <p className="text-sm text-slate-400">Nenhuma OS encontrada.</p>
-                                    </div>
+
+                                    {['equipment', 'component'].includes(selectedNode.type) ? (
+                                        <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
+                                            <svg className="h-10 w-10 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            <p className="text-sm text-slate-400 mb-3">OS vinculadas, última inspeção e calendário anual de manutenção.</p>
+                                            <Link
+                                                href={route('equipments.show', selectedNode.id)}
+                                                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-500"
+                                            >
+                                                Ver Página Completa do Equipamento
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
+                                            <p className="text-sm text-slate-500">OS vinculadas se aplicam apenas a equipamentos específicos.</p>
+                                        </div>
+                                    )}
 
                                 </div>
                             </>

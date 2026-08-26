@@ -5,11 +5,13 @@ import { useState, useMemo } from 'react';
 import WeeklyProgress from './components/WeeklyProgress';
 import FullPlan from './components/FullPlan';
 import FutureOS from './components/FutureOS';
+import FleetCalendar from './components/FleetCalendar';
+import WorkOrdersTabBar from './components/WorkOrdersTabBar';
 import CreateWorkOrderModal from '@/Pages/WorkOrders/components/CreateOSModal';
 import WeekPickerModal from './components/WeekPickerModal';
 import { getMonday, getSunday, formatWeekRange } from '@/utils/weeks';
 
-export default function Index({ auth, workOrders = [], equipments = [], users = [] }) {
+export default function Index({ auth, workOrders = [], equipments = [], users = [], cruisePlans = {} }) {
     const [activeTab, setActiveTab] = useState('planning');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -162,17 +164,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                 </div>
 
                 <div className="flex items-center justify-between border-b border-slate-800">
-                    <div className="flex items-center">
-                        <button onClick={() => setActiveTab('planning')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'planning' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            Métricas
-                        </button>
-                        <button onClick={() => setActiveTab('future')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'future' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            Planejamento
-                        </button>
-                        <button onClick={() => setActiveTab('weekly')} className={`px-5 py-3 text-sm font-medium transition-all border-b-2 ${activeTab === 'weekly' ? 'border-blue-500 text-white' : 'border-transparent text-slate-400 hover:text-white'}`}>
-                            Andamento
-                        </button>
-                    </div>
+                    <WorkOrdersTabBar activeTab={activeTab} onTabClick={setActiveTab} />
 
                     <div className="flex items-center gap-3 pb-1">
                         <button onClick={() => setIsSidebarOpen(true)} className="flex items-center gap-2 rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-700 transition-colors">
@@ -192,6 +184,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                     {activeTab === 'planning' && <FullPlan workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} />}
                     {activeTab === 'weekly' && <WeeklyProgress currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} weekStart={weekStart} weekEnd={weekEnd} />}
                     {activeTab === 'future' && <FutureOS currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} internStatusFilter={internStatusFilter} />}
+                    {activeTab === 'calendar' && <FleetCalendar currentUser={auth?.user} workOrders={workOrders} equipments={equipments} cruisePlans={cruisePlans} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} />}
                 </div>
             </div>
         </SIGMANLayout>

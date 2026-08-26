@@ -4,11 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Vessel;
 use App\Models\Equipment;
+use App\Models\WorkOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class EquipmentController extends Controller
 {
+    /**
+     * Página de detalhe de um equipamento: imagem, descrição, última
+     * inspeção (a OS concluída mais recente), todas as OS vinculadas
+     * (pra lista + calendário anual) e navegação na árvore (pai/filhos).
+     */
+    public function show(string $id)
+    {
+        $equipment = Equipment::with(['vessel', 'parent', 'children'])->findOrFail($id);
+
+        $workOrders = WorkOrder::where('equipment_id', $equipment->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // "Realizada" = pela data em que a OS foi de fato concluída
+        // (completed_at), não pela data prevista (created_at) -- uma OS
+        // atrasada e concluída depois ainda conta como a mais recente.
+        $lastInspection = WorkOrder::where('equipment_id', $equipment->id)
+            ->where('status', 'completed')
+            ->orderByRaw('COALESCE(completed_at, created_at) DESC')
+            ->first();
+
+        return Inertia::render('Equipment/Show', [
+            'equipment' => $equipment,
+            'workOrders' => $workOrders,
+            'lastInspection' => $lastInspection,
+        ]);
+    }
+
     public function index()
     {
         // Busca todas as embarcações e seus equipamentos "raiz" (que não têm pai)
@@ -48,6 +78,7 @@ class EquipmentController extends Controller
                 'series_number' => $equipment->series_number,
                 'criticality' => $equipment->criticality ?? 'A',
                 'status' => $equipment->status ?? 'Operacional',
+                'image_url' => $equipment->image_url,
                 'children' => $this->formatEquipmentTree($equipment->children)
             ];
         });
@@ -104,12 +135,15 @@ class EquipmentController extends Controller
             'series_number'=> 'nullable|string|max:255',
             'manufacturer' => 'nullable|string|max:255',
             'model'        => 'nullable|string|max:255',
-            'criticality'  => 'nullable|string|max:255', 
+            'criticality'  => 'nullable|string|max:255',
+            'description'  => 'nullable|string|max:5000',
+            'image'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'remove_image' => 'boolean',
         ]);
 
         $equipment = Equipment::findOrFail($id);
 
-        $equipment->update([
+        $data = [
             'name'         => $validated['name'],
             'tag_number'   => $validated['tag'],
             'status'       => $validated['status'],
@@ -117,7 +151,17 @@ class EquipmentController extends Controller
             'manufacturer' => $validated['manufacturer'] ?? null,
             'model'        => $validated['model'] ?? null,
             'criticality'  => $validated['criticality'] ?? null,
-        ]);
+            'description'  => $validated['description'] ?? null,
+        ];
+
+        if ($request->hasFile('image')) {
+            $data['image_url'] = $this->replaceEquipmentImage($equipment, $request->file('image'));
+        } elseif ($request->boolean('remove_image')) {
+            $this->deleteEquipmentImage($equipment);
+            $data['image_url'] = null;
+        }
+
+        $equipment->update($data);
 
         return redirect()->back()->with('success', 'Informações atualizadas com sucesso!');
     }
@@ -125,13 +169,31 @@ class EquipmentController extends Controller
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
-        
+
         // Exclui todos os filhos atrelados a este equipamento antes de excluí-lo
+        foreach ($equipment->children as $child) {
+            $this->deleteEquipmentImage($child);
+        }
         $equipment->children()->delete();
-        
-        // Exclui o item principal
+
+        $this->deleteEquipmentImage($equipment);
         $equipment->delete();
 
         return redirect()->back()->with('success', 'Item excluído com sucesso da árvore.');
+    }
+
+    /** Salva a foto nova no disco público e apaga a anterior (se houver). Retorna o path relativo salvo. */
+    private function replaceEquipmentImage(Equipment $equipment, $file): string
+    {
+        $this->deleteEquipmentImage($equipment);
+
+        return $file->store('equipment', 'public');
+    }
+
+    private function deleteEquipmentImage(Equipment $equipment): void
+    {
+        if ($equipment->image_url) {
+            Storage::disk('public')->delete($equipment->image_url);
+        }
     }
 }

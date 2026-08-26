@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, router, usePage } from '@inertiajs/react';
+import BrDateInput from '@/Components/BrDateInput';
 
 export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], currentUser }) {
     const [mounted, setMounted] = useState(false);
@@ -21,15 +22,29 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         third_party_id: '',
         estimated_hours: '',
         created_at: '',
+        started_at: '',
     });
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
+    // created_at é uma DATA-ALVO (sempre meia-noite UTC, sem hora real) --
+    // pega a data direto da string. started_at é um instante de verdade
+    // (vem de now()), então precisa converter UTC -> fuso local antes de
+    // extrair o dia, senão à noite no Brasil ele mostra o dia seguinte.
+    const toLocalDateInputValue = (isoString) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+
     useEffect(() => {
         if (osData && isOpen) {
-            const formattedDate = osData.created_at 
+            const formattedDate = osData.created_at
                 ? osData.created_at.substring(0, 10)
                 : '';
 
@@ -46,6 +61,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 third_party_id: osData.third_party_id || '',
                 estimated_hours: osData.estimated_hours || '',
                 created_at: formattedDate,
+                started_at: toLocalDateInputValue(osData.started_at),
             });
         }
     }, [osData, isOpen]);
@@ -87,6 +103,11 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     // O modal só é editável se for TI, Engenheiro, ou o Estagiário daquela exata embarcação
     const canEdit = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
 
+    // Status é à parte, mesmo dentro do que o estagiário pode editar: ele só
+    // aprova a OS (intern_status, no seu Planejamento) -- quem dispara/muda
+    // o status de verdade é o engenheiro (ou TI).
+    const canChangeStatus = isTI || isEngenheiro;
+
     // A observação do engenheiro é da gestão. O estagiário até abre este modal
     // (edita outros campos da OS da embarcação dele), mas o campo fica só de
     // leitura — a trava de verdade está no servidor, isto aqui é a interface.
@@ -95,6 +116,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
     // Estilo padrão para os inputs dependendo da permissão
     const inputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canEdit ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
+    const statusInputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canChangeStatus ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
 
     return createPortal(
         <>
@@ -257,12 +279,13 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <select 
-                                        value={data.status} 
-                                        onChange={e => setData('status', e.target.value)} 
-                                        disabled={!canEdit}
-                                        className={inputClasses}
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status {canChangeStatus && <span className="text-red-500">*</span>}</label>
+                                    <select
+                                        value={data.status}
+                                        onChange={e => setData('status', e.target.value)}
+                                        disabled={!canChangeStatus}
+                                        className={statusInputClasses}
+                                        title={!canChangeStatus && canEdit ? 'Só engenheiro pode mudar o status -- o estagiário aprova pelo Planejamento.' : undefined}
                                     >
                                         <option value="open">Aberto (Não Iniciado)</option>
                                         <option value="in_progress">Em Andamento</option>
@@ -270,6 +293,9 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                         <option value="completed">Concluída</option>
                                         <option value="cancelled">Cancelada</option>
                                     </select>
+                                    {!canChangeStatus && canEdit && (
+                                        <p className="mt-1 text-[10px] text-slate-500">Só engenheiro pode mudar o status da OS. Aprove pelo Planejamento.</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
@@ -334,12 +360,11 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
                                 <div className="sm:col-span-1">
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <input 
-                                        type="date" 
-                                        value={data.created_at} 
-                                        onChange={e => setData('created_at', e.target.value)}
+                                    <BrDateInput
+                                        value={data.created_at}
+                                        onChange={value => setData('created_at', value)}
                                         disabled={!canEdit}
-                                        className={`${inputClasses} [color-scheme:dark]`}
+                                        className={inputClasses}
                                     />
                                     {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
                                 </div>
@@ -357,6 +382,20 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                             <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div className="sm:col-span-1">
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Real</label>
+                                    <BrDateInput
+                                        value={data.started_at}
+                                        onChange={value => setData('started_at', value)}
+                                        disabled={!canEdit}
+                                        className={inputClasses}
+                                    />
+                                    <p className="mt-1 text-[10px] text-slate-500">
+                                        {data.started_at ? 'Preenchida automaticamente ao marcar "Em Andamento"; ajuste aqui se esqueceram de mudar o status na hora.' : 'Ainda não iniciada.'}
+                                    </p>
+                                    {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
                                 </div>
                             </div>
                             <div>

@@ -77,6 +77,16 @@ class WorkOrderService
             } elseif ($data['status'] !== 'completed') {
                 $data['completed_at'] = null;
             }
+
+            // Mesma ideia pro início: primeira vez que a OS entra em andamento,
+            // marca quando aconteceu de verdade. Diferente da conclusão, não
+            // apaga se o status sair de 'in_progress' depois -- já começou,
+            // isso é fato histórico, não reflete o status atual. Se o usuário
+            // já mandou o started_at no formulário (correção manual), essa
+            // escolha prevalece sobre o automático.
+            if ($data['status'] === 'in_progress' && is_null($workOrder->started_at) && empty($data['started_at'])) {
+                $data['started_at'] = now();
+            }
         }
 
         $workOrder->update($data);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import BrDateInput from '@/Components/BrDateInput';
 
 // Espelha App\Services\PeriodicityInterval no backend -- só pra mostrar a
 // data prévia antes de confirmar. Quem decide de verdade é o servidor.
@@ -126,11 +127,10 @@ export default function InactivateOSModal({ isOpen, onClose, os }) {
                                     Mantém a periodicidade a partir da nova data -- as próximas ocorrências desta mesma tarefa (se já existirem no plano) são reprogramadas junto, respeitando o intervalo.
                                 </span>
                                 {modo === 'nova_data' && (
-                                    <input
-                                        type="date"
+                                    <BrDateInput
                                         autoFocus
                                         value={novaData}
-                                        onChange={(e) => setNovaData(e.target.value)}
+                                        onChange={(value) => setNovaData(value)}
                                         className="mt-2 w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-200 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                     />
                                 )}

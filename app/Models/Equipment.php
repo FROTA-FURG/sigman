@@ -21,9 +21,15 @@ class Equipment extends Model
         'model',
         'purchase_date', 
         'in_service_date',
-        'criticality',    
-        'status',       
-        'image_url',      
+        'criticality',
+        'status',
+        'image_url',
+        'description',
+    ];
+
+    protected $casts = [
+        'purchase_date' => 'date',
+        'in_service_date' => 'date',
     ];
 
     public function vessel()
@@ -44,5 +50,10 @@ class Equipment extends Model
     public function components()
     {
         return $this->hasMany(Component::class);
+    }
+
+    public function workOrders()
+    {
+        return $this->hasMany(WorkOrder::class);
     }
 }

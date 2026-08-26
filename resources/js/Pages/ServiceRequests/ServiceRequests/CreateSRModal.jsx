@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, usePage } from '@inertiajs/react';
+import BrDateInput from '@/Components/BrDateInput';
 
 export default function CreateServiceRequestModal({ isOpen, onClose, vessels = [], equipments = [], users = [] }) {
     const { auth, thirdParties = [] } = usePage().props; // Usuário logado + empresas terceirizadas
@@ -280,7 +281,7 @@ export default function CreateServiceRequestModal({ isOpen, onClose, vessels = [
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Data Desejada para Resolução <span className="text-slate-500">(Opcional)</span></label>
-                                    <input type="date" value={data.desired_date} onChange={e => setData('desired_date', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-emerald-500 [color-scheme:dark]" />
+                                    <BrDateInput value={data.desired_date} onChange={value => setData('desired_date', value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-emerald-500" />
                                 </div>
                             </div>
 

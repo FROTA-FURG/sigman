@@ -1,5 +1,7 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
+import EditWorkOrderModal from './components/EditWorkOrderModal';
 
 const STATUS = {
     open:        { label: 'Aberta',       classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -39,6 +41,18 @@ const PERIODICITY = {
 };
 
 const formatDate = (value) => (value ? new Date(value).toLocaleDateString('pt-BR') : '—');
+
+// created_at (e o created_at de outra OS, em referências cruzadas) é uma
+// DATA-ALVO -- sempre meia-noite UTC no banco -- não um instante real como
+// approved_at/inactivated_at. Passar isso por Date()+fuso do navegador
+// arredonda pro dia anterior sempre que o fuso for negativo (Brasil,
+// UTC-3), então aqui a data sai direto da string, sem conversão de fuso.
+const formatPureDate = (value) => {
+    if (!value) return '—';
+    const [datePart] = value.split('T');
+    const [y, m, d] = datePart.split('-');
+    return `${d}/${m}/${y}`;
+};
 
 const formatDateTime = (value) =>
     value
@@ -82,7 +96,31 @@ function Card({ title, children, className = '' }) {
     );
 }
 
-export default function Show({ workOrder }) {
+export default function Show({ workOrder, equipments = [] }) {
+    const [changingStatus, setChangingStatus] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const { auth } = usePage().props;
+    const { url } = usePage();
+
+    // Se veio de um lugar específico (ex.: uma Janela de Execução), volta
+    // pra lá em vez de sempre cair na listagem geral de OS. route() do
+    // Ziggy gera link absoluto (http://...), então normaliza com new URL()
+    // em vez de só checar se começa com "/" -- e descarta qualquer origem
+    // diferente da atual, ficando só com o path+query relativo.
+    const { backHref, backLabel } = useMemo(() => {
+        const query = url.split('?')[1] || '';
+        const back = new URLSearchParams(query).get('back');
+        if (!back) {
+            return { backHref: route('work-orders.index'), backLabel: 'Voltar para Ordens de Serviço' };
+        }
+        try {
+            const parsed = new URL(back, window.location.origin);
+            return { backHref: `${parsed.pathname}${parsed.search}`, backLabel: 'Voltar' };
+        } catch {
+            return { backHref: route('work-orders.index'), backLabel: 'Voltar para Ordens de Serviço' };
+        }
+    }, [url]);
+
     // status='cancelled' por baixo é o que tira a OS inativada das
     // métricas (ver WorkOrderService::inactivateWorkOrder), mas aqui na
     // tela isso é bem diferente de "cancelada de vez".
@@ -93,6 +131,29 @@ export default function Show({ workOrder }) {
     const equipment = workOrder.equipment ?? {};
     const vessel = equipment.vessel ?? {};
 
+    // Mesma regra de permissão do EditWorkOrderModal pros campos gerais:
+    // TI/Engenheiro sempre, estagiário só na OS da própria embarcação.
+    // Status é à parte: o estagiário só aprova (intern_status) -- quem
+    // dispara/muda o status de verdade é o engenheiro (ou TI). Uma OS
+    // inativada não muda de status por aqui -- isso é papel do fluxo de
+    // reprogramação dela.
+    const roleName = String(auth?.user?.role?.name || auth?.user?.role || '').toLowerCase();
+    const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
+    const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
+    const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
+    const isLinkedToVessel = String(vessel.id) === String(auth?.user?.vessel_id);
+    const canEditFields = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
+    const canChangeStatus = !workOrder.is_inactive && (isTI || isEngenheiro);
+
+    const handleStatusChange = (e) => {
+        const newStatus = e.target.value;
+        setChangingStatus(true);
+        router.put(route('work-orders.update-status', workOrder.id), { status: newStatus }, {
+            preserveScroll: true,
+            onFinish: () => setChangingStatus(false),
+        });
+    };
+
     // Atividades da mais recente para a mais antiga
     const activities = [...(workOrder.activities ?? [])].sort(
         (a, b) => new Date(b.started_at) - new Date(a.started_at)
@@ -102,17 +163,37 @@ export default function Show({ workOrder }) {
         <SIGMANLayout>
             <Head title={`OS ${workOrder.os_number} | SIGMAN`} />
 
+            <EditWorkOrderModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                osData={workOrder}
+                equipments={equipments}
+                currentUser={auth?.user}
+            />
+
             <div className="mx-auto max-w-6xl pb-10">
                 {/* VOLTAR */}
-                <Link
-                    href={route('work-orders.index')}
-                    className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-white"
-                >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Voltar para Ordens de Serviço
-                </Link>
+                <div className="mb-4 flex items-center justify-between">
+                    <Link
+                        href={backHref}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-white"
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        {backLabel}
+                    </Link>
+
+                    {canEditFields && (
+                        <button
+                            onClick={() => setIsEditOpen(true)}
+                            className="flex items-center rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white ring-1 ring-inset ring-slate-700"
+                        >
+                            <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            Editar OS
+                        </button>
+                    )}
+                </div>
 
                 {/* CABEÇALHO */}
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-4 rounded-xl border border-slate-800 bg-[#0b203c] px-6 py-5 shadow-lg">
@@ -127,7 +208,21 @@ export default function Show({ workOrder }) {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge config={status} fallback={workOrder.status} />
+                        {canChangeStatus ? (
+                            <select
+                                value={workOrder.status}
+                                onChange={handleStatusChange}
+                                disabled={changingStatus}
+                                title="Mudar status da OS"
+                                className={`rounded-full border px-3 py-1 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 ${status?.classes || 'bg-slate-500/10 text-slate-400 border-slate-500/30'} ${changingStatus ? 'opacity-50' : 'cursor-pointer'}`}
+                            >
+                                {Object.entries(STATUS).map(([value, cfg]) => (
+                                    <option key={value} value={value} className="bg-slate-900 text-slate-200">{cfg.label}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <Badge config={status} fallback={workOrder.status} />
+                        )}
                         <Badge config={priority} fallback={workOrder.priority} />
                     </div>
                 </div>
@@ -176,7 +271,7 @@ export default function Show({ workOrder }) {
                                     </span>
                                 )}
                             </Field>
-                            <Field label="Data Prevista">{formatDate(workOrder.created_at)}</Field>
+                            <Field label="Data Prevista">{formatPureDate(workOrder.created_at)}</Field>
                             <Field label="Horas Estimadas">
                                 {workOrder.estimated_hours ? `${workOrder.estimated_hours} h` : null}
                             </Field>
@@ -188,6 +283,7 @@ export default function Show({ workOrder }) {
                                 {workOrder.service_request?.ss_number ?? workOrder.ss_number}
                             </Field>
                             <Field label="Disparada em">{formatDateTime(workOrder.dispatched_at)}</Field>
+                            <Field label="Iniciada em">{formatDateTime(workOrder.started_at)}</Field>
                             <Field label="Concluída em">{formatDateTime(workOrder.completed_at)}</Field>
                             <Field label="Aprovada pelo Engenheiro" className="col-span-2">
                                 {workOrder.approved_at
@@ -232,7 +328,7 @@ export default function Show({ workOrder }) {
                                                     {workOrder.rescheduled_to.os_number}
                                                 </Link>
                                                 <span className="ml-2 text-slate-500">
-                                                    (em {formatDate(workOrder.rescheduled_to.created_at)})
+                                                    (em {formatPureDate(workOrder.rescheduled_to.created_at)})
                                                 </span>
                                             </Field>
                                         )}

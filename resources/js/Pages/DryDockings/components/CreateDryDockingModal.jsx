@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
+import BrDateInput from '@/Components/BrDateInput';
 
 export default function CreateDryDockingModal({ isOpen, onClose, vessels = [] }) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
@@ -74,21 +75,19 @@ export default function CreateDryDockingModal({ isOpen, onClose, vessels = [] })
                             {/* Datas Planejadas */}
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Prevista <span className="text-red-500">*</span></label>
-                                <input 
-                                    type="date" 
+                                <BrDateInput
                                     value={data.planned_start_date}
-                                    onChange={e => setData('planned_start_date', e.target.value)}
-                                    className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]" 
+                                    onChange={value => setData('planned_start_date', value)}
+                                    className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
                                 />
                                 {errors.planned_start_date && <span className="text-xs text-red-500 mt-1 block">{errors.planned_start_date}</span>}
                             </div>
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Data de Fim Prevista <span className="text-red-500">*</span></label>
-                                <input 
-                                    type="date" 
+                                <BrDateInput
                                     value={data.planned_end_date}
-                                    onChange={e => setData('planned_end_date', e.target.value)}
-                                    className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]" 
+                                    onChange={value => setData('planned_end_date', value)}
+                                    className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
                                 />
                                 {errors.planned_end_date && <span className="text-xs text-red-500 mt-1 block">{errors.planned_end_date}</span>}
                             </div>

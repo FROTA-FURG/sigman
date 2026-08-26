@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\ExecutionWindowController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::get('/vessels/{id}', [VesselController::class, 'show'])->name('vessels.show');
 
     Route::get('/equipments', [EquipmentController::class, 'index'])->name('eq.index');
+    Route::get('/equipments/{id}', [EquipmentController::class, 'show'])->name('equipments.show');
     Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
     Route::put('/equipments/{equipment}', [EquipmentController::class, 'update'])->name('equipments.update');
     Route::delete('/equipments/{equipment}', [EquipmentController::class, 'destroy'])->name('equipments.destroy');
@@ -59,6 +61,9 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::put('/work-orders/{id}/intern-status', [WorkOrderController::class, 'updateInternStatus'])->name('work-orders.intern-status');
     Route::put('/work-orders/{id}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.update-status');
     Route::post('/work-orders/{id}/inactivate', [WorkOrderController::class, 'inactivate'])->name('work-orders.inactivate');
+
+    // Janelas de Execução (lote de OS agrupado por disponibilidade da embarcação)
+    Route::resource('execution-windows', ExecutionWindowController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
     # Users routes
     Route::get('/crew', [UserController::class, 'index'])->name('crew.index');

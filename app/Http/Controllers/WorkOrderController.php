@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Equipment;
 use App\Models\ThirdParty;
+use App\Models\Vessel;
 use App\Models\WorkOrder;
 use App\Services\WorkOrderDispatchNotifier;
 use App\Services\WorkOrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class WorkOrderController extends Controller
@@ -40,7 +42,29 @@ class WorkOrderController extends Controller
             'equipments' => $equipments,
             'users' => $users,
             'thirdParties' => $thirdParties,
+            'cruisePlans' => $this->loadCruisePlans(),
         ]);
+    }
+
+    /**
+     * Planejamento de cruzeiro por embarcação, pra sobrepor no calendário
+     * anual de manutenção (mostra quando ela está indisponível). Hoje são
+     * arquivos gerados aleatoriamente (cruise-plans:seed-random); o formato
+     * é o mesmo que a leitura do planejamento real vai produzir depois.
+     */
+    private function loadCruisePlans(): array
+    {
+        $disk = Storage::disk('local');
+        $planos = [];
+
+        foreach (Vessel::all(['tag']) as $vessel) {
+            $path = "cruise-plans/{$vessel->tag}.json";
+            if ($disk->exists($path)) {
+                $planos[$vessel->tag] = json_decode($disk->get($path), true) ?? [];
+            }
+        }
+
+        return $planos;
     }
 
     public function store(Request $request)
@@ -101,7 +125,12 @@ class WorkOrderController extends Controller
         }
 
         return Inertia::render('WorkOrders/Show', [
-            'workOrder' => $workOrder
+            'workOrder' => $workOrder,
+            'equipments' => Equipment::with('vessel')->orderBy('name')->get(),
+            // EditWorkOrderModal lê terceiros das props da página (não é
+            // parâmetro do componente) -- precisa estar aqui pra funcionar
+            // igual já funciona a partir da listagem de OS.
+            'thirdParties' => ThirdParty::orderBy('razao_social')->get(['id', 'razao_social', 'cnpj']),
         ]);
     }
 
@@ -121,6 +150,7 @@ class WorkOrderController extends Controller
             'engineer_comment' => 'nullable|string|max:5000',
             'created_at'       => 'required|date',
             'completed_at'     => 'nullable|date',
+            'started_at'       => 'nullable|date',
         ]);
 
         // A observação do engenheiro é dele: estagiário e marinheiro abrem o
@@ -128,6 +158,13 @@ class WorkOrderController extends Controller
         // então o campo é descartado se quem enviou não for da gestão.
         if (array_key_exists('engineer_comment', $validatedData) && ! $this->canComment($request->user())) {
             unset($validatedData['engineer_comment']);
+        }
+
+        // Estagiário só aprova a OS (intern_status, no Planejamento) -- quem
+        // dispara/muda o status de verdade é o engenheiro (ou TI). A trava
+        // no formulário é só interface; esta aqui é a que vale.
+        if (array_key_exists('status', $validatedData) && ! $this->canChangeStatus($request->user())) {
+            unset($validatedData['status']);
         }
 
         $this->workOrderService->updateWorkOrder($id, $validatedData, $request->user());
@@ -160,6 +197,12 @@ class WorkOrderController extends Controller
     private function canComment(?User $user): bool
     {
         return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
+    }
+
+    /** Estagiário só aprova (intern_status); quem dispara/muda o status é o engenheiro (ou TI). */
+    private function canChangeStatus(?User $user): bool
+    {
+        return in_array($user?->role->name ?? null, ['dev', 'engineer'], true);
     }
 
     /** Quem pode inativar/reprogramar uma OS do plano -- decisão de planejamento, não de execução. */
@@ -237,15 +280,24 @@ class WorkOrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        if (! $this->canChangeStatus($request->user())) {
+            abort(403, 'Só engenheiro ou TI mudam o status da OS. O estagiário aprova pelo Planejamento.');
+        }
+
         $request->validate([
             'status' => 'required|string|in:open,in_progress,scheduled,completed,cancelled'
         ]);
 
         $os = WorkOrder::with('equipment.vessel')->findOrFail($id);
 
-        $os->update([
-            'status' => $request->status
-        ]);
+        $updateData = ['status' => $request->status];
+
+        // Primeira vez que entra em andamento, marca quando começou de verdade.
+        if ($request->status === 'in_progress' && is_null($os->started_at)) {
+            $updateData['started_at'] = now();
+        }
+
+        $os->update($updateData);
 
         // Disparar (ou agendar) é a validação final do engenheiro. Registra quem aprovou
         // e avisa os estagiários daquela embarcação no sino do perfil.

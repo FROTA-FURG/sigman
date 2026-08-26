@@ -40,6 +40,7 @@ class WorkOrder extends Model
         'inactivation_reason',
         'rescheduled_from_id',  // Nesta OS: aponta pra OS antiga que ela substituiu
         'completed_at',
+        'started_at',       // Quando a execução realmente começou (status virou 'in_progress')
         'dispatched_at',   // Quando a OS foi disparada e os responsáveis avisados por e-mail
         'approved_by',     // Engenheiro que deu a validação final na OS
         'approved_at',     // Quando essa validação aconteceu
@@ -52,6 +53,7 @@ class WorkOrder extends Model
         'is_inactive'      => 'boolean',
         'inactivated_at'   => 'datetime',
         'completed_at'  => 'datetime',
+        'started_at'    => 'datetime',
         'dispatched_at' => 'datetime',
         'approved_at'   => 'datetime',
         'created_at'    => 'datetime',
@@ -106,5 +108,11 @@ class WorkOrder extends Model
     public function rescheduledTo()
     {
         return $this->hasOne(WorkOrder::class, 'rescheduled_from_id');
+    }
+
+    /** Todas as Janelas de Execução que esta OS já integrou (inclusive removidas -- histórico). */
+    public function executionWindowMemberships()
+    {
+        return $this->hasMany(ExecutionWindowWorkOrder::class);
     }
 }

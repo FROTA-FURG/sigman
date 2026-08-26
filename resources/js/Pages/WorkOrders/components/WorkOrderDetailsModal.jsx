@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router, usePage } from '@inertiajs/react';
+import BrDateTimeInput from '@/Components/BrDateTimeInput';
 
 export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, osNumber, activities = [], users = [] }) {
     const { auth } = usePage().props; // Pega os dados do usuário logado
@@ -202,12 +203,12 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
 
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Data/Hora de Início <span className="text-red-500">*</span></label>
-                                <input type="datetime-local" value={data.started_at} onChange={e => setData('started_at', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]" />
+                                <BrDateTimeInput value={data.started_at} onChange={value => setData('started_at', value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                 {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
                             </div>
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Data/Hora de Fim</label>
-                                <input type="datetime-local" value={data.completed_at} onChange={e => setData('completed_at', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 [color-scheme:dark]" />
+                                <BrDateTimeInput value={data.completed_at} onChange={value => setData('completed_at', value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                 {errors.completed_at && <span className="text-xs text-red-500">{errors.completed_at}</span>}
                             </div>
                         </div>

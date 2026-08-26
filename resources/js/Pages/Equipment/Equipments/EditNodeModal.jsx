@@ -5,15 +5,21 @@ import { useForm } from '@inertiajs/react';
 export default function EditNodeModal({ isOpen, onClose, nodeData }) {
     const [mounted, setMounted] = useState(false);
 
-    const { data, setData, put, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         name: '',
         tag: '',
         status: 'active',
         manufacturer: '',
         model: '',
         criticality: '',
-        series_number: '', 
+        series_number: '',
+        description: '',
+        image: null,
+        remove_image: false,
+        _method: 'put', // multipart não funciona com PUT de verdade; Laravel repassa via _method
     });
+
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         if (nodeData) {
@@ -24,8 +30,13 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                 manufacturer: nodeData.manufacturer || '',
                 model: nodeData.model || '',
                 criticality: nodeData.criticality || '',
-                series_number: nodeData.series_number || '', 
+                series_number: nodeData.series_number || '',
+                description: nodeData.description || '',
+                image: null,
+                remove_image: false,
+                _method: 'put',
             });
+            setImagePreview(nodeData.image_url ? `/storage/${nodeData.image_url}` : null);
             clearErrors();
         }
     }, [nodeData, isOpen]);
@@ -34,9 +45,21 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
         setMounted(true);
     }, []);
 
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0] || null;
+        setData(d => ({ ...d, image: file, remove_image: false }));
+        setImagePreview(file ? URL.createObjectURL(file) : (nodeData?.image_url ? `/storage/${nodeData.image_url}` : null));
+    };
+
+    const handleRemoveImage = () => {
+        setData(d => ({ ...d, image: null, remove_image: true }));
+        setImagePreview(null);
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        put(route('equipments.update', nodeData.id), {
+        post(route('equipments.update', nodeData.id), {
+            forceFormData: true,
             onSuccess: () => onClose(),
         });
     };
@@ -112,6 +135,46 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                             <option value="B">Classe B</option>
                                             <option value="C">Classe C</option>
                                         </select>
+                                    </div>
+
+                                    <div className="sm:col-span-4">
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Descrição</label>
+                                        <textarea
+                                            rows="3"
+                                            value={data.description}
+                                            onChange={e => setData('description', e.target.value)}
+                                            placeholder="Função do equipamento, particularidades, observações gerais..."
+                                            className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder:text-slate-600 focus:border-blue-500"
+                                        />
+                                        {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
+                                    </div>
+
+                                    <div className="sm:col-span-4">
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Foto do Equipamento</label>
+                                        <div className="flex items-center gap-4">
+                                            {imagePreview ? (
+                                                <img src={imagePreview} alt="Pré-visualização" className="h-20 w-20 shrink-0 rounded-lg object-cover ring-1 ring-slate-700" />
+                                            ) : (
+                                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-slate-950 ring-1 ring-slate-700">
+                                                    <svg className="h-8 w-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                </div>
+                                            )}
+                                            <div className="flex flex-col gap-1.5">
+                                                <input
+                                                    type="file"
+                                                    accept="image/png,image/jpeg,image/webp"
+                                                    onChange={handleImageChange}
+                                                    className="block w-full text-xs text-slate-400 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-200 hover:file:bg-slate-700"
+                                                />
+                                                {imagePreview && (
+                                                    <button type="button" onClick={handleRemoveImage} className="self-start text-xs font-medium text-red-400 hover:text-red-300">
+                                                        Remover foto
+                                                    </button>
+                                                )}
+                                                <span className="text-[11px] text-slate-500">JPG, PNG ou WEBP, até 4MB.</span>
+                                            </div>
+                                        </div>
+                                        {errors.image && <span className="text-xs text-red-500">{errors.image}</span>}
                                     </div>
                                 </div>
                             )}
