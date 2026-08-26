@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Equipment;
+use App\Models\ServiceRequest;
 use App\Models\Vessel;
 use App\Models\WorkOrder;
 use Illuminate\Http\Request;
@@ -21,14 +23,43 @@ class DashboardController extends Controller
             return $this->thirdPartyDashboard($user->third_party_id);
         }
 
+        $vessels = Vessel::orderBy('name')->get([
+            'id', 'name', 'type', 'status', 'navigation_status', 'health_score', 'location',
+            'last_inspection', 'builder', 'year',
+        ]);
+
         return Inertia::render('Dashboard', [
             // Embarcações reais da frota. A telemetria (localização, motor, óleo etc.)
             // ainda não existe — é simulada no front até a integração dos sensores.
-            'vessels' => Vessel::orderBy('name')->get([
-                'id', 'name', 'type', 'status', 'navigation_status', 'health_score', 'location',
-                'last_inspection', 'builder', 'year',
-            ]),
+            'vessels' => $vessels,
+            'kpis' => $this->buildKpis($vessels),
         ]);
+    }
+
+    /** Números reais da barra de KPIs do painel geral (KpiCards.jsx) -- antes eram mockados no front. */
+    private function buildKpis($vessels)
+    {
+        $equipmentByStatus = Equipment::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return [
+            'vessels' => [
+                'total' => $vessels->count(),
+                'operational' => $vessels->where('status', 'Operacional')->count(),
+                'maintenance_names' => $vessels->where('status', 'Manutenção')->pluck('name')->values(),
+            ],
+            'equipment' => [
+                'total' => $equipmentByStatus->sum(),
+                'active' => $equipmentByStatus->get('active', 0),
+                'inactive' => $equipmentByStatus->get('inactive', 0),
+                'in_maintenance' => $equipmentByStatus->get('in_maintenance', 0),
+                'decommissioned' => $equipmentByStatus->get('decommissioned', 0),
+            ],
+            'work_orders_in_progress' => WorkOrder::where('status', 'in_progress')->count(),
+            // Pendente = ainda não avaliada pelo gestor (as demais já saíram do estado "aberta").
+            'service_requests_open' => ServiceRequest::where('status', 'pending')->count(),
+        ];
     }
 
     private function thirdPartyDashboard(?string $thirdPartyId)

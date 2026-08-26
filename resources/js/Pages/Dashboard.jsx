@@ -10,7 +10,7 @@ import MaintenanceComplianceCharts from '@/Components/Dashboard/MaintenanceCompl
 import ServiceRequestsTable from '@/Components/Dashboard/ServiceRequestsTable';
 import WorkOrdersTable from '@/Components/Dashboard/WorkOrdersTable';
 
-export default function Dashboard({ vessels = [] }) {
+export default function Dashboard({ vessels = [], kpis }) {
     const user = usePage().props.auth.user;
 
     return (
@@ -28,7 +28,7 @@ export default function Dashboard({ vessels = [] }) {
                 </div>
 
                 <div className="shrink-0">
-                    <KpiCards />
+                    <KpiCards kpis={kpis} />
                 </div>
 
                 {/* Monitoramento da frota (telemetria) — seção principal, cresce mais */}

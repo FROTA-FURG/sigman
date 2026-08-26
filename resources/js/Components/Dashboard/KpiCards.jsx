@@ -1,52 +1,23 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 
-export default function KpiCards() {
-    const fleet = [
-        { id: 1, name: "Atlântico Sul", status: "Operational" },
-        { id: 2, name: "Ciências do Mar", status: "Operational" },
-        { id: 3, name: "Lancha Larus", status: "Maintenance" },
-    ];
-
-    const equipmentList = [
-        { id: 1, status: 'Active' }, 
-        { id: 2, status: 'Active' },
-        { id: 3, status: 'Inactive' }, 
-        { id: 4, status: 'Maintenance' },
-        { id: 5, status: 'Decommissioned' },
-        { id: 5, status: 'Decommissioned' },
-        { id: 5, status: 'Decommissioned' },
-        { id: 5, status: 'Decommissioned' },
-        { id: 5, status: 'Decommissioned' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Active' },
-        { id: 5, status: 'Decommissioned' },
-    ];
+export default function KpiCards({ kpis }) {
+    const vessels = kpis?.vessels ?? { total: 0, operational: 0, maintenance_names: [] };
+    const equipment = kpis?.equipment ?? { total: 0, active: 0, inactive: 0, in_maintenance: 0, decommissioned: 0 };
+    const workOrdersInProgress = kpis?.work_orders_in_progress ?? 0;
+    const serviceRequestsOpen = kpis?.service_requests_open ?? 0;
 
     // Logic: Vessel Calculations
-    const maintenanceVessels = fleet.filter(vessel => vessel.status === "Maintenance");
-    const spacing = '\u00A0'.repeat(10);
-    const maintenanceNamesMarquee = maintenanceVessels.map(v => v.name).join(`${spacing} • ${spacing}`) + spacing.repeat(2);   
+    const maintenanceNames = vessels.maintenance_names ?? [];
+    const spacing = ' '.repeat(10);
+    const maintenanceNamesMarquee = maintenanceNames.length > 0
+        ? maintenanceNames.join(`${spacing} • ${spacing}`) + spacing.repeat(2)
+        : `Nenhuma embarcação em manutenção${spacing.repeat(2)}`;
 
-    const totalFleet = fleet.length;
-    const operationalCount = fleet.filter(vessel => vessel.status === "Operational").length;
-    const operationalPercentage = totalFleet > 0 ? Math.round((operationalCount / totalFleet) * 100) : 0;
+    const operationalPercentage = vessels.total > 0 ? Math.round((vessels.operational / vessels.total) * 100) : 0;
 
     // Logic: Equipment Calculations
-    const totalEquipment = equipmentList.length;
-    const getEquipmentPercentage = (status) => {
-        const count = equipmentList.filter(e => e.status === status).length;
-        return totalEquipment > 0 ? Math.round((count / totalEquipment) * 100) : 0;
-    };
+    const getEquipmentPercentage = (count) => equipment.total > 0 ? Math.round((count / equipment.total) * 100) : 0;
 
     return (
         <>
@@ -63,13 +34,13 @@ export default function KpiCards() {
             `}</style>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                
+
                 {/* Card 1: Embarcações Operacionais */}
                <div className="overflow-hidden rounded-xl bg-[#0b203c]/90 p-2.5 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-blue-500">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Embarcações</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">{operationalCount}</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{vessels.operational}</p>
                         </div>
                         <div className="rounded-full bg-blue-500/10 p-1.5 text-blue-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -87,7 +58,7 @@ export default function KpiCards() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Em Manutenção</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">{maintenanceVessels.length}</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{maintenanceNames.length}</p>
                         </div>
                         <div className="rounded-full bg-orange-500/10 p-1.5 text-orange-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -107,7 +78,7 @@ export default function KpiCards() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Equipamentos</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">{totalEquipment}</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{equipment.total}</p>
                         </div>
                         <div className="rounded-full bg-slate-500/10 p-1.5 text-slate-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -115,40 +86,36 @@ export default function KpiCards() {
                             </svg>
                         </div>
                     </div>
-                    
+
                     <div className="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-[9px] font-bold">
-                        <div className="flex items-center text-green-500">
+                        <div className="flex items-center text-green-500" title="Operacional">
                             <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></span>
-                            {getEquipmentPercentage('Active')}% 
-                            {/* {getEquipmentPercentage('Active')}% Ativo */}
+                            {getEquipmentPercentage(equipment.active)}%
                         </div>
-                        <div className="flex items-center text-yellow-500">
+                        <div className="flex items-center text-yellow-500" title="Inativo / Atenção">
                             <span className="mr-1 h-1.5 w-1.5 rounded-full bg-yellow-500 shadow-[0_0_5px_#eab308]"></span>
-                            {getEquipmentPercentage('Inactive')}%
-                            {/* {getEquipmentPercentage('Inactive')}% Inativo */}
+                            {getEquipmentPercentage(equipment.inactive)}%
                         </div>
-                        <div className="flex items-center text-orange-500">
+                        <div className="flex items-center text-orange-500" title="Em Manutenção">
                             <span className="mr-1 h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_5px_#f97316]"></span>
-                            {getEquipmentPercentage('Maintenance')}% 
-                            {/* {getEquipmentPercentage('Maintenance')}% Manut. */}
+                            {getEquipmentPercentage(equipment.in_maintenance)}%
                         </div>
-                        <div className="flex items-center text-red-500">
+                        <div className="flex items-center text-red-500" title="Descomissionado">
                             <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_5px_#ef4444]"></span>
-                            {getEquipmentPercentage('Decommissioned')}% 
-                            {/* {getEquipmentPercentage('Decommissioned')}% Desat. */}
+                            {getEquipmentPercentage(equipment.decommissioned)}%
                         </div>
                     </div>
                 </div>
 
                 {/* Card 4: Ordens de Serviço */}
-                <Link 
-                    href={route('work-orders.index')} 
+                <Link
+                    href={route('work-orders.index')}
                     className="block overflow-hidden rounded-xl bg-[#0b203c]/90 p-2.5 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-indigo-900/20 hover:ring-indigo-500"
                 >
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Ordens de Serviço</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">28</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{workOrdersInProgress}</p>
                         </div>
                         <div className="rounded-full bg-indigo-500/10 p-1.5 text-indigo-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -162,14 +129,14 @@ export default function KpiCards() {
                 </Link>
 
                 {/* Card 5: Solicitações */}
-                <Link 
+                <Link
                     href={route('service-requests.index')}
                     className="block overflow-hidden rounded-xl bg-[#0b203c]/90 p-2.5 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-emerald-900/20 hover:ring-emerald-500"
                 >
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[9px] font-medium uppercase tracking-wider text-slate-400">Solicitações de Serviço</p>
-                            <p className="mt-0.5 text-xl font-bold text-white">12</p>
+                            <p className="mt-0.5 text-xl font-bold text-white">{serviceRequestsOpen}</p>
                         </div>
                         <div className="rounded-full bg-emerald-500/10 p-1.5 text-emerald-400">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -179,7 +146,7 @@ export default function KpiCards() {
                     </div>
                     <div className="mt-2 text-[10px] text-slate-400 font-bold uppercase italic tracking-tight">ABERTAS</div>
                 </Link>
-                
+
             </div>
         </>
     );
