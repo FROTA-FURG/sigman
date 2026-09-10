@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from 'react';
+import { Link } from '@inertiajs/react';
 import { getMonday, getISOWeek } from '@/utils/weeks';
+
+const STATUS_LABEL = {
+    open: { label: 'Aberta', classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+    in_progress: { label: 'Em Andamento', classes: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' },
+    scheduled: { label: 'Agendada', classes: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+    completed: { label: 'Concluída', classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
+    cancelled: { label: 'Cancelada', classes: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
+};
 
 const MESES = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -51,7 +60,7 @@ function buildMonthGrid(year, month) {
     return weeks;
 }
 
-function MiniMonth({ year, month, marcasPorDia, diasEmCruzeiro }) {
+function MiniMonth({ year, month, marcasPorDia, diasEmCruzeiro, onDiaClick }) {
     const weeks = useMemo(() => buildMonthGrid(year, month), [year, month]);
 
     return (
@@ -76,13 +85,15 @@ function MiniMonth({ year, month, marcasPorDia, diasEmCruzeiro }) {
                                 const chave = day ? `${month}-${day}` : null;
                                 const info = chave ? marcasPorDia[chave] : null;
                                 const emCruzeiro = chave ? diasEmCruzeiro.has(chave) : false;
+                                const temOS = info && info.items.length > 0;
                                 return (
                                     <div key={i} className="flex h-6 items-center justify-center">
                                         {day && (
                                             <div
-                                                className={`flex h-full w-full flex-col items-center justify-center rounded ${info?.completed ? 'bg-emerald-500/15 ring-1 ring-emerald-500/70' : ''}`}
+                                                onClick={temOS ? () => onDiaClick(info.items, `${day}/${month + 1}/${year}`) : undefined}
+                                                className={`flex h-full w-full flex-col items-center justify-center rounded ${info?.completed ? 'bg-emerald-500/15 ring-1 ring-emerald-500/70' : ''} ${temOS ? 'cursor-pointer hover:ring-1 hover:ring-blue-400' : ''}`}
                                                 style={emCruzeiro ? HACHURA_CRUZEIRO : undefined}
-                                                title={emCruzeiro ? 'Embarcação em cruzeiro' : undefined}
+                                                title={emCruzeiro ? 'Embarcação em cruzeiro' : (temOS ? 'Ver OS deste dia' : undefined)}
                                             >
                                                 <span className="text-[10px] leading-none text-slate-400">{day}</span>
                                                 <span className="mt-0.5 flex h-1.5 items-center gap-0.5">
@@ -129,6 +140,7 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
     const [tiposOcultos, setTiposOcultos] = useState(() => new Set());
     const [ocultarConcluidas, setOcultarConcluidas] = useState(false);
     const [mostrarCruzeiro, setMostrarCruzeiro] = useState(true);
+    const [diaSelecionado, setDiaSelecionado] = useState(null); // { items, dataLabel } | null
 
     const toggleTipo = (tipo) => {
         setTiposOcultos(prev => {
@@ -155,9 +167,10 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
             if (Number(yStr) !== year) continue;
 
             const chave = `${Number(mStr) - 1}-${Number(dStr)}`;
-            if (!mapa[chave]) mapa[chave] = { types: new Set(), completed: false };
+            if (!mapa[chave]) mapa[chave] = { types: new Set(), completed: false, items: [] };
             if (COR_POR_TIPO[os.maintenance_type]) mapa[chave].types.add(os.maintenance_type);
             if (os.status === 'completed') mapa[chave].completed = true;
+            mapa[chave].items.push(os);
         }
         return mapa;
     }, [workOrders, year, tiposOcultos, ocultarConcluidas]);
@@ -183,6 +196,8 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
     }, [cruisePeriods, mostrarCruzeiro, year]);
 
     const temNoAno = Object.keys(marcasPorDia).length > 0;
+
+    const abrirDia = (items, dataLabel) => setDiaSelecionado({ items, dataLabel });
 
     return (
         <div className="rounded-xl border border-slate-800 bg-[#0b203c]/90 p-6 shadow-lg backdrop-blur-md">
@@ -246,11 +261,54 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
             )}
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {Array.from({ length: 6 }, (_, m) => <MiniMonth key={m} year={year} month={m} marcasPorDia={marcasPorDia} diasEmCruzeiro={diasEmCruzeiro} />)}
+                {Array.from({ length: 6 }, (_, m) => <MiniMonth key={m} year={year} month={m} marcasPorDia={marcasPorDia} diasEmCruzeiro={diasEmCruzeiro} onDiaClick={abrirDia} />)}
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {Array.from({ length: 6 }, (_, m) => <MiniMonth key={m + 6} year={year} month={m + 6} marcasPorDia={marcasPorDia} diasEmCruzeiro={diasEmCruzeiro} />)}
+                {Array.from({ length: 6 }, (_, m) => <MiniMonth key={m + 6} year={year} month={m + 6} marcasPorDia={marcasPorDia} diasEmCruzeiro={diasEmCruzeiro} onDiaClick={abrirDia} />)}
             </div>
+
+            {diaSelecionado && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" onClick={() => setDiaSelecionado(null)}>
+                    <div className="relative w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden rounded-xl bg-slate-900 shadow-2xl ring-1 ring-slate-700" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex shrink-0 items-center justify-between border-b border-slate-700/50 px-5 py-4">
+                            <div>
+                                <h4 className="text-sm font-bold text-white">OS de {diaSelecionado.dataLabel}</h4>
+                                <p className="text-xs text-slate-500">{diaSelecionado.items.length} OS neste dia</p>
+                            </div>
+                            <button onClick={() => setDiaSelecionado(null)} type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <div className="custom-scrollbar flex-1 overflow-y-auto p-3 space-y-1.5">
+                            {diaSelecionado.items.map(os => {
+                                const status = STATUS_LABEL[os.status];
+                                const tipo = COR_POR_TIPO[os.maintenance_type];
+                                return (
+                                    <Link
+                                        key={os.id}
+                                        href={route('work-orders.show', os.id)}
+                                        className="block rounded-lg border border-slate-700 bg-slate-800/30 p-3 transition hover:border-blue-500/50 hover:bg-blue-600/10"
+                                    >
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="font-mono text-xs font-bold text-slate-300">#{os.os_number}</span>
+                                            {tipo && (
+                                                <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${tipo.dot}`} />
+                                                    {tipo.label}
+                                                </span>
+                                            )}
+                                            {status && (
+                                                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${status.classes}`}>{status.label}</span>
+                                            )}
+                                        </div>
+                                        <p className="mt-1 truncate text-xs text-slate-400">{os.description}</p>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

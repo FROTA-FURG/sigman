@@ -24,6 +24,13 @@ const MAINTENANCE_TYPE = {
     predictive: 'Preditiva',
 };
 
+// Mesmas legendas do bloco "Validação Prévia" em EditWorkOrderModal.jsx.
+const INTERN_STATUS = {
+    pending: 'Pendente',
+    waiting: 'Aguardando Insumo',
+    approved: 'Aprovada',
+};
+
 const PERIODICITY = {
     daily: 'Diário',
     weekly: 'Semanal',
@@ -132,18 +139,18 @@ export default function Show({ workOrder, equipments = [] }) {
     const vessel = equipment.vessel ?? {};
 
     // Mesma regra de permissão do EditWorkOrderModal pros campos gerais:
-    // TI/Engenheiro sempre, estagiário só na OS da própria embarcação.
-    // Status é à parte: o estagiário só aprova (intern_status) -- quem
-    // dispara/muda o status de verdade é o engenheiro (ou TI). Uma OS
-    // inativada não muda de status por aqui -- isso é papel do fluxo de
-    // reprogramação dela.
+    // TI/Engenheiro sempre, estagiário só na OS da própria embarcação. Status
+    // segue a mesma regra: TI/Engenheiro em qualquer OS, estagiário só na da
+    // própria embarcação (fora dela, continua só aprovando via intern_status).
+    // Uma OS inativada não muda de status por aqui -- isso é papel do fluxo
+    // de reprogramação dela.
     const roleName = String(auth?.user?.role?.name || auth?.user?.role || '').toLowerCase();
     const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
     const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
     const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
     const isLinkedToVessel = String(vessel.id) === String(auth?.user?.vessel_id);
     const canEditFields = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
-    const canChangeStatus = !workOrder.is_inactive && (isTI || isEngenheiro);
+    const canChangeStatus = !workOrder.is_inactive && (isTI || isEngenheiro || (isEstagiario && isLinkedToVessel));
 
     const handleStatusChange = (e) => {
         const newStatus = e.target.value;
@@ -293,8 +300,10 @@ export default function Show({ workOrder, equipments = [] }) {
                         </dl>
                     </Card>
 
-                    {/* REPROGRAMAÇÃO (só aparece quando tem alguma ponta da cadeia de inativação) */}
-                    {(workOrder.is_inactive || workOrder.rescheduled_from) && (
+                    {/* REPROGRAMAÇÃO (aparece quando tem alguma ponta da cadeia: inativada,
+                        substitui outra, ou gerou uma sucessora -- inclusive a preventiva
+                        concluída que regenerou a próxima ocorrência sozinha, sem ser inativada) */}
+                    {(workOrder.is_inactive || workOrder.rescheduled_from || workOrder.rescheduled_to) && (
                         <Card title="Reprogramação" className="lg:col-span-2">
                             <dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
                                 {workOrder.rescheduled_from && (
@@ -319,20 +328,20 @@ export default function Show({ workOrder, equipments = [] }) {
                                         <Field label="Motivo" className="sm:col-span-2">
                                             {workOrder.inactivation_reason || 'Nenhum motivo registrado.'}
                                         </Field>
-                                        {workOrder.rescheduled_to && (
-                                            <Field label="Reprogramada para a OS" className="sm:col-span-2">
-                                                <Link
-                                                    href={route('work-orders.show', workOrder.rescheduled_to.id)}
-                                                    className="font-mono font-bold text-orange-400 hover:text-orange-300 hover:underline"
-                                                >
-                                                    {workOrder.rescheduled_to.os_number}
-                                                </Link>
-                                                <span className="ml-2 text-slate-500">
-                                                    (em {formatPureDate(workOrder.rescheduled_to.created_at)})
-                                                </span>
-                                            </Field>
-                                        )}
                                     </>
+                                )}
+                                {workOrder.rescheduled_to && (
+                                    <Field label={workOrder.is_inactive ? 'Reprogramada para a OS' : 'Próxima ocorrência gerada automaticamente'} className="sm:col-span-2">
+                                        <Link
+                                            href={route('work-orders.show', workOrder.rescheduled_to.id)}
+                                            className="font-mono font-bold text-orange-400 hover:text-orange-300 hover:underline"
+                                        >
+                                            {workOrder.rescheduled_to.os_number}
+                                        </Link>
+                                        <span className="ml-2 text-slate-500">
+                                            (em {formatPureDate(workOrder.rescheduled_to.created_at)})
+                                        </span>
+                                    </Field>
                                 )}
                             </dl>
                         </Card>
@@ -342,7 +351,7 @@ export default function Show({ workOrder, equipments = [] }) {
                     <Card title="Avaliação do Estagiário" className="lg:col-span-2">
                         {workOrder.intern_status ? (
                             <dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-3">
-                                <Field label="Situação">{workOrder.intern_status}</Field>
+                                <Field label="Situação">{INTERN_STATUS[workOrder.intern_status] ?? workOrder.intern_status}</Field>
                                 <Field label="Estagiário">{workOrder.intern_name}</Field>
                                 <Field label="Justificativa" className="sm:col-span-1">
                                     {workOrder.intern_reason}

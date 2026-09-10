@@ -21,7 +21,7 @@ export default function ExecutionWindowsIndex({ executionWindows = [] }) {
                 </div>
 
                 <div className="flex items-center justify-between border-b border-slate-800">
-                    <WorkOrdersTabBar activeTab="execution-windows" onTabClick={() => router.visit(route('work-orders.index'))} />
+                    <WorkOrdersTabBar activeTab="execution-windows" onTabClick={(tab) => router.visit(`${route('work-orders.index')}?tab=${tab}`)} />
                 </div>
 
                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar rounded-xl border border-slate-800 bg-[#0b203c]/90 shadow-lg backdrop-blur-md">

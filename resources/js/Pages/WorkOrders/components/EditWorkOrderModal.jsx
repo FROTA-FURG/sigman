@@ -23,6 +23,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         estimated_hours: '',
         created_at: '',
         started_at: '',
+        completed_at: '',
     });
 
     useEffect(() => {
@@ -30,9 +31,9 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     }, []);
 
     // created_at é uma DATA-ALVO (sempre meia-noite UTC, sem hora real) --
-    // pega a data direto da string. started_at é um instante de verdade
-    // (vem de now()), então precisa converter UTC -> fuso local antes de
-    // extrair o dia, senão à noite no Brasil ele mostra o dia seguinte.
+    // pega a data direto da string. started_at/completed_at são instantes
+    // de verdade (vêm de now()), então precisam converter UTC -> fuso local
+    // antes de extrair o dia, senão à noite no Brasil mostra o dia seguinte.
     const toLocalDateInputValue = (isoString) => {
         if (!isoString) return '';
         const d = new Date(isoString);
@@ -62,6 +63,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 estimated_hours: osData.estimated_hours || '',
                 created_at: formattedDate,
                 started_at: toLocalDateInputValue(osData.started_at),
+                completed_at: toLocalDateInputValue(osData.completed_at),
             });
         }
     }, [osData, isOpen]);
@@ -96,17 +98,17 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
     const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
     const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
-    
+
     const userVesselId = currentUser?.vessel_id;
     const isLinkedToVessel = String(eqVesselId) === String(userVesselId);
 
     // O modal só é editável se for TI, Engenheiro, ou o Estagiário daquela exata embarcação
     const canEdit = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
 
-    // Status é à parte, mesmo dentro do que o estagiário pode editar: ele só
-    // aprova a OS (intern_status, no seu Planejamento) -- quem dispara/muda
-    // o status de verdade é o engenheiro (ou TI).
-    const canChangeStatus = isTI || isEngenheiro;
+    // Status: TI/Engenheiro mudam em qualquer OS; estagiário também pode,
+    // mas só na OS da própria embarcação -- fora dela, continua só
+    // aprovando (intern_status, no seu Planejamento).
+    const canChangeStatus = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
 
     // A observação do engenheiro é da gestão. O estagiário até abre este modal
     // (edita outros campos da OS da embarcação dele), mas o campo fica só de
@@ -129,7 +131,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 backdrop-blur-md animate-overlay p-4">
                 <div className="relative flex w-full max-w-4xl max-h-[90vh] flex-col overflow-hidden rounded-xl bg-slate-900 shadow-2xl ring-1 ring-slate-700 animate-modal">
-                    
+
                     <div className="flex shrink-0 items-center justify-between border-b border-slate-700/50 bg-slate-900 px-6 py-4">
                         <div>
                             <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -142,7 +144,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 <p className="text-[10px] text-orange-400 mt-1">Você não tem permissão para editar os dados desta OS.</p>
                             )}
                         </div>
-                        
+
                         <button onClick={onClose} type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
@@ -150,7 +152,223 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
                     <div className="custom-scrollbar flex-1 overflow-y-auto bg-slate-900 p-6">
                         <form id="editOsForm" onSubmit={submit} className="space-y-6">
-                            
+
+                            {/* IDENTIFICAÇÃO DO ATIVO */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
+                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Identificação do Ativo</h4>
+
+                                <div className="grid grid-cols-1">
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Equipamento {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select
+                                        value={data.equipment_id}
+                                        onChange={e => setData('equipment_id', e.target.value)}
+                                        disabled={!canEdit}
+                                        className={inputClasses}
+                                    >
+                                        <option value="">Selecione o Equipamento...</option>
+                                        {equipments.map(eq => (
+                                            <option key={eq.id} value={eq.id}>{eq.tag_number ? `[${eq.tag_number}] ` : ''}{eq.name}</option>
+                                        ))}
+                                    </select>
+                                    {errors.equipment_id && <span className="text-xs text-red-500">{errors.equipment_id}</span>}
+                                </div>
+
+                                {currentEq && (
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 pt-3 border-t border-slate-700/50 mt-3">
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Embarcação</label>
+                                            <span className="text-sm font-bold text-white">{vesselPrefix}</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG</label>
+                                            <span className="text-sm font-mono text-blue-300">{currentEq.tag_number || '-'}</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Marca</label>
+                                            <span className="text-sm text-slate-300">{currentEq.manufacturer || currentEq.marca || '-'}</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Modelo</label>
+                                            <span className="text-sm text-slate-300">{currentEq.model || currentEq.modelo || '-'}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* RESTANTE DO FORMULÁRIO */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} disabled={!canEdit} className={inputClasses}>
+                                        <option value="corrective">Corretiva</option>
+                                        <option value="preventive">Preventiva</option>
+                                        <option value="predictive">Preditiva</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade {canEdit && <span className="text-red-500">*</span>}</label>
+                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} disabled={!canEdit} className={inputClasses}>
+                                        <option value="low">Baixa</option>
+                                        <option value="medium">Média</option>
+                                        <option value="high">Alta</option>
+                                        <option value="critical">Crítica</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status {canChangeStatus && <span className="text-red-500">*</span>}</label>
+                                    <select
+                                        value={data.status}
+                                        onChange={e => setData('status', e.target.value)}
+                                        disabled={!canChangeStatus}
+                                        className={statusInputClasses}
+                                        title={!canChangeStatus && canEdit ? 'Só engenheiro, TI ou estagiário da própria embarcação mudam o status -- fora dela, aprove pelo Planejamento.' : undefined}
+                                    >
+                                        <option value="open">Aberto (Não Iniciado)</option>
+                                        <option value="in_progress">Em Andamento</option>
+                                        <option value="scheduled">Agendada (Futuro)</option>
+                                        <option value="completed">Concluída</option>
+                                        <option value="cancelled">Cancelada</option>
+                                    </select>
+                                    {!canChangeStatus && canEdit && (
+                                        <p className="mt-1 text-[10px] text-slate-500">Só engenheiro, TI ou estagiário da própria embarcação mudam o status da OS. Aprove pelo Planejamento.</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
+                                    <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} disabled={!canEdit} className={inputClasses}>
+                                        <option value="">Nenhuma (Avulsa)</option>
+                                        <option value="daily">Diário</option>
+                                        <option value="weekly">Semanal</option>
+                                        <option value="biweekly">Quinzenal</option>
+                                        <option value="monthly">Mensal</option>
+                                        <option value="bimonthly">Bimestral</option>
+                                        <option value="quarterly">Trimestral</option>
+                                        <option value="semiannual">Semestral</option>
+                                        <option value="annual">Anual</option>
+                                        <option value="biennial">Bianual</option>
+                                        <option value="triennial">Trianual</option>
+                                        <option value="quadrennial">Quadrienal</option>
+                                        <option value="sexennial">Sexênio</option>
+                                        <option value="docking">Docagem</option>
+                                    </select>
+                                    {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
+                                </div>
+                            </div>
+
+                            <label className={`flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors ${canEdit ? 'cursor-pointer hover:border-slate-600' : 'cursor-not-allowed opacity-60'}`}>
+                                <input
+                                    type="checkbox"
+                                    checked={data.in_52_week_plan}
+                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
+                                    disabled={!canEdit}
+                                    className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed"
+                                />
+                                <span>
+                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
+                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
+                                </span>
+                            </label>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">
+                                        SS Vinculada
+                                    </label>
+                                    <div className={`w-full rounded-md border p-2 text-sm ${osData.ss_number ? 'border-emerald-700 bg-emerald-950/30 text-emerald-400' : 'border-slate-700 bg-slate-950 text-slate-300'}`}>
+                                        {osData.ss_number || 'Nenhuma'}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Horas Estimadas (Hh)</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        value={data.estimated_hours}
+                                        onChange={e => setData('estimated_hours', e.target.value)}
+                                        disabled={!canEdit}
+                                        placeholder="Ex: 2.5"
+                                        className={inputClasses}
+                                    />
+                                    {errors.estimated_hours && <span className="text-xs text-red-500">{errors.estimated_hours}</span>}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Empresa Terceirizada (perfil)</label>
+                                    <select
+                                        value={data.third_party_id}
+                                        onChange={e => setData('third_party_id', e.target.value)}
+                                        disabled={!canEdit}
+                                        className={inputClasses}
+                                    >
+                                        <option value="">Nenhuma (OS interna)</option>
+                                        {thirdParties.map(tp => (
+                                            <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* AS 3 DATAS DA OS JUNTAS: prevista, início real, fim real */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
+                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Datas</h4>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS {canEdit && <span className="text-red-500">*</span>}</label>
+                                        <BrDateInput
+                                            value={data.created_at}
+                                            onChange={value => setData('created_at', value)}
+                                            disabled={!canEdit}
+                                            className={inputClasses}
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">Data prevista (planejada) da OS.</p>
+                                        {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Real</label>
+                                        <BrDateInput
+                                            value={data.started_at}
+                                            onChange={value => setData('started_at', value)}
+                                            disabled={!canEdit}
+                                            className={inputClasses}
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">
+                                            {data.started_at ? 'Preenchida automaticamente ao marcar "Em Andamento"; ajuste aqui se esqueceram de mudar o status na hora.' : 'Ainda não iniciada.'}
+                                        </p>
+                                        {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data Fim da OS</label>
+                                        <BrDateInput
+                                            value={data.completed_at}
+                                            onChange={value => setData('completed_at', value)}
+                                            disabled={!canEdit}
+                                            className={inputClasses}
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">
+                                            {data.completed_at ? 'Preenchida automaticamente ao marcar "Concluída"; ajuste aqui se necessário.' : 'Ainda não concluída.'}
+                                        </p>
+                                        {errors.completed_at && <span className="text-xs text-red-500">{errors.completed_at}</span>}
+                                    </div>
+                                </div>
+                                <p className="mt-3 text-[10px] text-slate-500">Pra lançar uma OS antiga no sistema, dá pra preencher início e fim direto aqui, sem depender da mudança de status.</p>
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço {canEdit && <span className="text-red-500">*</span>}</label>
+                                <textarea
+                                    rows="4"
+                                    value={data.description}
+                                    onChange={e => setData('description', e.target.value)}
+                                    disabled={!canEdit}
+                                    className={`${inputClasses} resize-none`}
+                                />
+                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
+                            </div>
+
                             {/* INFORMAÇÕES DE VALIDAÇÃO (SOMENTE LEITURA) */}
                             <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
                                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -217,205 +435,12 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 {errors.engineer_comment && <span className="text-xs text-red-500">{errors.engineer_comment}</span>}
                             </div>
 
-                            {/* IDENTIFICAÇÃO DO ATIVO */}
-                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
-                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Identificação do Ativo</h4>
-                                
-                                <div className="grid grid-cols-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Equipamento {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <select 
-                                        value={data.equipment_id} 
-                                        onChange={e => setData('equipment_id', e.target.value)} 
-                                        disabled={!canEdit}
-                                        className={inputClasses}
-                                    >
-                                        <option value="">Selecione o Equipamento...</option>
-                                        {equipments.map(eq => (
-                                            <option key={eq.id} value={eq.id}>{eq.tag_number ? `[${eq.tag_number}] ` : ''}{eq.name}</option>
-                                        ))}
-                                    </select>
-                                    {errors.equipment_id && <span className="text-xs text-red-500">{errors.equipment_id}</span>}
-                                </div>
-                                
-                                {currentEq && (
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 pt-3 border-t border-slate-700/50 mt-3">
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Embarcação</label>
-                                            <span className="text-sm font-bold text-white">{vesselPrefix}</span>
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG</label>
-                                            <span className="text-sm font-mono text-blue-300">{currentEq.tag_number || '-'}</span>
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Marca</label>
-                                            <span className="text-sm text-slate-300">{currentEq.manufacturer || currentEq.marca || '-'}</span>
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">Modelo</label>
-                                            <span className="text-sm text-slate-300">{currentEq.model || currentEq.modelo || '-'}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* RESTANTE DO FORMULÁRIO */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} disabled={!canEdit} className={inputClasses}>
-                                        <option value="corrective">Corretiva</option>
-                                        <option value="preventive">Preventiva</option>
-                                        <option value="predictive">Preditiva</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} disabled={!canEdit} className={inputClasses}>
-                                        <option value="low">Baixa</option>
-                                        <option value="medium">Média</option>
-                                        <option value="high">Alta</option>
-                                        <option value="critical">Crítica</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status {canChangeStatus && <span className="text-red-500">*</span>}</label>
-                                    <select
-                                        value={data.status}
-                                        onChange={e => setData('status', e.target.value)}
-                                        disabled={!canChangeStatus}
-                                        className={statusInputClasses}
-                                        title={!canChangeStatus && canEdit ? 'Só engenheiro pode mudar o status -- o estagiário aprova pelo Planejamento.' : undefined}
-                                    >
-                                        <option value="open">Aberto (Não Iniciado)</option>
-                                        <option value="in_progress">Em Andamento</option>
-                                        <option value="scheduled">Agendada (Futuro)</option>
-                                        <option value="completed">Concluída</option>
-                                        <option value="cancelled">Cancelada</option>
-                                    </select>
-                                    {!canChangeStatus && canEdit && (
-                                        <p className="mt-1 text-[10px] text-slate-500">Só engenheiro pode mudar o status da OS. Aprove pelo Planejamento.</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
-                                    <select value={data.periodicity} onChange={e => setData('periodicity', e.target.value)} disabled={!canEdit} className={inputClasses}>
-                                        <option value="">Nenhuma (Avulsa)</option>
-                                        <option value="daily">Diário</option>
-                                        <option value="weekly">Semanal</option>
-                                        <option value="biweekly">Quinzenal</option>
-                                        <option value="monthly">Mensal</option>
-                                        <option value="bimonthly">Bimestral</option>
-                                        <option value="quarterly">Trimestral</option>
-                                        <option value="semiannual">Semestral</option>
-                                        <option value="annual">Anual</option>
-                                        <option value="biennial">Bianual</option>
-                                        <option value="triennial">Trianual</option>
-                                        <option value="quadrennial">Quadrienal</option>
-                                        <option value="sexennial">Sexênio</option>
-                                        <option value="docking">Docagem</option>
-                                    </select>
-                                    {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
-                                </div>
-                            </div>
-
-                            <label className={`flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors ${canEdit ? 'cursor-pointer hover:border-slate-600' : 'cursor-not-allowed opacity-60'}`}>
-                                <input
-                                    type="checkbox"
-                                    checked={data.in_52_week_plan}
-                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
-                                    disabled={!canEdit}
-                                    className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed"
-                                />
-                                <span>
-                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
-                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
-                                </span>
-                            </label>
-
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-                                <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">
-                                        SS Vinculada
-                                    </label>
-                                    <div className={`w-full rounded-md border p-2 text-sm ${osData.ss_number ? 'border-emerald-700 bg-emerald-950/30 text-emerald-400' : 'border-slate-700 bg-slate-950 text-slate-300'}`}>
-                                        {osData.ss_number || 'Nenhuma'}
-                                    </div>
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Horas Estimadas (Hh)</label>
-                                    <input 
-                                        type="number" 
-                                        step="0.1"
-                                        min="0"
-                                        value={data.estimated_hours} 
-                                        onChange={e => setData('estimated_hours', e.target.value)}
-                                        disabled={!canEdit}
-                                        placeholder="Ex: 2.5" 
-                                        className={inputClasses} 
-                                    />
-                                    {errors.estimated_hours && <span className="text-xs text-red-500">{errors.estimated_hours}</span>}
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <BrDateInput
-                                        value={data.created_at}
-                                        onChange={value => setData('created_at', value)}
-                                        disabled={!canEdit}
-                                        className={inputClasses}
-                                    />
-                                    {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Empresa Terceirizada (perfil)</label>
-                                    <select
-                                        value={data.third_party_id}
-                                        onChange={e => setData('third_party_id', e.target.value)}
-                                        disabled={!canEdit}
-                                        className={inputClasses}
-                                    >
-                                        <option value="">Nenhuma (OS interna)</option>
-                                        {thirdParties.map(tp => (
-                                            <option key={tp.id} value={tp.id}>{tp.razao_social}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div className="sm:col-span-1">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Real</label>
-                                    <BrDateInput
-                                        value={data.started_at}
-                                        onChange={value => setData('started_at', value)}
-                                        disabled={!canEdit}
-                                        className={inputClasses}
-                                    />
-                                    <p className="mt-1 text-[10px] text-slate-500">
-                                        {data.started_at ? 'Preenchida automaticamente ao marcar "Em Andamento"; ajuste aqui se esqueceram de mudar o status na hora.' : 'Ainda não iniciada.'}
-                                    </p>
-                                    {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço {canEdit && <span className="text-red-500">*</span>}</label>
-                                <textarea 
-                                    rows="4" 
-                                    value={data.description} 
-                                    onChange={e => setData('description', e.target.value)}
-                                    disabled={!canEdit}
-                                    className={`${inputClasses} resize-none`}
-                                />
-                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
-                            </div>
-
                         </form>
                     </div>
 
                     <div className="flex shrink-0 items-center justify-between border-t border-slate-700/50 bg-slate-900 px-6 py-4">
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             onClick={handleDelete}
                             disabled={processing || !canEdit}
                             className="text-sm font-medium text-red-500 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center"
@@ -423,15 +448,15 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             Excluir OS
                         </button>
-                        
+
                         <div className="flex gap-3">
                             <button onClick={onClose} disabled={processing} type="button" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 disabled:opacity-50">
                                 {canEdit ? 'Cancelar' : 'Fechar'}
                             </button>
-                            <button 
-                                type="submit" 
-                                form="editOsForm" 
-                                disabled={processing || !canEdit} 
+                            <button
+                                type="submit"
+                                form="editOsForm"
+                                disabled={processing || !canEdit}
                                 className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 {processing ? 'Salvando...' : 'Salvar Alterações'}

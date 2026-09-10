@@ -26,6 +26,7 @@ export default function WeeklyProgressTable({
 
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
     const [selectedIds, setSelectedIds] = useState([]);
+    const [busca, setBusca] = useState('');
 
     const selectedOs = workOrders.find(os => os.id === selectedOsId);
     const workOrderActivities = selectedOs?.activities || [];
@@ -70,6 +71,15 @@ export default function WeeklyProgressTable({
             });
         }
 
+        const termo = busca.trim().toLowerCase();
+        if (termo) {
+            result = result.filter(os =>
+                os.os_number?.toLowerCase().includes(termo) ||
+                os.description?.toLowerCase().includes(termo) ||
+                os.equipment?.tag_number?.toLowerCase().includes(termo)
+            );
+        }
+
         if (sortConfig.key) {
             result = [...result].sort((a, b) => {
                 const aValue = a[sortConfig.key] || '';
@@ -80,7 +90,7 @@ export default function WeeklyProgressTable({
             });
         }
         return result;
-    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, sortConfig, weekStart, weekEnd]);
+    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, sortConfig, weekStart, weekEnd, busca]);
 
     const isAllFilteredSelected = sortedAndFilteredWorkOrders.length > 0 && sortedAndFilteredWorkOrders.every(os => selectedIds.includes(os.id));
 
@@ -187,7 +197,7 @@ export default function WeeklyProgressTable({
 
             {selectedIds.length > 0 && (
                 <div className="absolute right-4 top-3 z-20">
-                    <button 
+                    <button
                         onClick={handleExportReport}
                         className="flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-emerald-500 transition-colors animate-fade-in"
                     >
@@ -196,6 +206,17 @@ export default function WeeklyProgressTable({
                     </button>
                 </div>
             )}
+
+            <div className="relative mb-2 shrink-0">
+                <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input
+                    type="text"
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    placeholder="Buscar por número da OS, descrição ou TAG..."
+                    className="w-full max-w-sm rounded-lg border border-slate-700 bg-slate-950 py-1.5 pl-9 pr-3 text-xs text-slate-300 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+            </div>
 
             <div className="flex-1 overflow-auto bg-slate-900 border border-slate-600 custom-scrollbar mt-0">
                 <table className="min-w-full border-collapse text-left text-[11px] whitespace-nowrap">
@@ -223,7 +244,9 @@ export default function WeeklyProgressTable({
                         {sortedAndFilteredWorkOrders.length === 0 ? (
                             <tr>
                                 <td colSpan="14" className="border border-slate-700 px-2 py-4 text-center text-slate-500 bg-slate-900">
-                                    {weekStart ? "Nenhuma OS em andamento ou aberta encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
+                                    {busca.trim()
+                                        ? `Nenhuma OS encontrada para "${busca}".`
+                                        : weekStart ? "Nenhuma OS em andamento ou aberta encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
                                 </td>
                             </tr>
                         ) : (

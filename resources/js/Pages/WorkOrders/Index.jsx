@@ -11,8 +11,16 @@ import CreateWorkOrderModal from '@/Pages/WorkOrders/components/CreateOSModal';
 import WeekPickerModal from './components/WeekPickerModal';
 import { getMonday, getSunday, formatWeekRange } from '@/utils/weeks';
 
+const TABS_VALIDAS = ['planning', 'future', 'weekly', 'calendar'];
+
 export default function Index({ auth, workOrders = [], equipments = [], users = [], cruisePlans = {} }) {
-    const [activeTab, setActiveTab] = useState('planning');
+    // Ao chegar aqui vindo de outra página (ex.: Janela de Execução clicando
+    // numa aba da barra), respeita qual aba foi pedida em vez de sempre cair
+    // em Métricas -- ver WorkOrdersTabBar.jsx.
+    const [activeTab, setActiveTab] = useState(() => {
+        const tabDaUrl = new URLSearchParams(window.location.search).get('tab');
+        return TABS_VALIDAS.includes(tabDaUrl) ? tabDaUrl : 'planning';
+    });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isWeekPickerOpen, setIsWeekPickerOpen] = useState(false);

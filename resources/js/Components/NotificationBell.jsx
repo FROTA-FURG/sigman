@@ -63,13 +63,23 @@ export default function NotificationBell() {
 
     if (!notifications) return null;
 
-    // Abre a OS da notificação na tela dedicada (não no painel de métricas)
-    const openWorkOrder = (notification) => {
+    // Abre o destino da notificação de acordo com o tipo -- cada tipo carrega
+    // o id do que interessa (work_order_id, service_request_id, execution_window_id).
+    const abrirNotificacao = (notification) => {
         if (!notification.read_at) {
             router.post(route('notifications.read', notification.id), {}, { preserveScroll: true });
         }
         setIsOpen(false);
-        router.visit(route('work-orders.show', notification.data.work_order_id));
+
+        const { execution_window_id, service_request_id, work_order_id } = notification.data;
+        if (execution_window_id) {
+            router.visit(route('execution-windows.show', execution_window_id));
+        } else if (service_request_id) {
+            // Solicitação de Serviço não tem tela de detalhe própria -- vai pra listagem.
+            router.visit(route('service-requests.index'));
+        } else if (work_order_id) {
+            router.visit(route('work-orders.show', work_order_id));
+        }
     };
 
     const markAllAsRead = () => {
@@ -144,7 +154,7 @@ export default function NotificationBell() {
                             items.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    onClick={() => openWorkOrder(notification)}
+                                    onClick={() => abrirNotificacao(notification)}
                                     className={`group flex cursor-pointer gap-3 border-b border-slate-800 px-4 py-3 transition hover:bg-slate-800/60 ${
                                         notification.read_at ? 'opacity-60' : ''
                                     }`}

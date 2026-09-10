@@ -55,7 +55,11 @@ export default function InactivateOSModal({ isOpen, onClose, os }) {
     const podeConformePeriodicidade = temIntervalo(os.periodicity);
     const previaAutomatica = podeConformePeriodicidade ? proximaData(os.periodicity, dataAtual) : null;
 
-    const podeConfirmar = modo === 'periodicidade' ? podeConformePeriodicidade : Boolean(novaData);
+    const podeConfirmar = modo === 'periodicidade'
+        ? podeConformePeriodicidade
+        : modo === 'nova_data'
+            ? Boolean(novaData)
+            : true; // sem_reagendamento não precisa de mais nada
 
     const confirmar = () => {
         setProcessing(true);
@@ -134,6 +138,22 @@ export default function InactivateOSModal({ isOpen, onClose, os }) {
                                         className="mt-2 w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-200 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                     />
                                 )}
+                            </span>
+                        </label>
+
+                        <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${modo === 'sem_reagendamento' ? 'border-orange-500/50 bg-orange-500/5' : 'border-slate-700 hover:border-slate-600'}`}>
+                            <input
+                                type="radio"
+                                name="modo"
+                                checked={modo === 'sem_reagendamento'}
+                                onChange={() => setModo('sem_reagendamento')}
+                                className="mt-0.5 h-4 w-4 text-orange-500 focus:ring-orange-500"
+                            />
+                            <span>
+                                <span className="block text-sm font-semibold text-slate-200">Inativar sem reprogramar</span>
+                                <span className="block text-xs text-slate-500">
+                                    Não cria nenhuma OS nova. Esta tarefa simplesmente não acontece mais por essa via -- use se ela não faz mais sentido pra esse equipamento.
+                                </span>
                             </span>
                         </label>
                     </div>
