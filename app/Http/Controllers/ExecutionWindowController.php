@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ExecutionWindow;
 use App\Models\ExecutionWindowWorkOrder;
 use App\Models\WorkOrder;
+use App\Services\ExecutionWindowNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -18,6 +19,10 @@ use Inertia\Inertia;
  */
 class ExecutionWindowController extends Controller
 {
+    public function __construct(private ExecutionWindowNotifier $notifier)
+    {
+    }
+
     public function index()
     {
         $windows = ExecutionWindow::with(['vessel', 'creator', 'updater'])
@@ -86,6 +91,10 @@ class ExecutionWindowController extends Controller
 
             return [$window, $ignoradas];
         });
+
+        // Avisa engenheiros da embarcação + demais estagiários alocados nela --
+        // fora da transação, pra uma falha de e-mail não derrubar a criação.
+        $this->notifier->notifyOfCreation($window, $user);
 
         $mensagem = 'Janela de Execução criada com sucesso.';
         if (count($ignoradas) > 0) {

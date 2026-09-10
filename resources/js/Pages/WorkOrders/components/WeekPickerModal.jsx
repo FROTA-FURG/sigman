@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { getMonday, getSunday, getISOWeek, formatBr } from '@/utils/weeks';
 
-export default function WeekPickerModal({ isOpen, onClose, onApply, onClear }) {
+const HACHURA_CRUZEIRO = {
+    backgroundImage: 'repeating-linear-gradient(45deg, rgba(148,163,184,0.35) 0px, rgba(148,163,184,0.35) 2px, transparent 2px, transparent 6px)',
+};
+
+const chaveDia = (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+/**
+ * `cruisePeriods` (opcional): [{ inicio: 'YYYY-MM-DD', fim: 'YYYY-MM-DD' }].
+ * Quando informado, hachura os dias em que a embarcação está em cruzeiro --
+ * mesma sobreposição do calendário anual de manutenção.
+ */
+export default function WeekPickerModal({ isOpen, onClose, onApply, onClear, cruisePeriods = [] }) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [hoveredWeek, setHoveredWeek] = useState(null);
 
@@ -21,6 +32,25 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear }) {
             setRangeEnd(null);
         }
     }, [isOpen]);
+
+    // Hooks precisam rodar sempre na mesma ordem -- o early return de
+    // `!isOpen` fica depois de todos eles (já causou "rendered more hooks
+    // than previous render" uma vez neste módulo, ver CreateExecutionWindowModal).
+    const diasEmCruzeiro = useMemo(() => {
+        const set = new Set();
+        for (const periodo of cruisePeriods) {
+            if (!periodo?.inicio || !periodo?.fim) continue;
+            const [ys, ms, ds] = periodo.inicio.split('-').map(Number);
+            const [ye, me, de] = periodo.fim.split('-').map(Number);
+            const cursor = new Date(ys, ms - 1, ds);
+            const fim = new Date(ye, me - 1, de);
+            while (cursor <= fim) {
+                set.add(chaveDia(cursor));
+                cursor.setDate(cursor.getDate() + 1);
+            }
+        }
+        return set;
+    }, [cruisePeriods]);
 
     if (!isOpen) return null;
 
@@ -115,6 +145,12 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear }) {
                     {multiMode && (
                         <p className="mt-2 text-xs font-medium text-blue-400">{rangeLabel}</p>
                     )}
+                    {cruisePeriods.length > 0 && (
+                        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
+                            <span className="inline-block h-2.5 w-2.5 rounded-sm" style={HACHURA_CRUZEIRO} />
+                            Dias hachurados: embarcação em cruzeiro (indisponível)
+                        </p>
+                    )}
                 </div>
 
                 <div className="p-4">
@@ -160,11 +196,19 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear }) {
                                     <div className={`py-2 text-center text-xs font-bold tabular-nums ${isRangeEdge || isInRange || isHovered ? 'text-blue-300' : 'text-slate-500'}`}>
                                         {weekNumber}
                                     </div>
-                                    {week.map((day, dayIndex) => (
-                                        <div key={dayIndex} className={`py-2 text-sm font-medium text-center tabular-nums ${day ? (isRangeEdge || isInRange || isHovered ? 'text-blue-300' : 'text-slate-300') : ''}`}>
-                                            {day || ''}
-                                        </div>
-                                    ))}
+                                    {week.map((day, dayIndex) => {
+                                        const emCruzeiro = day ? diasEmCruzeiro.has(chaveDia(new Date(year, month, day))) : false;
+                                        return (
+                                            <div
+                                                key={dayIndex}
+                                                style={emCruzeiro ? HACHURA_CRUZEIRO : undefined}
+                                                title={emCruzeiro ? 'Embarcação em cruzeiro' : undefined}
+                                                className={`rounded py-2 text-sm font-medium text-center tabular-nums ${day ? (isRangeEdge || isInRange || isHovered ? 'text-blue-300' : 'text-slate-300') : ''}`}
+                                            >
+                                                {day || ''}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             );
                         })}

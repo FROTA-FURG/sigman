@@ -50,6 +50,16 @@ Verifica ordens de serviço (OS) que devem ser disparadas na data prevista:
 php artisan app:check-scheduled-os
 ```
 
+## Comandos úteis
+
+Gera um plano de cruzeiro aleatório por embarcação (placeholder até termos a leitura do planejamento real, que vai produzir o JSON no mesmo formato). Usado pelo calendário anual de manutenção pra mostrar quando cada embarcação está indisponível:
+
+```bash
+php artisan cruise-plans:seed-random
+```
+
+Os arquivos são salvos em `storage/app/private/cruise-plans/{TAG}.json` e não entram no versionamento — precisa rodar de novo depois de um deploy limpo. Use `--force` pra sobrescrever os já existentes.
+
 ## Testes
 
 ```bash

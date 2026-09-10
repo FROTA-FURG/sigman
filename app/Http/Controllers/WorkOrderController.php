@@ -82,6 +82,8 @@ class WorkOrderController extends Controller
             'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
             'created_at'       => 'required|date',
+            'started_at'       => 'nullable|date',
+            'completed_at'     => 'nullable|date',
         ]);
 
         $equipment = Equipment::with('vessel')->findOrFail($validatedData['equipment_id']);
@@ -160,11 +162,14 @@ class WorkOrderController extends Controller
             unset($validatedData['engineer_comment']);
         }
 
-        // Estagiário só aprova a OS (intern_status, no Planejamento) -- quem
-        // dispara/muda o status de verdade é o engenheiro (ou TI). A trava
-        // no formulário é só interface; esta aqui é a que vale.
-        if (array_key_exists('status', $validatedData) && ! $this->canChangeStatus($request->user())) {
-            unset($validatedData['status']);
+        // Engenheiro/TI mudam status de qualquer OS; estagiário só na OS da
+        // própria embarcação. A trava no formulário é só interface; esta
+        // aqui é a que vale.
+        if (array_key_exists('status', $validatedData)) {
+            $equipment = Equipment::find($validatedData['equipment_id'] ?? null);
+            if (! $this->canChangeStatus($request->user(), $equipment?->vessel_id)) {
+                unset($validatedData['status']);
+            }
         }
 
         $this->workOrderService->updateWorkOrder($id, $validatedData, $request->user());
@@ -199,10 +204,20 @@ class WorkOrderController extends Controller
         return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
     }
 
-    /** Estagiário só aprova (intern_status); quem dispara/muda o status é o engenheiro (ou TI). */
-    private function canChangeStatus(?User $user): bool
+    /**
+     * TI/engenheiro mudam status de qualquer OS. Estagiário também pode,
+     * mas só na OS da própria embarcação -- fora dela, continua só
+     * aprovando (intern_status) pelo Planejamento.
+     */
+    private function canChangeStatus(?User $user, ?string $vesselId = null): bool
     {
-        return in_array($user?->role->name ?? null, ['dev', 'engineer'], true);
+        $roleName = $user?->role->name ?? null;
+
+        if (in_array($roleName, ['dev', 'engineer'], true)) {
+            return true;
+        }
+
+        return $roleName === 'intern' && $vesselId !== null && $user->coversVessel($vesselId);
     }
 
     /** Quem pode inativar/reprogramar uma OS do plano -- decisão de planejamento, não de execução. */
@@ -255,7 +270,7 @@ class WorkOrderController extends Controller
         }
 
         $validated = $request->validate([
-            'modo' => 'required|in:periodicidade,nova_data',
+            'modo' => 'required|in:periodicidade,nova_data,sem_reagendamento',
             'nova_data' => 'required_if:modo,nova_data|nullable|date',
             'motivo' => 'nullable|string|max:2000',
         ]);
@@ -268,11 +283,15 @@ class WorkOrderController extends Controller
             $validated['motivo'] ?? null,
         );
 
-        $mensagem = "OS {$resultado['antiga']->os_number} inativada. Reprogramada para {$resultado['nova']->os_number}, em "
-            . $resultado['nova']->created_at->format('d/m/Y') . '.';
+        if ($resultado['nova']) {
+            $mensagem = "OS {$resultado['antiga']->os_number} inativada. Reprogramada para {$resultado['nova']->os_number}, em "
+                . $resultado['nova']->created_at->format('d/m/Y') . '.';
 
-        if ($resultado['reancoradas'] > 0) {
-            $mensagem .= " {$resultado['reancoradas']} ocorrência(s) futura(s) da mesma tarefa foram reancoradas a partir da nova data.";
+            if ($resultado['reancoradas'] > 0) {
+                $mensagem .= " {$resultado['reancoradas']} ocorrência(s) futura(s) da mesma tarefa foram reancoradas a partir da nova data.";
+            }
+        } else {
+            $mensagem = "OS {$resultado['antiga']->os_number} inativada, sem reprogramação.";
         }
 
         return back()->with('success', $mensagem);
@@ -280,21 +299,28 @@ class WorkOrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        if (! $this->canChangeStatus($request->user())) {
-            abort(403, 'Só engenheiro ou TI mudam o status da OS. O estagiário aprova pelo Planejamento.');
+        $os = WorkOrder::with('equipment.vessel')->findOrFail($id);
+
+        if (! $this->canChangeStatus($request->user(), $os->equipment?->vessel_id)) {
+            abort(403, 'Só engenheiro, TI ou estagiário da própria embarcação mudam o status da OS.');
         }
 
         $request->validate([
             'status' => 'required|string|in:open,in_progress,scheduled,completed,cancelled'
         ]);
 
-        $os = WorkOrder::with('equipment.vessel')->findOrFail($id);
-
         $updateData = ['status' => $request->status];
 
         // Primeira vez que entra em andamento, marca quando começou de verdade.
         if ($request->status === 'in_progress' && is_null($os->started_at)) {
             $updateData['started_at'] = now();
+        }
+
+        // Mesma regra de WorkOrderService::updateWorkOrder() -- esse endpoint
+        // é um caminho à parte (o seletor rápido de status), então precisa
+        // da própria cópia da lógica pra também preencher a Data Fim sozinho.
+        if ($request->status === 'completed' && is_null($os->completed_at)) {
+            $updateData['completed_at'] = now();
         }
 
         $os->update($updateData);
@@ -311,11 +337,22 @@ class WorkOrderController extends Controller
         // os responsáveis por e-mail e pelo sino do perfil.
         $notified = $this->dispatchNotifier->notifyIfDispatched($os);
 
-        return back()->with(
-            'success',
-            $notified
-                ? "OS {$os->os_number} disparada. Responsáveis notificados por e-mail."
-                : "Status da OS {$os->os_number} atualizado."
-        );
+        // Preventiva do plano concluída gera a próxima ocorrência sozinha,
+        // a partir de quando foi concluída de verdade (ver
+        // WorkOrderService::regenerateIfPreventiveCompleted).
+        $proxima = null;
+        if ($request->status === 'completed') {
+            $proxima = $this->workOrderService->regenerateIfPreventiveCompleted($os->fresh());
+        }
+
+        $mensagem = $notified
+            ? "OS {$os->os_number} disparada. Responsáveis notificados por e-mail."
+            : "Status da OS {$os->os_number} atualizado.";
+
+        if ($proxima) {
+            $mensagem .= " Próxima ocorrência gerada automaticamente: OS {$proxima->os_number}, em {$proxima->created_at->format('d/m/Y')}.";
+        }
+
+        return back()->with('success', $mensagem);
     }
 }

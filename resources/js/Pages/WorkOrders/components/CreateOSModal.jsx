@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, usePage } from '@inertiajs/react';
-import BrDateInput from '@/Components/BrDateInput';
+import DateInputWithCalendar from '@/Components/DateInputWithCalendar';
 
 const VESSELS = [
     { id: 'AS', name: 'Atlântico Sul', prefix: 'AS' },
@@ -31,6 +31,8 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
         vendor_name: '',
         third_party_id: '',
         created_at: new Date().toISOString().split('T')[0],
+        started_at: '',
+        completed_at: '',
     });
 
     useEffect(() => {
@@ -168,7 +170,12 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                     <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
                                         <option value="open">Aberto (Não Iniciado)</option>
                                         <option value="in_progress">Em Andamento</option>
+                                        <option value="completed">Concluída</option>
+                                        <option value="cancelled">Cancelada</option>
                                     </select>
+                                    {(data.status === 'completed' || data.status === 'cancelled') && (
+                                        <p className="mt-1 text-[10px] text-slate-500">Pra lançar uma OS já realizada. Preencha as datas abaixo.</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Periodicidade</label>
@@ -217,7 +224,7 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                 {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Horas Estimadas (Hh)</label>
                                     <input 
@@ -230,16 +237,6 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                         className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" 
                                     />
                                     {errors.estimated_hours && <span className="text-xs text-red-500">{errors.estimated_hours}</span>}
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS <span className="text-red-500">*</span></label>
-                                    <BrDateInput
-                                        value={data.created_at}
-                                        onChange={value => setData('created_at', value)}
-                                        className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
-                                    />
-                                    {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
                                 </div>
 
                                 <div>
@@ -256,6 +253,48 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                     </select>
                                     {errors.third_party_id && <span className="text-xs text-red-500">{errors.third_party_id}</span>}
                                 </div>
+                            </div>
+
+                            {/* AS 3 DATAS DA OS JUNTAS: prevista, início real, fim real -- mesmo padrão da edição */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
+                                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Datas</h4>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS <span className="text-red-500">*</span></label>
+                                        <DateInputWithCalendar
+                                            value={data.created_at}
+                                            onChange={value => setData('created_at', value)}
+                                            className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">Data prevista (planejada) da OS.</p>
+                                        {errors.created_at && <span className="text-xs text-red-500">{errors.created_at}</span>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Real</label>
+                                        <DateInputWithCalendar
+                                            value={data.started_at}
+                                            onChange={value => setData('started_at', value)}
+                                            className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">Opcional. Pra lançar uma OS que já começou.</p>
+                                        {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Data Fim da OS</label>
+                                        <DateInputWithCalendar
+                                            value={data.completed_at}
+                                            onChange={value => setData('completed_at', value)}
+                                            className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                        />
+                                        <p className="mt-1 text-[10px] text-slate-500">
+                                            {data.status === 'completed' ? 'Se deixar em branco, usa a Data da OS.' : 'Preencha se esta OS já foi concluída.'}
+                                        </p>
+                                        {errors.completed_at && <span className="text-xs text-red-500">{errors.completed_at}</span>}
+                                    </div>
+                                </div>
+                                <p className="mt-3 text-[10px] text-slate-500">Pra lançar uma OS já realizada, marque o status como Concluída/Cancelada acima e preencha as datas aqui.</p>
                             </div>
 
                         </form>
