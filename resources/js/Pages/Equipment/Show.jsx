@@ -1,10 +1,17 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import EditNodeModal from './Equipments/EditNodeModal';
 import WorkOrderPreviewModal from './components/WorkOrderPreviewModal';
 import MaintenanceYearCalendar from '@/Components/MaintenanceYearCalendar';
 import ImageLightbox from './components/ImageLightbox';
+import ComponentModal, { TIPO_COMPONENTE_LABEL } from './components/ComponentModal';
+
+const TIPO_COMPONENTE_CLASSES = {
+    sobressalente_rotativo: 'bg-slate-500/10 text-slate-300 border-slate-500/30',
+    sobressalente_consumivel: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    item_critico: 'bg-red-500/10 text-red-400 border-red-500/30',
+};
 
 const STATUS = {
     open:        { label: 'Aberta',       classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -64,6 +71,25 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
     const [previewOS, setPreviewOS] = useState(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+    const [componentModalOpen, setComponentModalOpen] = useState(false);
+    const [editingComponent, setEditingComponent] = useState(null); // null = criar novo
+    const [confirmandoExclusao, setConfirmandoExclusao] = useState(null); // id do componente
+
+    const components = equipment.components || [];
+
+    const abrirNovoComponente = () => { setEditingComponent(null); setComponentModalOpen(true); };
+    const abrirEdicaoComponente = (c) => { setEditingComponent(c); setComponentModalOpen(true); };
+    const excluirComponente = (c) => {
+        if (confirmandoExclusao !== c.id) {
+            setConfirmandoExclusao(c.id);
+            return;
+        }
+        router.delete(route('components.destroy', c.id), {
+            preserveScroll: true,
+            onFinish: () => setConfirmandoExclusao(null),
+        });
+    };
+
     // EditNodeModal foi construído pra receber nós já formatados da árvore
     // (que usam `tag`, não `tag_number`) -- aqui adaptamos o model puro do
     // Eloquent pro mesmo formato, sem mexer no modal ou na árvore.
@@ -86,6 +112,12 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
             <Head title={`${equipment.name} | Equipamento | SIGMAN`} />
 
             <EditNodeModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} nodeData={nodeDataForEdit} />
+            <ComponentModal
+                isOpen={componentModalOpen}
+                onClose={() => setComponentModalOpen(false)}
+                equipmentId={equipment.id}
+                component={editingComponent}
+            />
             <WorkOrderPreviewModal isOpen={!!previewOS} onClose={() => setPreviewOS(null)} workOrder={previewOS} />
             {isLightboxOpen && (
                 <ImageLightbox
@@ -187,6 +219,66 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
                             <p className="text-sm text-slate-500">Nenhuma OS concluída registrada para este equipamento.</p>
                         )}
                     </div>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-[#0b203c]/90 shadow-lg backdrop-blur-md overflow-hidden">
+                    <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-300">Componentes</h3>
+                            <p className="text-xs text-slate-500 mt-0.5">Nível opcional dentro do equipamento -- ex.: pistão 1, pistão 2, pistão 3.</p>
+                        </div>
+                        {canEdit && (
+                            <button
+                                onClick={abrirNovoComponente}
+                                className="flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-500"
+                            >
+                                <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                Adicionar Componente
+                            </button>
+                        )}
+                    </div>
+
+                    {components.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <p className="text-sm text-slate-500">Nenhum componente cadastrado -- esse nível é opcional.</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-800/70">
+                            {components.map((c) => (
+                                <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-semibold text-slate-200">{c.name}</span>
+                                            {c.tag_number && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] font-mono text-slate-400">{c.tag_number}</span>}
+                                            <Badge config={{ label: TIPO_COMPONENTE_LABEL[c.tipo], classes: TIPO_COMPONENTE_CLASSES[c.tipo] }} />
+                                        </div>
+                                        <p className="mt-0.5 text-xs text-slate-500">
+                                            {[c.manufacturer, c.model].filter(Boolean).join(' · ') || null}
+                                            {c.description && <span className="block truncate">{c.description}</span>}
+                                        </p>
+                                    </div>
+                                    {canEdit && (
+                                        <div className="flex shrink-0 items-center gap-1.5">
+                                            <button
+                                                onClick={() => abrirEdicaoComponente(c)}
+                                                title="Editar"
+                                                className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                            </button>
+                                            <button
+                                                onClick={() => excluirComponente(c)}
+                                                title={confirmandoExclusao === c.id ? 'Clique de novo pra confirmar' : 'Excluir'}
+                                                className={`rounded-md p-1.5 transition ${confirmandoExclusao === c.id ? 'bg-red-500/20 text-red-400' : 'text-slate-400 hover:bg-slate-800 hover:text-red-400'}`}
+                                            >
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="rounded-xl border border-slate-800 bg-[#0b203c]/90 shadow-lg backdrop-blur-md overflow-hidden">

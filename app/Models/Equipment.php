@@ -16,6 +16,7 @@ class Equipment extends Model
         'parent_id',      
         'series_number',
         'tag_number',
+        'tag_antigo',
         'name',
         'manufacturer',
         'model',
@@ -49,7 +50,7 @@ class Equipment extends Model
 
     public function components()
     {
-        return $this->hasMany(Component::class);
+        return $this->hasMany(Component::class)->orderBy('name');
     }
 
     public function workOrders()

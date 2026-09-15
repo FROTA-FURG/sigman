@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vessel;
 use App\Models\Equipment;
+use App\Models\Component;
 use App\Models\WorkOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +19,7 @@ class EquipmentController extends Controller
      */
     public function show(string $id)
     {
-        $equipment = Equipment::with(['vessel', 'parent', 'children'])->findOrFail($id);
+        $equipment = Equipment::with(['vessel', 'parent', 'children', 'components'])->findOrFail($id);
 
         $workOrders = WorkOrder::where('equipment_id', $equipment->id)
             ->orderBy('created_at', 'desc')
@@ -43,13 +44,14 @@ class EquipmentController extends Controller
     {
         // Busca todas as embarcações e seus equipamentos "raiz" (que não têm pai)
         $vessels = Vessel::with(['equipments' => function ($query) {
-            $query->whereNull('parent_id')->with('children');
+            $query->whereNull('parent_id')->with(['children.components', 'components']);
         }])->orderBy('name')->get();
 
         // Monta a estrutura em árvore exata que o React espera
         $treeData = $vessels->map(function ($vessel) {
             return [
                 'id' => $vessel->id,
+                'tag' => $vessel->tag,
                 'type' => 'vessel',
                 'name' => $vessel->name,
                 'status' => $vessel->status ?? 'Operacional',
@@ -58,15 +60,48 @@ class EquipmentController extends Controller
         });
 
         return Inertia::render('Equipment/Index', [
-            'equipmentTree' => $treeData
+            'equipmentTree' => $treeData,
+            'estruturaHierarquica' => $this->loadEstruturaHierarquica(),
         ]);
+    }
+
+    /**
+     * Seção -> Sistema real de cada planta, conforme o estudo de
+     * classificação ISO 14224 do estagiário (Seção 4.4/4.5 da árvore).
+     * Só agrupa equipamento cujo tag_number já segue o formato novo
+     * (ex.: AS-CMA-SPP-...) -- quem ainda está no tag antigo cai em "Não
+     * Categorizados" até passar pela ferramenta de migração de tags.
+     * Gerado a partir da planilha em src/ArvoreDeEquipamentos; pra
+     * atualizar, regenere o JSON e troque o arquivo neste path.
+     */
+    private function loadEstruturaHierarquica(): array
+    {
+        $disk = Storage::disk('local');
+        $path = 'equipment-tree/hierarquia-secoes-sistemas.json';
+
+        return $disk->exists($path) ? json_decode($disk->get($path), true) : [];
     }
 
     // Função recursiva para montar os níveis internos (sistemas, equipamentos, componentes)
     private function formatEquipmentTree($equipments)
     {
         return $equipments->map(function ($equipment) {
-            $type = $equipment->children->count() > 0 ? 'system' : 'equipment';
+            $hasChildren = $equipment->children->count() > 0 || $equipment->components->count() > 0;
+            $type = $hasChildren ? 'system' : 'equipment';
+
+            $componentNodes = $equipment->components->map(fn (Component $c) => [
+                'id' => $c->id,
+                'equipment_id' => $c->equipment_id,
+                'type' => 'component',
+                'name' => $c->name,
+                'tag' => $c->tag_number,
+                'manufacturer' => $c->manufacturer,
+                'model' => $c->model,
+                'tipo_componente' => $c->tipo,
+                'description' => $c->description,
+                'status' => 'active',
+                'children' => [],
+            ]);
 
             return [
                 'id' => $equipment->id,
@@ -76,10 +111,11 @@ class EquipmentController extends Controller
                 'manufacturer' => $equipment->manufacturer,
                 'model' => $equipment->model,
                 'series_number' => $equipment->series_number,
-                'criticality' => $equipment->criticality ?? 'A',
+                'criticality' => $equipment->criticality,
                 'status' => $equipment->status ?? 'Operacional',
                 'image_url' => $equipment->image_url,
-                'children' => $this->formatEquipmentTree($equipment->children)
+                'description' => $equipment->description,
+                'children' => $this->formatEquipmentTree($equipment->children)->concat($componentNodes)
             ];
         });
     }
@@ -120,7 +156,10 @@ class EquipmentController extends Controller
             'series_number'=> $validated['series_number'] ?? null,
             'manufacturer' => $validated['manufacturer'] ?? null,
             'model'        => $validated['model'] ?? null,
-            'criticality'  => $validated['criticality'] ?? null,
+            // A classe A/B/C é opcional (metodologia ainda em estudo) -- o
+            // select manda '' pra "sem criticidade", e '' não é NULL pro
+            // `?? null` nem pra CHECK da coluna (só aceita NULL/'A'/'B'/'C').
+            'criticality'  => empty($validated['criticality'] ?? null) ? null : $validated['criticality'],
         ]);
 
         return redirect()->back()->with('success', 'Item adicionado à árvore com sucesso!');
@@ -150,7 +189,10 @@ class EquipmentController extends Controller
             'series_number'=> $validated['series_number'] ?? null,
             'manufacturer' => $validated['manufacturer'] ?? null,
             'model'        => $validated['model'] ?? null,
-            'criticality'  => $validated['criticality'] ?? null,
+            // A classe A/B/C é opcional (metodologia ainda em estudo) -- o
+            // select manda '' pra "sem criticidade", e '' não é NULL pro
+            // `?? null` nem pra CHECK da coluna (só aceita NULL/'A'/'B'/'C').
+            'criticality'  => empty($validated['criticality'] ?? null) ? null : $validated['criticality'],
             'description'  => $validated['description'] ?? null,
         ];
 

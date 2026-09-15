@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm } from '@inertiajs/react';
+import CriticalityCalculator from '../components/CriticalityCalculator';
+import ComponentModal from '../components/ComponentModal';
 
 export default function EditNodeModal({ isOpen, onClose, nodeData }) {
     const [mounted, setMounted] = useState(false);
@@ -66,6 +68,28 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
 
     if (!isOpen || !mounted || !nodeData) return null;
 
+    // Componente é um modelo à parte (Component, não Equipment) -- delega
+    // pro modal dele, que sabe falar com o endpoint certo.
+    if (nodeData.type === 'component') {
+        return (
+            <ComponentModal
+                isOpen={isOpen}
+                onClose={onClose}
+                equipmentId={nodeData.equipment_id}
+                component={{
+                    id: nodeData.id,
+                    equipment_id: nodeData.equipment_id,
+                    name: nodeData.name,
+                    tag_number: nodeData.tag,
+                    tipo: nodeData.tipo_componente,
+                    manufacturer: nodeData.manufacturer,
+                    model: nodeData.model,
+                    description: nodeData.description,
+                }}
+            />
+        );
+    }
+
     if (nodeData.type === 'section') {
         return createPortal(
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 backdrop-blur-md">
@@ -114,7 +138,7 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                 </div>
                             </div>
 
-                            {['equipment', 'component'].includes(nodeData.type) && (
+                            {nodeData.type === 'equipment' && (
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
                                     <div className="sm:col-span-3">
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
@@ -128,13 +152,17 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
                                         <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                     </div>
-                                    <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Classe</label>
+                                    <div className="sm:col-span-4">
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Classe</label>
                                         <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                            <option value="">Sem criticidade (em estudo)</option>
                                             <option value="A">Classe A</option>
                                             <option value="B">Classe B</option>
                                             <option value="C">Classe C</option>
                                         </select>
+                                        <div className="mt-2">
+                                            <CriticalityCalculator onApply={(classe) => setData('criticality', classe)} />
+                                        </div>
                                     </div>
 
                                     <div className="sm:col-span-4">

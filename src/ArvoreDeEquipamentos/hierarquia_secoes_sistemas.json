@@ -1,0 +1,270 @@
+{
+  "AS": [
+    {
+      "sigla": "CMA",
+      "nome": "Casa de Máquinas",
+      "sistemas": [
+        {
+          "sigla": "ACO",
+          "nome": "Ar Comprimido"
+        },
+        {
+          "sigla": "SOC",
+          "nome": "Sistema de Óleo Combustível"
+        },
+        {
+          "sigla": "SAX",
+          "nome": "Sistema de Armazenamento e Transferência de Água"
+        },
+        {
+          "sigla": "SAO",
+          "nome": "Sistema de Armazenamento e Transferência de Óleo Diesel"
+        },
+        {
+          "sigla": "SHI",
+          "nome": "Sistema Hidráulico"
+        },
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        },
+        {
+          "sigla": "SEL",
+          "nome": "Sistema de Esgoto e Lastro"
+        },
+        {
+          "sigla": "SGN",
+          "nome": "Sistema de Governo Náutico"
+        },
+        {
+          "sigla": "MOV",
+          "nome": "Sistema de Movimentação"
+        },
+        {
+          "sigla": "SPP",
+          "nome": "Sistema de Propulsão"
+        },
+        {
+          "sigla": "SSG",
+          "nome": "Sistema de Salvaguarda"
+        },
+        {
+          "sigla": "SEE",
+          "nome": "Sistema Elétrico"
+        }
+      ]
+    },
+    {
+      "sigla": "CSA",
+      "nome": "Casaria",
+      "sistemas": [
+        {
+          "sigla": "SNV",
+          "nome": "Sistema de Navegação"
+        }
+      ]
+    },
+    {
+      "sigla": "CVS",
+      "nome": "Convés",
+      "sistemas": [
+        {
+          "sigla": "SAO",
+          "nome": "Sistema de Armazenamento e Transferência de Óleo Diesel"
+        },
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        }
+      ]
+    },
+    {
+      "sigla": "PPA",
+      "nome": "Popa",
+      "sistemas": [
+        {
+          "sigla": "SEL",
+          "nome": "Sistema de Esgoto e Lastro"
+        },
+        {
+          "sigla": "MOV",
+          "nome": "Sistema de Movimentação"
+        },
+        {
+          "sigla": "SAN",
+          "nome": "Sistema de Fundeio"
+        }
+      ]
+    },
+    {
+      "sigla": "PRA",
+      "nome": "Proa",
+      "sistemas": [
+        {
+          "sigla": "SAX",
+          "nome": "Sistema de Armazenamento e Transferência de Água"
+        },
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        },
+        {
+          "sigla": "SAN",
+          "nome": "Sistema de Fundeio"
+        }
+      ]
+    }
+  ],
+  "CM1": [
+    {
+      "sigla": "CMA",
+      "nome": "Casa de Máquinas",
+      "sistemas": [
+        {
+          "sigla": "ACO",
+          "nome": "Ar Comprimido"
+        },
+        {
+          "sigla": "SAO",
+          "nome": "Sistema de Armazenamento e Transferência de Óleo Diesel"
+        },
+        {
+          "sigla": "SEL",
+          "nome": "Sistema de Esgoto e Lastro"
+        },
+        {
+          "sigla": "SOC",
+          "nome": "Sistema de Óleo Combustível"
+        },
+        {
+          "sigla": "MOV",
+          "nome": "Sistema de Movimentação"
+        },
+        {
+          "sigla": "SAX",
+          "nome": "Sistema Auxiliar"
+        },
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        },
+        {
+          "sigla": "SGN",
+          "nome": "Sistema de Governo Náutico"
+        },
+        {
+          "sigla": "SPP",
+          "nome": "Sistema de Propulsão"
+        },
+        {
+          "sigla": "SSG",
+          "nome": "Sistema de Salvaguarda"
+        },
+        {
+          "sigla": "SEE",
+          "nome": "Sistema Elétrico"
+        }
+      ]
+    },
+    {
+      "sigla": "CVS",
+      "nome": "Convés",
+      "sistemas": [
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        }
+      ]
+    },
+    {
+      "sigla": "PPA",
+      "nome": "Popa",
+      "sistemas": [
+        {
+          "sigla": "MOV",
+          "nome": "Sistema de Movimentação"
+        },
+        {
+          "sigla": "SAN",
+          "nome": "Sistema de Fundeio"
+        }
+      ]
+    },
+    {
+      "sigla": "PRA",
+      "nome": "Proa",
+      "sistemas": [
+        {
+          "sigla": "SAX",
+          "nome": "Sistema de Armazenamento e Transferência de Água"
+        },
+        {
+          "sigla": "SAO",
+          "nome": "Sistema de Armazenamento e Transferência de Óleo Diesel"
+        }
+      ]
+    },
+    {
+      "sigla": "CSA",
+      "nome": "Casaria",
+      "sistemas": [
+        {
+          "sigla": "SNV",
+          "nome": "Sistema de Navegação"
+        }
+      ]
+    }
+  ],
+  "LL": [
+    {
+      "sigla": "CMA",
+      "nome": "Casa de Máquinas",
+      "sistemas": [
+        {
+          "sigla": "SHI",
+          "nome": "Sistema Hidráulico"
+        },
+        {
+          "sigla": "SPP",
+          "nome": "Sistema de Propulsão"
+        },
+        {
+          "sigla": "SEE",
+          "nome": "Sistema Elétrico"
+        },
+        {
+          "sigla": "SDC",
+          "nome": "Sistema de Climatização"
+        },
+        {
+          "sigla": "LUB",
+          "nome": "Lubrificação"
+        },
+        {
+          "sigla": "SAX",
+          "nome": "Sistema Auxiliar"
+        }
+      ]
+    },
+    {
+      "sigla": "PPA",
+      "nome": "Popa",
+      "sistemas": [
+        {
+          "sigla": "MOV",
+          "nome": "Sistema de Movimentação"
+        }
+      ]
+    },
+    {
+      "sigla": "PRA",
+      "nome": "Proa",
+      "sistemas": [
+        {
+          "sigla": "SAN",
+          "nome": "Sistema de Fundeio"
+        }
+      ]
+    }
+  ]
+}

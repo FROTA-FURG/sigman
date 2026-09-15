@@ -29,13 +29,6 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
 
     const currentActivities = activities.filter(act => act.work_order_id === workOrderId);
 
-    const formatDateForInput = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        const pad = (n) => n.toString().padStart(2, '0');
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    };
-
     const formatDateBr = (dateString) => {
         if (!dateString) return null;
         const dateObj = new Date(dateString);
@@ -62,8 +55,10 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
             work_order_id: workOrderId,
             responsible_user_id: activity.responsible_user_id || '',
             description: activity.description || '',
-            started_at: formatDateForInput(activity.started_at),
-            completed_at: formatDateForInput(activity.completed_at),
+            // Já vem como ISO UTC do backend -- é o mesmo contrato que o
+            // BrDateTimeInput espera, não precisa de conversão aqui.
+            started_at: activity.started_at || '',
+            completed_at: activity.completed_at || '',
         });
         clearErrors();
         setIsFormOpen(true);
