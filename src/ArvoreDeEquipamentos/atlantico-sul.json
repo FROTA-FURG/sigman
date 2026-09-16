@@ -1,0 +1,865 @@
+{
+  "clean": [
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "AR COMPRIMIDO",
+      "equipamento": "Compressor de Ar Atlas Copco",
+      "tag_novo": "AS-CMA-ACO-CMP-01-ALT",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "AR COMPRIMIDO",
+      "equipamento": "Compressor de Ar Motomil",
+      "tag_novo": "AS-CMA-ACO-CMP-02-ALT",
+      "tag_antigo": "COM02",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "AR COMPRIMIDO",
+      "equipamento": "Vaso de Pressão",
+      "tag_novo": "AS-CMA-ACO-VSP-01-ARM",
+      "tag_antigo": "AS01-SPP-VAS01",
+      "componentes_sugeridos": [
+        "Válvula globo de ar comprimido 1",
+        "Válvula globo de ar comprimido 2",
+        "Válvula globo de ar comprimido 3"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "AR COMPRIMIDO",
+      "equipamento": "Vaso de Pressão sistema de partida MCP",
+      "tag_novo": "AS-CMA-ACO-VSP-02-ARM",
+      "tag_antigo": "AS01-SPP-VAS02",
+      "componentes_sugeridos": [
+        "Válvula globo de ar comprimido 1",
+        "Válvula globo de ar comprimido 2",
+        "Válvula globo de ar comprimido 3"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ÓLEO COMBUSTÍVEL",
+      "equipamento": "Separadora Centrífuga de Óleo Diesel",
+      "tag_novo": "AS-CMA-SOC-SEO-01-CTG",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Bomba Auxiliar (bomba água salgada lavagem convés)",
+      "tag_novo": "AS-CMA-SAX-BAS-01-CTG",
+      "tag_antigo": "AS01-SAD-BAU01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Bomba de água doce 1",
+      "tag_novo": "AS-CMA-SAX-BAS-02-CTG",
+      "tag_antigo": "AS01-SAD-BAS01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Bomba de água doce 2",
+      "tag_novo": "AS-CMA-SAX-BAS-03-CTG",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Bomba de água salgada dos banheiros 1",
+      "tag_novo": "AS-CMA-SAX-BAS-04-CTG",
+      "tag_antigo": "AS01-SAD-BAS01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Bomba de água salgada dos banheiros 2",
+      "tag_novo": "AS-CMA-SAX-BAS-05-CTG",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA AUXILIAR",
+      "equipamento": "Bomba de esgoto sanitário 1",
+      "tag_novo": "AS-CMA-SAX-BAS-06-CTG",
+      "tag_antigo": "AS01-SAD-BAU01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA AUXILIAR",
+      "equipamento": "Bomba de esgoto sanitário 2",
+      "tag_novo": "AS-CMA-SAX-BAS-07-ALT",
+      "tag_antigo": "AS01-SAD-BAU01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA AUXILIAR",
+      "equipamento": "Câmara fria",
+      "tag_novo": "AS-CMA-SAX-CAM-01",
+      "tag_antigo": "AS01-SAD-CAF01",
+      "componentes_sugeridos": [
+        "Condensadora",
+        "Evaporadora 1",
+        "Evaporadora 2"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA AUXILIAR",
+      "equipamento": "Válvula de descarga do Banheiro Masculino",
+      "tag_novo": "AS-CMA-SAX-VAL-01",
+      "tag_antigo": "AS01-SAD-VAL01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Pressurizador Boiler de água doce",
+      "tag_novo": "AS-CMA-SAX-BOL-01-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Bomba de Transferência de Diesel",
+      "tag_novo": "AS-CMA-SAO-BTD-01-CTG",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 5",
+      "tag_novo": "AS-CMA-SAO-TAN-05-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 6",
+      "tag_novo": "AS-CMA-SAO-TAN-06-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA HIDRÁULICO",
+      "equipamento": "Vaso de refrigeração do óleo hidráulico TROCADOR DE CALOR",
+      "tag_novo": "AS-CMA-SHI-VSP-03-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Insufladores",
+      "tag_novo": "AS-CMA-SDC-INS-01-AXL",
+      "tag_antigo": "AS01-SAD-INS01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Insufladores",
+      "tag_novo": "AS-CMA-SDC-INS-02-AXL",
+      "tag_antigo": "AS01-SAD-INS01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ESGOTO E LASTRO",
+      "equipamento": "Bomba de Lastro",
+      "tag_novo": "AS-CMA-SEL-BLA-01-CTG",
+      "tag_antigo": "AS01-SEL-BLA01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ESGOTO E LASTRO",
+      "equipamento": "Piano de válvula",
+      "tag_novo": "AS-CMA-SEL-VAE-01",
+      "tag_antigo": "AS01-SEL-PVE01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE GOVERNO NÁUTICO",
+      "equipamento": "Bomba Hidráulica do Leme",
+      "tag_novo": "AS-CMA-SGN-BOM-02-HID",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE GOVERNO NÁUTICO",
+      "equipamento": "Leme",
+      "tag_novo": "AS-CMA-SGN-LEM-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Caixa redutora do guincho",
+      "tag_novo": "AS-CMA-MOV-CRE-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Unidade Hidráulica",
+      "tag_novo": "AS-CMA-MOV-UHI-01-HID",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bomba hidráulica",
+        "Filtro Duplo de Combustível",
+        "Filtro de Ar",
+        "Filtro de óleo lubrificante",
+        "Motor de combustão",
+        "Tanque de combustível",
+        "Válvula de injeção"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Caixa Redutora MTP-01",
+      "tag_novo": "AS-CMA-SPP-CRE-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor Auxiliar de Emergência Scania DS11",
+      "tag_novo": "AS-CMA-SPP-MTA-04-CMB",
+      "tag_antigo": "AS01-SMP-MCA04",
+      "componentes_sugeridos": [
+        "Bateria 01",
+        "Bateria 02"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor Auxiliar MWM TD 225.6 - MCA 2",
+      "tag_novo": "AS-CMA-SPP-MTA-02-CMB",
+      "tag_antigo": "AS01-SMP-MCA02",
+      "componentes_sugeridos": [
+        "Bateria 01",
+        "Bateria 02"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor Auxiliar MWM TD 225.6 - MCA 3",
+      "tag_novo": "AS-CMA-SPP-MTA-03-CMB",
+      "tag_antigo": "AS01-SMP-MCA03",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Auxiliar(V12) MWM D232",
+      "tag_novo": "AS-CMA-SPP-MTA-01-CMB",
+      "tag_antigo": "AS01-SMP-MCA01",
+      "componentes_sugeridos": [
+        "Bateria 01",
+        "Bateria 02"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Principal MWM TD440-8",
+      "tag_novo": "AS-CMA-SPP-MTP-01-CMB",
+      "tag_antigo": "AS01-SPP-MCP01",
+      "componentes_sugeridos": [
+        "Bateria 01",
+        "Bateria 02",
+        "Bico injetor 1",
+        "Bico injetor 2",
+        "Bico injetor 3",
+        "Bico injetor 4",
+        "Bico injetor 5",
+        "Bico injetor 6",
+        "Bico injetor 7",
+        "Bico injetor 8",
+        "Comando de válvulas",
+        "Cárter",
+        "Descarga",
+        "Filtro de ar do superalimentador",
+        "Filtro de combustível",
+        "Filtro de óleo lubrificante",
+        "Radiador",
+        "Resfriador de óleo lubrificante",
+        "Sistema de alarme de parada",
+        "Tubulação de ar comprimido",
+        "Tucho 1",
+        "Tucho 2",
+        "Tucho 3",
+        "Tucho 4",
+        "Tucho 5",
+        "Tucho 6",
+        "Tucho 7",
+        "Tucho 8",
+        "Vedação do cabeçote 1",
+        "Vedação do cabeçote 2",
+        "Vedação do cabeçote 3",
+        "Vedação do cabeçote 4",
+        "Vedação do cabeçote 5",
+        "Vedação do cabeçote 6",
+        "Vedação do cabeçote 7",
+        "Vedação do cabeçote 8",
+        "Volante",
+        "Válvula 1",
+        "Válvula 2",
+        "Válvula 3",
+        "Válvula 4",
+        "Válvula 5",
+        "Válvula 6",
+        "Válvula 7",
+        "Válvula 8",
+        "Válvula de regulagem da aceleração"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE SALVAGUARDA",
+      "equipamento": "Bomba de Incêndio",
+      "tag_novo": "AS-CMA-SSG-BOM-01",
+      "tag_antigo": "AS01-SSG-BOM01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 7",
+      "tag_novo": "AS-CVS-SAO-TAN-07-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 8",
+      "tag_novo": "AS-CVS-SAO-TAN-08-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 9",
+      "tag_novo": "AS-CVS-SAO-TAN-09-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 10",
+      "tag_novo": "AS-CVS-SAO-TAN-10-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 11",
+      "tag_novo": "AS-CVS-SAO-TAN-11-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 12",
+      "tag_novo": "AS-CVS-SAO-TAN-12-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 13",
+      "tag_novo": "AS-CVS-SAO-TAN-13-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque 14",
+      "tag_novo": "AS-CVS-SAO-TAN-14-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar Acústica",
+      "tag_novo": "AS-CVS-SDC-CAC-12",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 01",
+        "Evaporadora 01"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar Cozinha",
+      "tag_novo": "AS-CVS-SDC-CAC-11",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 02",
+        "Evaporadora 02"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 1",
+      "tag_novo": "AS-CVS-SDC-CAC-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 03",
+        "Evaporadora 03"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 2",
+      "tag_novo": "AS-CVS-SDC-CAC-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 04",
+        "Evaporadora 04"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 3",
+      "tag_novo": "AS-CVS-SDC-CAC-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 05",
+        "Evaporadora 05"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 4",
+      "tag_novo": "AS-CVS-SDC-CAC-04",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 06",
+        "Evaporadora 06"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 5",
+      "tag_novo": "AS-CVS-SDC-CAC-05",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 07",
+        "Evaporadora 07"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 6",
+      "tag_novo": "AS-CVS-SDC-CAC-06",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 08",
+        "Evaporadora 08"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar do Camarote 7",
+      "tag_novo": "AS-CVS-SDC-CAC-07",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 09",
+        "Evaporadora 09"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar Laboratório 1",
+      "tag_novo": "AS-CVS-SDC-CAC-09",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 10",
+        "Evaporadora 10"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar Laboratório 2",
+      "tag_novo": "AS-CVS-SDC-CAC-10",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 11",
+        "Evaporadora 11"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar Sala Professor",
+      "tag_novo": "AS-CVS-SDC-CAC-08",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 12",
+        "Evaporadora 12"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Exaustor da Cozinha",
+      "tag_novo": "AS-CVS-SDC-EXR-01-AXL",
+      "tag_antigo": "AS01-SAD-EXA01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE ESGOTO E LASTRO",
+      "equipamento": "Tanque 3",
+      "tag_novo": "AS-PPA-SEL-TAN-03-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE ESGOTO E LASTRO",
+      "equipamento": "Tanque 4",
+      "tag_novo": "AS-PPA-SEL-TAN-04-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "A-Frame",
+      "tag_novo": "AS-PPA-MOV-AFR-01",
+      "tag_antigo": "AS01-SMC-AFR01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE FUNDEIO",
+      "equipamento": "Caixa Redutora do Molinete",
+      "tag_novo": "AS-PPA-SAN-CRE-02",
+      "tag_antigo": "AS01-SMC-CRE03",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho de pesca BB/BE",
+      "tag_novo": "AS-PPA-MOV-GPE-01",
+      "tag_antigo": "AS01-SMC-GBB / AS01-SMC-GBE",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE FUNDEIO",
+      "equipamento": "Guincho molinete",
+      "tag_novo": "AS-PPA-SAN-GMO-01-HID",
+      "tag_antigo": "AS01-SMC-GCE01",
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "PROA",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Tanque 1",
+      "tag_novo": "AS-PRA-SAX-TAN-01-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "PROA",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÁGUA",
+      "equipamento": "Tanque 2",
+      "tag_novo": "AS-PRA-SAX-TAN-02-ARM",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "PROA",
+      "sistema": "SISTEMA DE FUNDEIO",
+      "equipamento": "Caixa de redução do guincho de ancora",
+      "tag_novo": "AS-PRA-SAN-CRE-07",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "PROA",
+      "sistema": "SISTEMA DE FUNDEIO",
+      "equipamento": "Guincho - ancora",
+      "tag_novo": "AS-PRA-SAN-GAN-01-HID",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "PROA",
+      "sistema": "SISTEMA DE FUNDEIO",
+      "equipamento": "Motor do guincho de ancora",
+      "tag_novo": "AS-PRA-SAN-MTG-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    }
+  ],
+  "ambiguous_excluidos": [
+    {
+      "tag_novo": "AS-CMA-SEL-BES-01-CTG",
+      "equipamentos": [
+        "Bomba de Esgote (Separadora água óleo)",
+        "Bomba de Esgote (esgotamento dos porões)"
+      ]
+    },
+    {
+      "tag_novo": "AS-CMA-MOV-GOC-01-HID",
+      "equipamentos": [
+        "Guincho oceanográfico",
+        "Munck"
+      ]
+    },
+    {
+      "tag_novo": "AS-PRA-SDC-EXR-02-AXL",
+      "equipamentos": [
+        "Exaustor da proa - banheiro",
+        "Exaustor da proa - camarote"
+      ]
+    }
+  ],
+  "malformed_excluidos": [
+    {
+      "equipamento": "Válvula de esgotamento porões 1",
+      "tag_antigo": "AS01-SEL-PVE01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 2",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 3",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 4",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 5",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 6",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 7",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 8",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 9",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 10",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 11",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Válvula de esgotamento porões 12",
+      "tag_antigo": "AS01-SAD-VAL01"
+    },
+    {
+      "equipamento": "Eixo propulsor",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Hélice",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de óleo (motor poder girar)",
+      "tag_antigo": "AS01-SSG-BOM01"
+    },
+    {
+      "equipamento": "Bomba de recirculação de água do motor (catarina) 1",
+      "tag_antigo": "AS01-SSG-BOM01"
+    },
+    {
+      "equipamento": "Bomba de recirculação de água do motor (catarina) 2",
+      "tag_antigo": "AS01-SSG-BOM01"
+    },
+    {
+      "equipamento": "Alternador/Motor Elétrico 1",
+      "tag_antigo": "AS01-SEE-ALT01"
+    },
+    {
+      "equipamento": "Alternador/Motor Elétrico 2",
+      "tag_antigo": "AS01-SEE-ALT01"
+    },
+    {
+      "equipamento": "Alternador/Motor Elétrico 3",
+      "tag_antigo": "AS01-SEE-ALT01"
+    },
+    {
+      "equipamento": "Alternador/Motor Elétrico 4",
+      "tag_antigo": "AS01-SEE-ALT01"
+    },
+    {
+      "equipamento": "Quadro elétrico auxiliar",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico auxiliar - luz quando navio nao tem luz",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico carregamento de baterias",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico comando ar",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico comando do munck",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico compressores",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico de esgoto sanitário",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico de exaustores",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico motores auxiliares (geradores)",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Quadro elétrico principal",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Filtro de pressão óleo diesel",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Filtro de pressão óleo Hidráulico 01",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Filtro de pressão óleo Hidráulico 02",
+      "tag_antigo": "AS01-SMC-UHI03"
+    },
+    {
+      "equipamento": "Filtro de pressão óleo Hidráulico 03",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Filtro de pressão óleo Hidráulico 04",
+      "tag_antigo": "AS01-SMC-UHI03"
+    },
+    {
+      "equipamento": "Motor elétrico CA do carregamento de baterias",
+      "tag_antigo": "AS01-SMC-UHI03"
+    },
+    {
+      "equipamento": "Pressurizador de água doce",
+      "tag_antigo": "AS01-SMC-UHI03"
+    },
+    {
+      "equipamento": "Pressurizador de água salgada",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de refrigeração do óleo hidráulico 1",
+      "tag_antigo": "AS01-SSG-BOM01"
+    },
+    {
+      "equipamento": "Bomba de refrigeração do óleo hidráulico 2",
+      "tag_antigo": "AS01-SSG-BOM01"
+    },
+    {
+      "equipamento": "Piloto Automático Navipilot Furuno (Equipamento)",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Rádio Comunicador (VHF Marine Transceiver IC-M412)",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Multi Display RD-30",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Color GPS/Plotter GP-7000",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Marine Radar FR-8062, 8122, 8252",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Radio VHF Sailor",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "THD Satellite Compass SC-50",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Color LCD Sounder FCV-1100L",
+      "tag_antigo": null
+    }
+  ]
+}

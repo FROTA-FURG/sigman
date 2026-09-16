@@ -14,8 +14,10 @@ export default function DeleteNodeModal({ isOpen, onClose, nodeData }) {
 
     const handleDelete = () => {
         setIsDeleting(true);
-        // Dispara a requisição DELETE para o backend
-        router.delete(route('equipments.destroy', nodeData.id), {
+        // Componente é um modelo à parte -- precisa do endpoint dele, senão
+        // o DELETE cai em /equipments/{id} com um id que não existe lá.
+        const routeName = nodeData.type === 'component' ? 'components.destroy' : 'equipments.destroy';
+        router.delete(route(routeName, nodeData.id), {
             onSuccess: () => {
                 setIsDeleting(false);
                 onClose();

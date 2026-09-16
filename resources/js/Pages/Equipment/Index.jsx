@@ -6,31 +6,14 @@ import EditNodeModal from './Equipments/EditNodeModal';
 import DeleteNodeModal from './Equipments/DeleteNodeModal';
 import ImageLightbox from './components/ImageLightbox';
 
-// Definição das Estruturas Fixas
-const VESSELS = [
-    { id: 'AS', name: 'Atlântico Sul', prefix: 'AS', num: '01'},
-    { id: 'CM01', name: 'Ciências do Mar', prefix: 'CM01', num: '02' },
-    { id: 'LL', name: 'Lancha Larus', prefix: 'LL', num: '03' },
-];
-
-const SECTIONS = [
-    { id: 'CMA', name: 'Casa de Máquinas', prefix: 'CMA' },
-    { id: 'PPA', name: 'Popa', prefix: 'PPA' },
-];
-
-const SYSTEMS = {
-    'CMA': [
-        { id: 'SPP', name: 'Sistema de Propulsão', prefix: 'SPP' },
-        { id: 'LUB', name: 'Lubrificação', prefix: 'LUB' },
-        { id: 'ACO', name: 'Ar Comprimido', prefix: 'ACO' },
-        { id: 'SEL', name: 'Sistema Elétrico', prefix: 'SEL' },
-    ],
-    'PPA': [
-        { id: 'ACN', name: 'Ancoragem', prefix: 'ACN' },
-        { id: 'ACO', name: 'Ar Comprimido', prefix: 'ACO' },
-        { id: 'EST', name: 'Estrutural', prefix: 'EST' },
-    ]
-};
+/**
+ * Seção/Sistema de cada embarcação vêm do backend (`estruturaHierarquica`,
+ * gerado a partir do estudo de classificação ISO 14224 do estagiário --
+ * ver EquipmentController::loadEstruturaHierarquica). O equipamento só é
+ * encaixado numa seção/sistema quando o tag_number dele já segue o
+ * formato novo (ex.: AS-CMA-SPP-...); enquanto estiver no tag antigo, cai
+ * em "Não Categorizados" até passar pela ferramenta de migração de tags.
+ */
 
 // Componente Recursivo da Árvore
 const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expandedNodes }) => {
@@ -78,31 +61,31 @@ const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expande
     );
 };
 
-export default function Index({ equipmentTree }) {
+export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
     // Busca os dados do usuário autenticado no Laravel
     const { auth } = usePage().props;
-    
+
     const structuredTree = useMemo(() => {
         if (!equipmentTree) return [];
 
         return equipmentTree.map(vessel => {
-            const structuredChildren = SECTIONS.map(section => {
-                const systemsForSection = SYSTEMS[section.prefix] || [];
-                
-                const systemNodes = systemsForSection.map(sys => ({
-                    id: `${vessel.id}-${section.prefix}-${sys.prefix}`,
+            const secoesDaEmbarcacao = estruturaHierarquica[vessel.tag] || [];
+
+            const structuredChildren = secoesDaEmbarcacao.map(section => {
+                const systemNodes = (section.sistemas || []).map(sys => ({
+                    id: `${vessel.id}-${section.sigla}-${sys.sigla}`,
                     type: 'system',
-                    name: sys.name,
-                    prefix: sys.prefix,
+                    name: sys.nome,
+                    prefix: sys.sigla,
                     status: 'active',
-                    children: [] 
+                    children: []
                 }));
 
                 return {
-                    id: `${vessel.id}-${section.prefix}`,
+                    id: `${vessel.id}-${section.sigla}`,
                     type: 'section',
-                    name: section.name,
-                    prefix: section.prefix,
+                    name: section.nome,
+                    prefix: section.sigla,
                     status: 'active',
                     children: systemNodes
                 };
@@ -154,7 +137,7 @@ export default function Index({ equipmentTree }) {
                 children: structuredChildren
             };
         });
-    }, [equipmentTree]);
+    }, [equipmentTree, estruturaHierarquica]);
 
     const [selectedNode, setSelectedNode] = useState(null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
@@ -288,7 +271,8 @@ export default function Index({ equipmentTree }) {
                                         {renderStatus(selectedNode.status)}
 
                                         <div className="flex items-center gap-2 mt-1">
-                                            {['equipment', 'component'].includes(selectedNode.type) && (
+                                            {/* Componente não tem página própria -- vive dentro da do equipamento pai */}
+                                            {selectedNode.type === 'equipment' && (
                                                 <Link
                                                     href={route('equipments.show', selectedNode.id)}
                                                     className="flex items-center rounded-md bg-blue-600/10 px-3 py-1.5 text-xs font-medium text-blue-400 transition hover:bg-blue-600/20 hover:text-blue-300 ring-1 ring-inset ring-blue-600/20"
@@ -322,10 +306,31 @@ export default function Index({ equipmentTree }) {
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                                    {['equipment', 'component'].includes(selectedNode.type) && (
+                                        <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+                                            <h4 className="text-sm font-semibold text-white mb-2">Descrição</h4>
+                                            <p className="text-sm text-slate-300 whitespace-pre-line">
+                                                {selectedNode.description || 'Nenhuma descrição cadastrada para este item.'}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <h4 className="text-sm font-semibold text-white mb-4 border-b border-slate-800 pb-2">Especificações Técnicas</h4>
-                                    
+
                                     {['equipment', 'component'].includes(selectedNode.type) ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+                                            {selectedNode.type === 'equipment' && (
+                                                <>
+                                                    <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800">
+                                                        <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Antigo</span>
+                                                        <span className="text-sm font-medium text-slate-200 font-mono">{selectedNode.tag_antigo || 'Não migrado'}</span>
+                                                    </div>
+                                                    <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800">
+                                                        <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Novo</span>
+                                                        <span className="text-sm font-medium text-slate-200 font-mono">{selectedNode.tag || 'Não especificado'}</span>
+                                                    </div>
+                                                </>
+                                            )}
                                             <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800 col-span-1 sm:col-span-2">
                                                 <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Número de Série (S/N)</span>
                                                 <span className="text-sm font-medium text-slate-200 font-mono tracking-wider">
@@ -359,7 +364,7 @@ export default function Index({ equipmentTree }) {
 
                                     <h4 className="text-sm font-semibold text-white mb-4 border-b border-slate-800 pb-2">Ordens de Serviço Relacionadas</h4>
 
-                                    {['equipment', 'component'].includes(selectedNode.type) ? (
+                                    {selectedNode.type === 'equipment' ? (
                                         <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
                                             <svg className="h-10 w-10 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             <p className="text-sm text-slate-400 mb-3">OS vinculadas, última inspeção e calendário anual de manutenção.</p>
@@ -369,6 +374,10 @@ export default function Index({ equipmentTree }) {
                                             >
                                                 Ver Página Completa do Equipamento
                                             </Link>
+                                        </div>
+                                    ) : selectedNode.type === 'component' ? (
+                                        <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
+                                            <p className="text-sm text-slate-500">Componente não abre OS própria -- as Ordens de Serviço ficam no equipamento pai.</p>
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">

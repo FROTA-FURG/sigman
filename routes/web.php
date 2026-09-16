@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\EquipmentTagMigrationController;
+use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\ExecutionWindowController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
@@ -39,11 +41,24 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::get('/vessels', [VesselController::class, 'index'])->name('vessels.index');
     Route::get('/vessels/{id}', [VesselController::class, 'show'])->name('vessels.show');
 
+    // Ferramenta local (dev only) de migração de tags pra nova árvore de equipamentos --
+    // tem que vir ANTES de /equipments/{id}, senão "tag-migration" é capturado como {id}.
+    Route::get('/equipments/tag-migration/{vessel?}', [EquipmentTagMigrationController::class, 'index'])->name('equipments.tag-migration');
+    Route::post('/equipments/tag-migration/vincular', [EquipmentTagMigrationController::class, 'vincular'])->name('equipments.tag-migration.vincular');
+    Route::post('/equipments/tag-migration/criar-novo', [EquipmentTagMigrationController::class, 'criarNovo'])->name('equipments.tag-migration.criar-novo');
+    Route::post('/equipments/tag-migration/ignorar', [EquipmentTagMigrationController::class, 'ignorar'])->name('equipments.tag-migration.ignorar');
+    Route::post('/equipments/tag-migration/desfazer', [EquipmentTagMigrationController::class, 'desfazer'])->name('equipments.tag-migration.desfazer');
+
     Route::get('/equipments', [EquipmentController::class, 'index'])->name('eq.index');
     Route::get('/equipments/{id}', [EquipmentController::class, 'show'])->name('equipments.show');
     Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
     Route::put('/equipments/{equipment}', [EquipmentController::class, 'update'])->name('equipments.update');
     Route::delete('/equipments/{equipment}', [EquipmentController::class, 'destroy'])->name('equipments.destroy');
+
+    // Componentes (nível opcional abaixo do equipamento)
+    Route::post('/components', [ComponentController::class, 'store'])->name('components.store');
+    Route::put('/components/{id}', [ComponentController::class, 'update'])->name('components.update');
+    Route::delete('/components/{id}', [ComponentController::class, 'destroy'])->name('components.destroy');
 
     // Service Requests
     Route::get('/service-requests', [ServiceRequestController::class, 'index'])->name('service-requests.index');

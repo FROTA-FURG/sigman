@@ -1,0 +1,749 @@
+{
+  "clean": [
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "AR COMPRIMIDO",
+      "equipamento": "Compressor de ar",
+      "tag_novo": "CM01-CMA-ACO-CMP-03-PNE",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Cilindro 1",
+        "Correia",
+        "Elemento Filtrante",
+        "Filtro de Ar",
+        "Motor elétrico"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Bomba transferência do diesel",
+      "tag_novo": "CM01-CMA-SAO-SAO-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ESGOTO E LASTRO",
+      "equipamento": "Separadora água e óleo",
+      "tag_novo": "CM01-CMA-SEL-SAO-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ÓLEO COMBUSTÍVEL",
+      "equipamento": "Separadora Centrífuga de Óleo Diesel",
+      "tag_novo": "CM01-CMA-SOC-SOC-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Central hidráulica Munck e Guincho da âncora - NAVALSUL",
+      "tag_novo": "CM01-CMA-MOV-UHD-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bomba Hidráulica",
+        "Tanque de óleo"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Central hidráulica do Guincho de Pesca e Oceanográfico - NAVALSUL",
+      "tag_novo": "CM01-CMA-MOV-UHD-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bomba Hidráulica",
+        "Tanque de óleo"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE ARMAZENAMENTO E TRANSFERÊNCIA DE ÓLEO DIESEL",
+      "equipamento": "Tanque de Serviço do Combustível",
+      "tag_novo": "CM01-CMA-SAO-TSC-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+      "tag_novo": "CM01-CMA-SPP-MTP-02-CMB",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bateria 1",
+        "Bateria 2",
+        "Bateria 3",
+        "Bateria 4",
+        "Bateria 5",
+        "Bateria 6",
+        "Filtro de Ar",
+        "Filtro de Combustível",
+        "Filtro de lubrificante",
+        "Filtro separador água e óleo"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Principal BB/BE - SCÂNIA - DI 13",
+      "tag_novo": "CM01-CMA-SPP-MTP-01-CMB",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bateria 1",
+        "Bateria 2",
+        "Bateria 3",
+        "Bateria 4",
+        "Bateria 5",
+        "Bateria 6",
+        "Filtro de Ar",
+        "Filtro de Combustível",
+        "Filtro de lubrificante",
+        "Filtro separador água e óleo"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+      "tag_novo": "CM01-CMA-SPP-MTA-03-CMB",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bateria 1",
+        "Bateria 2",
+        "Bateria 3",
+        "Bateria 4",
+        "Bateria 5",
+        "Bateria 6",
+        "Correia de transmissão",
+        "Cárter",
+        "Filtro de combustível",
+        "Filtro de lubrificante"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Motor de Combustão Auxiliar BB/BE - John Deere - FM 85",
+      "tag_novo": "CM01-CMA-SPP-MTA-04-CMB",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Bateria 1",
+        "Bateria 2",
+        "Bateria 3",
+        "Bateria 4",
+        "Bateria 5",
+        "Bateria 6",
+        "Correia de transmissão",
+        "Cárter",
+        "Filtro de combustível",
+        "Filtro de lubrificante"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Caixa redutora BB - MCP",
+      "tag_novo": "CM01-CMA-SPP-CRE-04",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Filtro Hidráulico"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE GOVERNO NÁUTICO",
+      "equipamento": "Central hidráulica do Leme - Dtecto",
+      "tag_novo": "CM01-CMA-SGN-UHD-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Caixa redutora BB - TWIN DISC",
+      "tag_novo": "CM01-CMA-SPP-CRE-05",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Filtro Hidráulico"
+      ]
+    },
+    {
+      "secao": "CASA DE MÁQUINAS",
+      "sistema": "SISTEMA DE PROPULSÃO",
+      "equipamento": "Caixa redutora BE - TWIN DISC",
+      "tag_novo": "CM01-CMA-SPP-CRE-06",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Filtro Hidráulico"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 1",
+      "tag_novo": "CM01-CVS-SDC-CAC-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 01",
+        "Evaporadora 01"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 2",
+      "tag_novo": "CM01-CVS-SDC-CAC-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 02",
+        "Evaporadora 02"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 3",
+      "tag_novo": "CM01-CVS-SDC-CAC-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 03",
+        "Evaporadora 03"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 4",
+      "tag_novo": "CM01-CVS-SDC-CAC-04",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 04",
+        "Evaporadora 04"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 5",
+      "tag_novo": "CM01-CVS-SDC-CAC-05",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 05",
+        "Evaporadora 05"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 6",
+      "tag_novo": "CM01-CVS-SDC-CAC-06",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 06",
+        "Evaporadora 06"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 7",
+      "tag_novo": "CM01-CVS-SDC-CAC-07",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 07",
+        "Evaporadora 07"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 8",
+      "tag_novo": "CM01-CVS-SDC-CAC-08",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 08",
+        "Evaporadora 08"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 9",
+      "tag_novo": "CM01-CVS-SDC-CAC-09",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 09",
+        "Evaporadora 09"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar camarote 10",
+      "tag_novo": "CM01-CVS-SDC-CAC-10",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 10",
+        "Evaporadora 10"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar laboratório 1",
+      "tag_novo": "CM01-CVS-SDC-CAC-11",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 11",
+        "Evaporadora 11"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar laboratório 2",
+      "tag_novo": "CM01-CVS-SDC-CAC-12",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 12",
+        "Evaporadora 12"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar acústica",
+      "tag_novo": "CM01-CVS-SDC-CAC-13",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 13",
+        "Evaporadora 13"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar cozinha",
+      "tag_novo": "CM01-CVS-SDC-CAC-14",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 14",
+        "Evaporadora 14"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar sala Professor",
+      "tag_novo": "CM01-CVS-SDC-CAC-15",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 15",
+        "Evaporadora 15"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar",
+      "tag_novo": "CM01-CVS-SDC-CAC-16",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 16",
+        "Evaporadora 16"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar",
+      "tag_novo": "CM01-CVS-SDC-CAC-17",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 17",
+        "Evaporadora 17"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar",
+      "tag_novo": "CM01-CVS-SDC-CAC-18",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 18",
+        "Evaporadora 18"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar",
+      "tag_novo": "CM01-CVS-SDC-CAC-19",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 19",
+        "Evaporadora 19"
+      ]
+    },
+    {
+      "secao": "CONVÉS",
+      "sistema": "SISTEMA DE CLIMATIZAÇÃO",
+      "equipamento": "Condicionador de Ar",
+      "tag_novo": "CM01-CVS-SDC-CAC-20",
+      "tag_antigo": null,
+      "componentes_sugeridos": [
+        "Condensadora 20",
+        "Evaporadora 20"
+      ]
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho de pesca N1GRD-H2.000-80",
+      "tag_novo": "CM01-PPA-MOV-GPE-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guindaste Naval - MUNCK",
+      "tag_novo": "CM01-PPA-MOV-GMK-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho de Espinhel - N1FLW-H-600-10.00)",
+      "tag_novo": "CM01-PPA-MOV-GES-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Tambor de rede",
+      "tag_novo": "CM01-PPA-MOV-TRD-01",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho de pesca BB",
+      "tag_novo": "CM01-PPA-MOV-GPE-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho Oceanografico",
+      "tag_novo": "CM01-PPA-MOV-GOC-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "Guincho de Espinhel",
+      "tag_novo": "CM01-PPA-MOV-GES-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "A-Frame Lateral",
+      "tag_novo": "CM01-PPA-MOV-AFR-02",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    },
+    {
+      "secao": "POPA",
+      "sistema": "SISTEMA DE MOVIMENTAÇÃO",
+      "equipamento": "A-Frame de Ré",
+      "tag_novo": "CM01-PPA-MOV-AFR-03",
+      "tag_antigo": null,
+      "componentes_sugeridos": []
+    }
+  ],
+  "ambiguous_excluidos": [],
+  "malformed_excluidos": [
+    {
+      "equipamento": "Bolier Água doce 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bolier Água doce 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Boiler Água Salgada",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Boiler chuveiros",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de água doce 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de água doce 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 01",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 02",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 03",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 04",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 05",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 06",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 07",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 08",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 09",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 10",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 11",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula Diesel 12",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula de esgotamento água salgada 01",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula de esgotamento água salgada 02",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula de esgotamento água salgada 03",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula de esgotamento água salgada 04",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de óleo diesel 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de óleo diesel 3",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de óleo diesel 4",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Exaustor 01",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Exaustor 02",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Exaustor 03",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Motor Elétrico do Exaustor 01",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Motor Elétrico do Exaustor 02",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Motor Elétrico do Exaustor 03",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba transferencia água doce 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba transferencia água doce 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Separador de Água e Óleo",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Pressurizador da rede de água salgada",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de Esgote Porão 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de Esgote Porão 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de Esgoto sanitário",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Leme BB",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Leme BE",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba Leme 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba Leme 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Hélice BB",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Hélice BE",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de incêndio 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bomba de incêndio 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula corta fogo 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula corta fogo 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Válvula corta fogo 3",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Carregador flutuante de baterias 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Carregador flutuante de baterias 2",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Âncora BB",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Âncora BE",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Molinete",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Motor elétrico do molinete",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de água doce 3",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Tanque de óleo diesel 1",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bússola giroscópica",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Bússola magnética",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Carregador de baterias dos equipamentos de navegação",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Ecossonda - Fish finder",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Estação meteorológica",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "GPS com plotter de cartas eletrônicas",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Hodômetro - Doppler Speed Log",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Piloto automático",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Radar de Varredura",
+      "tag_antigo": null
+    },
+    {
+      "equipamento": "Sonar",
+      "tag_antigo": null
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
+import CriticalityCalculator from '../components/CriticalityCalculator';
+import { TIPOS_COMPONENTE } from '../components/ComponentModal';
 
 // Nossas Constantes de Estrutura
 const VESSELS = [
@@ -31,6 +33,7 @@ const SYSTEMS = {
 export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
     const [mounted, setMounted] = useState(false);
     const [suggestedTag, setSuggestedTag] = useState('');
+    const [componentBusy, setComponentBusy] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         parent_id: '',
@@ -41,11 +44,13 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
         system: '',
         name: '',
         tag: '',
+        tag_antigo: '',
         status: 'active',
-        criticality: 'A',
+        criticality: '',
         manufacturer: '',
         model: '',
-        series_number: '', 
+        series_number: '',
+        tipo_componente: '',
     });
 
     useEffect(() => {
@@ -98,9 +103,31 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
         setData('tag', suggestedTag);
     };
 
+    const isComponent = data.node_type === 'component';
+    // Componente não tem posição própria na árvore de tags -- ele pendura
+    // direto no equipamento selecionado, então só faz sentido quando o
+    // nó clicado na árvore já é um equipamento real.
+    const podeSerComponente = selectedParent?.type === 'equipment';
+
     const submit = (e) => {
         e.preventDefault();
-        console.log("Equipment data: ",data)
+
+        if (isComponent) {
+            setComponentBusy(true);
+            router.post(route('components.store'), {
+                equipment_id: data.parent_id,
+                name: data.name,
+                tag_number: data.tag,
+                tipo: data.tipo_componente,
+                manufacturer: data.manufacturer,
+                model: data.model,
+            }, {
+                onSuccess: () => { reset(); onClose(); },
+                onFinish: () => setComponentBusy(false),
+            });
+            return;
+        }
+
         post(route('equipments.store'), {
             onSuccess: () => {
                 reset();
@@ -112,6 +139,7 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
     if (!isOpen || !mounted) return null;
 
     const availableSystems = data.section && SYSTEMS[data.section] ? SYSTEMS[data.section] : [];
+    const busy = isComponent ? componentBusy : processing;
 
     return createPortal(
         <>
@@ -157,43 +185,52 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
                                         <select value={data.node_type} onChange={e => setData('node_type', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                                             <option value="system">Sistema</option>
                                             <option value="equipment">Equipamento</option>
-                                            <option value="component">Componente</option>
+                                            <option value="component" disabled={!podeSerComponente}>Componente{!podeSerComponente ? ' (selecione um equipamento na árvore)' : ''}</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">Embarcação</label>
-                                        <select value={data.vessel_prefix} onChange={e => setData('vessel_prefix', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                                            <option value="">Selecione...</option>
-                                            {VESSELS.map(v => (
-                                                <option key={v.id} value={v.prefix}>{v.name} ({v.prefix})</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">Seção</label>
-                                        <select value={data.section} onChange={e => setData(d => ({ ...d, section: e.target.value, system: '' }))} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                                            <option value="">Selecione...</option>
-                                            {SECTIONS.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-400">Sistema</label>
-                                        <select value={data.system} onChange={e => setData('system', e.target.value)} disabled={!data.section} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 disabled:opacity-50">
-                                            <option value="">Selecione...</option>
-                                            {availableSystems.map(sys => <option key={sys.id} value={sys.id}>{sys.name}</option>)}
-                                        </select>
-                                    </div>
+                                    {!isComponent && (
+                                        <>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-medium text-slate-400">Embarcação</label>
+                                                <select value={data.vessel_prefix} onChange={e => setData('vessel_prefix', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                                    <option value="">Selecione...</option>
+                                                    {VESSELS.map(v => (
+                                                        <option key={v.id} value={v.prefix}>{v.name} ({v.prefix})</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-medium text-slate-400">Seção</label>
+                                                <select value={data.section} onChange={e => setData(d => ({ ...d, section: e.target.value, system: '' }))} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                                    <option value="">Selecione...</option>
+                                                    {SECTIONS.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-medium text-slate-400">Sistema</label>
+                                                <select value={data.system} onChange={e => setData('system', e.target.value)} disabled={!data.section} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500 disabled:opacity-50">
+                                                    <option value="">Selecione...</option>
+                                                    {availableSystems.map(sys => <option key={sys.id} value={sys.id}>{sys.name}</option>)}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+                                    {isComponent && (
+                                        <div className="sm:col-span-3 flex items-center rounded-md bg-slate-900/50 px-3 text-xs text-slate-500">
+                                            O componente pendura direto no equipamento selecionado -- não precisa de posição própria na árvore.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Identificação */}
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
+                                <div className="sm:col-span-2">
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Nome do Item <span className="text-red-500">*</span></label>
                                     <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} placeholder="Ex: Bomba de Óleo" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
                                 </div>
                                 <div className="relative">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento <span className="text-red-500">*</span></label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento (Tag Novo) <span className="text-red-500">*</span></label>
                                     <input type="text" value={data.tag} onChange={e => setData('tag', e.target.value)} placeholder="Ex: AS-CMA-LUB-BOMBA" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-blue-400 font-mono focus:border-blue-500" />
                                     {suggestedTag && data.tag !== suggestedTag && (
                                         <div className="absolute top-full left-0 mt-1 flex w-full items-center justify-between rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1.5">
@@ -202,54 +239,107 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
                                         </div>
                                     )}
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
-                                <input type="text" value={data.series_number} onChange={e => setData('series_number', e.target.value)} placeholder="Ex: SN-987654" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
-                            </div>
-
-                            {/* Detalhes Técnicos - Oculta os 3 de fabricação se for Sistema */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Status Inicial</label>
-                                    <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
-                                        <option value="active">Operacional</option>
-                                        <option value="inactive">Atenção / Inativo</option>
-                                        <option value="in_maintenance">Em Manutenção</option>
-                                        <option value="decommissioned">Descomissionado</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Criticidade</label>
-                                    <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
-                                        <option value="A">Classe A</option>
-                                        <option value="B">Classe B</option>
-                                        <option value="C">Classe C</option>
-                                    </select>
-                                </div>
-
-                                {data.node_type !== 'system' && (
-                                    <>
-                                        <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
-                                            <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
-                                            <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
-                                        </div>
-                                    </>
+                                {!isComponent && (
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Tag Antigo</label>
+                                        <input type="text" value={data.tag_antigo} onChange={e => setData('tag_antigo', e.target.value)} placeholder="Ex: AS01-SPP-MCP01" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-400 font-mono placeholder:text-slate-600 focus:border-blue-500" />
+                                    </div>
                                 )}
                             </div>
+
+                            {data.node_type === 'equipment' && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
+                                        <input type="text" value={data.series_number} onChange={e => setData('series_number', e.target.value)} placeholder="Ex: SN-987654" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
+                                        <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
+                                        <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {isComponent && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
+                                        <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
+                                        <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Tipo de componente -- substitui Status/Criticidade quando o nó é um componente */}
+                            {isComponent && (
+                                <div>
+                                    <label className="mb-2 block text-xs font-medium text-slate-400">Tipo de Componente <span className="text-red-500">*</span></label>
+                                    <div className="space-y-2">
+                                        {TIPOS_COMPONENTE.map(t => (
+                                            <label key={t.value} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${data.tipo_componente === t.value ? 'border-blue-500/50 bg-blue-500/5' : 'border-slate-700 hover:border-slate-600'}`}>
+                                                <input
+                                                    type="radio"
+                                                    name="tipo_componente"
+                                                    checked={data.tipo_componente === t.value}
+                                                    onChange={() => setData('tipo_componente', t.value)}
+                                                    className="mt-0.5 h-4 w-4 text-blue-500 focus:ring-blue-500"
+                                                />
+                                                <span>
+                                                    <span className="block text-sm font-semibold text-slate-200">{t.label}</span>
+                                                    <span className="block text-xs text-slate-500">{t.ajuda}</span>
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Status/Criticidade -- não se aplica a componente */}
+                            {!isComponent && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Status Inicial</label>
+                                        <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                            <option value="active">Operacional</option>
+                                            <option value="inactive">Atenção / Inativo</option>
+                                            <option value="in_maintenance">Em Manutenção</option>
+                                            <option value="decommissioned">Descomissionado</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="sm:col-span-2">
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Criticidade</label>
+                                        <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                            <option value="">Sem criticidade (em estudo)</option>
+                                            <option value="A">Classe A</option>
+                                            <option value="B">Classe B</option>
+                                            <option value="C">Classe C</option>
+                                        </select>
+                                        <div className="mt-2">
+                                            <CriticalityCalculator onApply={(classe) => setData('criticality', classe)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </form>
                     </div>
 
                     <div className="flex shrink-0 items-center justify-end gap-3 border-t border-slate-700/50 bg-slate-900 px-6 py-4">
-                        <button onClick={onClose} disabled={processing} type="button" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50">Cancelar</button>
-                        <button type="submit" form="createNodeForm" disabled={processing} className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:opacity-50">
-                            {processing ? 'Salvando...' : 'Adicionar à Árvore'}
+                        <button onClick={onClose} disabled={busy} type="button" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50">Cancelar</button>
+                        <button
+                            type="submit"
+                            form="createNodeForm"
+                            disabled={busy || (isComponent && !data.tipo_componente)}
+                            className="flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:opacity-50"
+                        >
+                            {busy ? 'Salvando...' : 'Adicionar à Árvore'}
                         </button>
                     </div>
                 </div>

@@ -5,41 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * Nível opcional abaixo do equipamento (ex.: Motor -> pistão 1/2/3) --
+ * ver ComponentController e a migration create_component_table pro
+ * significado dos 3 tipos.
+ */
 class Component extends Model
 {
-     use HasUuids; 
+    use HasUuids;
 
     protected $table = 'component';
 
     protected $fillable = [
-        'equipment_id',       
+        'equipment_id',
         'name',
+        'tag_number',
+        'tipo',
         'manufacturer',
         'model',
-        'purchase_date', 
-        'in_service_date',
-        'criticality',    
-        'status',       
-        'image_url',      
+        'description',
     ];
 
-    public function vessel()
+    public function equipment()
     {
-        return $this->belongsTo(Vessel::class);
-    }
-
-    public function parent()
-    {
-        return $this->belongsTo(Equipment::class, 'parent_id');
-    }
-
-    public function children()
-    {
-        return $this->hasMany(Equipment::class, 'parent_id');
-    }
-
-    public function components()
-    {
-        return $this->hasMany(Component::class);
+        return $this->belongsTo(Equipment::class);
     }
 }

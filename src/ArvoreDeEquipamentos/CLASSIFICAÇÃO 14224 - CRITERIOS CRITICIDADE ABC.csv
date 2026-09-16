@@ -1,0 +1,33 @@
+,Matriz de Criticidade,,,,,,,,,,,,,,,,,,
+,Critério,Nota 1 ,Nota 2 ,Nota 3,,,,,,,,,,,,CLASSIFICAÇÃO,A,B,C
+,Segurança e Meio Ambiente (S),Sem risco à integridade física ou ao meio ambiente,"Possibilidade de lesão leve, incidente sem consequências graves ou impacto ambiental de pequena magnitude",Possibilidade de acidente grave/fatal ou impacto ambiental relevante,,,,CLASSIFICAÇÃO POR PONTOS,,,,,,,,Condição de operação,Uso contínuo ou essencial (>90% do tempo de operação da embarcação),Uso do equipamento entre 50% e 90% ao mês,Uso eventual (<50% do tempo)
+,Qualidade (Q),"Não compromete resultados, dados ou amostras","Pode gerar retrabalho, repetição de ensaio ou perda parcial de dados/amostras","Pode invalidar resultados, comprometer amostras críticas ou causar perda significativa de dados",,,,TOTAL DE PONTOS,CLASSE,,,"A QUANDO ≥ 33 PONTOS
+B QUANDO ≥ 22 ATÉ ≤ 32 PONTOS
+C QUANDO ≤ 21 PONTOS",,,,Impacto na operação da embarcação,Falha impede a continuidade da operação da embarcação ou da missão,Falha limita parcialmente a operação (reduz capacidade/eficiência),Falha não compromete a operação
+,Sistema Alternativo (B),Redundância disponível e capaz de assumir a função sem interrupção significativa,"Backup disponível, mas requer intervenção/configuração e gera alguma indisponibilidade",Não existe backup funcional ou a indisponibilidade permanece até o reparo,,,,,,,,,,,,,,,
+,Produção (P),"Indisponibilidade < 4 h, sem impacto relevante na atividade","Indisponibilidade entre 4 e 24 h, causando atraso ou redução parcial da atividade",Indisponibilidade > 24 h ou paralisação de atividade/missão,,,,,A,B,C,,,,,Qualidade,Falha inviabiliza a coleta de dados ou compromete totalmente os resultados,Falha compromete parcialmente a qualidade dos dados,Falha sem impacto relevante na pesquisa
+,Frequência de Falha (F),≤ 1 falha/ano,> 1 e ≤ 2 falhas/ano,> 2 falhas/ano,,,,,,,,,,,,Segurança,Falha pode causar acidentes graves ou risco à vida,Falha pode causar incidentes leves ou risco moderado,Falha sem impacto na segurança
+,Dificuldade de Reparo (R),"Reparo realizado em ≤ 4 h, sem necessidade de desmontagem complexa","Reparo entre > 4 e ≤ 24 h, com planejamento ou desmontagem parcial","Reparo > 24 h, exigindo intervenção especializada, desmontagem complexa ou assistência externa",,,,,,,,,,,,Meio Ambiente,"Falha pode causar impacto ambiental significativo (ex: vazamentos, poluição)",Falha com impacto ambiental moderado e controlável,Sem impacto ambiental
+,Custo de Manutenção (C),≤ R$ 10.000 por intervenção,> R$ 10.000 e ≤ R$ 50.000 por intervenção,> R$ 50.000 por intervenção,,,,,,,,,,,,Manutenção - Tempo de Reparo,MTTR acima de 4 horas (reparo demorado),MTTR entre 2 e 4 horas (tempo médio de reparo),MTTR abaixo de 2 horas (reparo rápido)
+,,,,,,,,,,,,,,,,Manutenção - Frequência de Falhas,Baixo MTBF (falhas frequentes),MTBF moderado,Alto MTBF (falhas raras)
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,Pesquisar: Valores para basear no MTBF,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,Classificação,Nota,,,,,,,,,,,,,,,,,
+,C,7,,,,,,,,,,,,,,,,,
+,C,8,,,,,,,,,,,,,,,,,
+,C,9,,,,,,,,,,,,,,,,,
+,C,10,,,,,,,,,,,,,,,,,
+,C,11,,,,,,,,,,,,,,,,,
+,B,12,,,,,,,,,,,,,,,,,
+,B,13,,,,,,,,,,,,,,,,,
+,B,14,,,,,,,,,,,,,,,,,
+,B,15,,,,,,,,,,,,,,,,,
+,B,16,,,,,,,,,,,,,,,,,
+,A,17,,,,,,,,,,,,,,,,,
+,A,18,,,,,,,,,,,,,,,,,
+,A,19,,,,,,,,,,,,,,,,,
+,A,20,,,,,,,,,,,,,,,,,
+,A,21,,,,,,,,,,,,,,,,,

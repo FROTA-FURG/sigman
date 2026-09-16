@@ -14,6 +14,7 @@ CREDENTIALS.md
 /.zed
 /auth.json
 /node_modules
+/docs
 /public/build
 /public/hot
 /public/storage
