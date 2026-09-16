@@ -1,5 +1,5 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 /**
@@ -81,11 +81,12 @@ function EquipmentCombobox({ candidatos, value, sugerido, onChange }) {
  * de-para entre o tag antigo (o que já está em uso no sistema) e o tag
  * novo da árvore de classificação (ISO 14224). Ver EquipmentTagMigrationController.
  */
-export default function TagMigration({ vessel, pendentes = [], candidatos = [], jaMigrados = [], malformados = [], totalLimpo = 0 }) {
+export default function TagMigration({ vessel, vesselsDisponiveis = [], pendentes = [], candidatos = [], jaMigrados = [], malformados = [], ambiguos = [], totalLimpo = 0 }) {
     const [busy, setBusy] = useState(null); // tag_novo em processamento
     const [toast, setToast] = useState(null);
     const [confirmandoCriacao, setConfirmandoCriacao] = useState(null); // tag_novo aguardando 2º clique
     const [mostrarMalformados, setMostrarMalformados] = useState(false);
+    const [mostrarAmbiguos, setMostrarAmbiguos] = useState(false);
     const [selecao, setSelecao] = useState({}); // { [tag_novo]: equipment_id }
 
     const avisar = (msg) => {
@@ -120,6 +121,7 @@ export default function TagMigration({ vessel, pendentes = [], candidatos = [], 
         }
         setBusy(linha.tag_novo);
         router.post(route('equipments.tag-migration.criar-novo'), {
+            vessel: vessel.tag,
             tag_novo: linha.tag_novo,
             nome: linha.equipamento,
         }, {
@@ -133,6 +135,7 @@ export default function TagMigration({ vessel, pendentes = [], candidatos = [], 
     const ignorar = (linha) => {
         setBusy(linha.tag_novo);
         router.post(route('equipments.tag-migration.ignorar'), {
+            vessel: vessel.tag,
             tag_novo: linha.tag_novo,
         }, {
             preserveScroll: true,
@@ -165,10 +168,32 @@ export default function TagMigration({ vessel, pendentes = [], candidatos = [], 
                     <p className="mt-1 text-sm text-slate-400">
                         Ferramenta local: confirme, um equipamento de cada vez, a ligação entre o tag que já está em uso e o tag novo da árvore de classificação (ISO 14224).
                     </p>
+
+                    {vesselsDisponiveis.length > 1 && (
+                        <div className="mt-4 flex gap-2 border-b border-slate-800">
+                            {vesselsDisponiveis.map((v) => (
+                                <Link
+                                    key={v.tag}
+                                    href={route('equipments.tag-migration', { vessel: v.tag })}
+                                    className={`px-3 py-2 text-sm font-medium transition-colors ${
+                                        v.tag === vessel.tag
+                                            ? 'border-b-2 border-blue-500 text-blue-400'
+                                            : 'text-slate-500 hover:text-slate-300'
+                                    }`}
+                                >
+                                    {v.name}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-400">
                         <span><span className="font-bold text-emerald-400">{totalConfirmado}</span> confirmados</span>
                         <span><span className="font-bold text-amber-400">{totalPendente}</span> pendentes</span>
                         <span><span className="font-bold text-slate-500">{malformados.length}</span> excluídos (tag incompleto na planilha)</span>
+                        {ambiguos.length > 0 && (
+                            <span><span className="font-bold text-orange-400">{ambiguos.length}</span> ambíguos (mais de 1 equipamento pro mesmo tag)</span>
+                        )}
                         <span className="text-slate-600">{totalLimpo} linhas ao todo na planilha limpa</span>
                     </div>
                 </div>
@@ -243,6 +268,11 @@ export default function TagMigration({ vessel, pendentes = [], candidatos = [], 
                                                 </tbody>
                                             </table>
                                         </div>
+                                        {linha.componentes_sugeridos?.length > 0 && (
+                                            <p className="mt-2 text-[11px] text-slate-500">
+                                                Componentes na planilha (nível opcional, cadastre depois se quiser): {linha.componentes_sugeridos.join(', ')}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -326,6 +356,29 @@ export default function TagMigration({ vessel, pendentes = [], candidatos = [], 
                                     <p key={i} className="text-xs text-slate-600">
                                         <span className="font-mono">{m.tag_novo}</span> -- {m.equipamento}
                                         {m.tag_antigo ? <> (tag antigo: <span className="font-mono">{m.tag_antigo}</span>)</> : null}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* AMBÍGUOS */}
+                {ambiguos.length > 0 && (
+                    <div className="mt-4">
+                        <button
+                            type="button"
+                            onClick={() => setMostrarAmbiguos((v) => !v)}
+                            className="text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300"
+                        >
+                            {mostrarAmbiguos ? '▾' : '▸'} Ambíguos ({ambiguos.length}) -- mais de 1 equipamento apontando pro mesmo tag novo
+                        </button>
+                        {mostrarAmbiguos && (
+                            <div className="mt-3 space-y-1">
+                                {ambiguos.map((a, i) => (
+                                    <p key={i} className="text-xs text-slate-600">
+                                        <span className="font-mono">{a.tag_novo}</span> -- {a.equipamentos?.join(' / ')}
+                                        {a.tags_antigos_conflitantes ? <> (tags antigos conflitantes: {a.tags_antigos_conflitantes.join(', ')})</> : null}
                                     </p>
                                 ))}
                             </div>

@@ -44,6 +44,7 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
         system: '',
         name: '',
         tag: '',
+        tag_antigo: '',
         status: 'active',
         criticality: '',
         manufacturer: '',
@@ -224,12 +225,12 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
 
                             {/* Identificação */}
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
+                                <div className="sm:col-span-2">
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Nome do Item <span className="text-red-500">*</span></label>
                                     <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} placeholder="Ex: Bomba de Óleo" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
                                 </div>
                                 <div className="relative">
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento <span className="text-red-500">*</span></label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento (Tag Novo) <span className="text-red-500">*</span></label>
                                     <input type="text" value={data.tag} onChange={e => setData('tag', e.target.value)} placeholder="Ex: AS-CMA-LUB-BOMBA" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-blue-400 font-mono focus:border-blue-500" />
                                     {suggestedTag && data.tag !== suggestedTag && (
                                         <div className="absolute top-full left-0 mt-1 flex w-full items-center justify-between rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1.5">
@@ -238,12 +239,41 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
                                         </div>
                                     )}
                                 </div>
+                                {!isComponent && (
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Tag Antigo</label>
+                                        <input type="text" value={data.tag_antigo} onChange={e => setData('tag_antigo', e.target.value)} placeholder="Ex: AS01-SPP-MCP01" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-400 font-mono placeholder:text-slate-600 focus:border-blue-500" />
+                                    </div>
+                                )}
                             </div>
 
-                            {!isComponent && (
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
-                                    <input type="text" value={data.series_number} onChange={e => setData('series_number', e.target.value)} placeholder="Ex: SN-987654" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
+                            {data.node_type === 'equipment' && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
+                                        <input type="text" value={data.series_number} onChange={e => setData('series_number', e.target.value)} placeholder="Ex: SN-987654" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 placeholder-slate-600 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
+                                        <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
+                                        <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {isComponent && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
+                                        <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
+                                        <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                    </div>
                                 </div>
                             )}
 
@@ -271,48 +301,33 @@ export default function CreateNodeModal({ isOpen, onClose, selectedParent }) {
                                 </div>
                             )}
 
-                            {/* Detalhes Técnicos - Oculta os 3 de fabricação se for Sistema */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                {!isComponent && (
-                                    <>
-                                        <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Status Inicial</label>
-                                            <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
-                                                <option value="active">Operacional</option>
-                                                <option value="inactive">Atenção / Inativo</option>
-                                                <option value="in_maintenance">Em Manutenção</option>
-                                                <option value="decommissioned">Descomissionado</option>
-                                            </select>
-                                        </div>
+                            {/* Status/Criticidade -- não se aplica a componente */}
+                            {!isComponent && (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Status Inicial</label>
+                                        <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                            <option value="active">Operacional</option>
+                                            <option value="inactive">Atenção / Inativo</option>
+                                            <option value="in_maintenance">Em Manutenção</option>
+                                            <option value="decommissioned">Descomissionado</option>
+                                        </select>
+                                    </div>
 
-                                        <div className="sm:col-span-2">
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Criticidade</label>
-                                            <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
-                                                <option value="">Sem criticidade (em estudo)</option>
-                                                <option value="A">Classe A</option>
-                                                <option value="B">Classe B</option>
-                                                <option value="C">Classe C</option>
-                                            </select>
-                                            <div className="mt-2">
-                                                <CriticalityCalculator onApply={(classe) => setData('criticality', classe)} />
-                                            </div>
+                                    <div className="sm:col-span-2">
+                                        <label className="mb-1 block text-xs font-medium text-slate-400">Criticidade</label>
+                                        <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
+                                            <option value="">Sem criticidade (em estudo)</option>
+                                            <option value="A">Classe A</option>
+                                            <option value="B">Classe B</option>
+                                            <option value="C">Classe C</option>
+                                        </select>
+                                        <div className="mt-2">
+                                            <CriticalityCalculator onApply={(classe) => setData('criticality', classe)} />
                                         </div>
-                                    </>
-                                )}
-
-                                {data.node_type !== 'system' && (
-                                    <>
-                                        <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
-                                            <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
-                                            <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                                    </div>
+                                </div>
+                            )}
                         </form>
                     </div>
 

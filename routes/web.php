@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
 
     // Ferramenta local (dev only) de migração de tags pra nova árvore de equipamentos --
     // tem que vir ANTES de /equipments/{id}, senão "tag-migration" é capturado como {id}.
-    Route::get('/equipments/tag-migration', [EquipmentTagMigrationController::class, 'index'])->name('equipments.tag-migration');
+    Route::get('/equipments/tag-migration/{vessel?}', [EquipmentTagMigrationController::class, 'index'])->name('equipments.tag-migration');
     Route::post('/equipments/tag-migration/vincular', [EquipmentTagMigrationController::class, 'vincular'])->name('equipments.tag-migration.vincular');
     Route::post('/equipments/tag-migration/criar-novo', [EquipmentTagMigrationController::class, 'criarNovo'])->name('equipments.tag-migration.criar-novo');
     Route::post('/equipments/tag-migration/ignorar', [EquipmentTagMigrationController::class, 'ignorar'])->name('equipments.tag-migration.ignorar');

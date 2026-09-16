@@ -10,6 +10,7 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         name: '',
         tag: '',
+        tag_antigo: '',
         status: 'active',
         manufacturer: '',
         model: '',
@@ -28,6 +29,7 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
             setData({
                 name: nodeData.name || '',
                 tag: nodeData.tag || '',
+                tag_antigo: nodeData.tag_antigo || '',
                 status: nodeData.status || 'active',
                 manufacturer: nodeData.manufacturer || '',
                 model: nodeData.model || '',
@@ -124,10 +126,14 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                     <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento</label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">TAG do Equipamento (Tag Novo)</label>
                                     <input type="text" value={data.tag} onChange={e => setData('tag', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-blue-400 font-mono focus:border-blue-500" />
                                 </div>
                                 <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-400">Tag Antigo</label>
+                                    <input type="text" value={data.tag_antigo} onChange={e => setData('tag_antigo', e.target.value)} placeholder="Ex: AS01-SPP-MCP01" className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-400 font-mono placeholder:text-slate-600 focus:border-blue-500" />
+                                </div>
+                                <div className="sm:col-span-2">
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Status Atual</label>
                                     <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
                                         <option value="active">Operacional</option>
@@ -139,20 +145,20 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                             </div>
 
                             {nodeData.type === 'equipment' && (
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-                                    <div className="sm:col-span-3">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Número de Série</label>
                                         <input type="text" value={data.series_number} onChange={e => setData('series_number', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                     </div>
-                                    <div className="sm:col-span-1">
+                                    <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Marca / Fabricante</label>
                                         <input type="text" value={data.manufacturer} onChange={e => setData('manufacturer', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                     </div>
-                                    <div className="sm:col-span-2">
+                                    <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Modelo</label>
                                         <input type="text" value={data.model} onChange={e => setData('model', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
                                     </div>
-                                    <div className="sm:col-span-4">
+                                    <div className="sm:col-span-3">
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Classe</label>
                                         <select value={data.criticality} onChange={e => setData('criticality', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
                                             <option value="">Sem criticidade (em estudo)</option>
@@ -165,7 +171,7 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                         </div>
                                     </div>
 
-                                    <div className="sm:col-span-4">
+                                    <div className="sm:col-span-3">
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Descrição</label>
                                         <textarea
                                             rows="3"
@@ -177,7 +183,7 @@ export default function EditNodeModal({ isOpen, onClose, nodeData }) {
                                         {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
                                     </div>
 
-                                    <div className="sm:col-span-4">
+                                    <div className="sm:col-span-3">
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Foto do Equipamento</label>
                                         <div className="flex items-center gap-4">
                                             {imagePreview ? (

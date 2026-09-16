@@ -98,6 +98,7 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
         type: equipment.children?.length > 0 ? 'system' : 'equipment',
         name: equipment.name,
         tag: equipment.tag_number,
+        tag_antigo: equipment.tag_antigo,
         status: equipment.status,
         manufacturer: equipment.manufacturer,
         model: equipment.model,
@@ -183,7 +184,17 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
                         <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-300">Descrição</h3>
                         <p className="text-sm text-slate-300 whitespace-pre-line">{equipment.description || 'Nenhuma descrição cadastrada para este equipamento.'}</p>
 
-                        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 border-t border-slate-800 pt-4">
+                        <h4 className="mt-5 mb-3 border-t border-slate-800 pt-4 text-xs font-bold uppercase tracking-wide text-slate-400">Especificações Técnicas</h4>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            <div>
+                                <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Antigo</span>
+                                <span className="text-sm font-medium text-slate-200 font-mono">{equipment.tag_antigo || 'Não migrado'}</span>
+                            </div>
+                            <div>
+                                <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Novo</span>
+                                <span className="text-sm font-medium text-slate-200 font-mono">{equipment.tag_number || 'Não especificado'}</span>
+                            </div>
+                            <div />
                             <div>
                                 <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Fabricante</span>
                                 <span className="text-sm font-medium text-slate-200">{equipment.manufacturer || 'Não especificado'}</span>

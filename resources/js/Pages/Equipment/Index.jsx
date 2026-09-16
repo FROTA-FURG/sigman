@@ -319,6 +319,18 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
 
                                     {['equipment', 'component'].includes(selectedNode.type) ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+                                            {selectedNode.type === 'equipment' && (
+                                                <>
+                                                    <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800">
+                                                        <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Antigo</span>
+                                                        <span className="text-sm font-medium text-slate-200 font-mono">{selectedNode.tag_antigo || 'Não migrado'}</span>
+                                                    </div>
+                                                    <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800">
+                                                        <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Novo</span>
+                                                        <span className="text-sm font-medium text-slate-200 font-mono">{selectedNode.tag || 'Não especificado'}</span>
+                                                    </div>
+                                                </>
+                                            )}
                                             <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800 col-span-1 sm:col-span-2">
                                                 <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Número de Série (S/N)</span>
                                                 <span className="text-sm font-medium text-slate-200 font-mono tracking-wider">
