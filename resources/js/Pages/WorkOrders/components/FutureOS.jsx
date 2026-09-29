@@ -5,6 +5,7 @@ import EditWorkOrderModal from './EditWorkOrderModal';
 import InactivateOSModal from './InactivateOSModal';
 import WeekPickerModal from './WeekPickerModal';
 import { getMonday, formatWeekRange, formatBr as formatBrDate } from '@/utils/weeks';
+import { ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 
 const renderPeriodicityBadge = (period) => {
     switch (period) {
@@ -108,10 +109,9 @@ export default function FutureOS({
         setRangeEnd(null);
     };
 
-    const roleName = String(currentUser?.role?.name || currentUser?.role || '').toLowerCase();
-    const isEngenheiro = roleName.includes('engineer') || roleName.includes('engenheir');
-    const isTI = roleName.includes('developer') || roleName.includes('desenvolvedor') || roleName.includes('ti') || roleName.includes('admin');
-    const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
+    const isEngenheiro = ehEngenheiro(currentUser);
+    const isTI = ehDevOuTI(currentUser);
+    const isEstagiario = ehEstagiario(currentUser);
     
     // Quem responde pela frota inteira agora vem do cadastro do usuário
     // (has_fleet_access), não mais do cargo: um engenheiro pode ser

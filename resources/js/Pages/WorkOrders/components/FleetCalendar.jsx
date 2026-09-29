@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import MaintenanceYearCalendar from '@/Components/MaintenanceYearCalendar';
 import CreateExecutionWindowModal from './CreateExecutionWindowModal';
+import { ehDevOuTI } from '@/utils/roles';
 
 /**
  * Calendário anual por embarcação. O filtro global de "Embarcação" (barra
@@ -20,8 +21,7 @@ export default function FleetCalendar({
     planFilter,
     currentUser,
 }) {
-    const roleName = String(currentUser?.role?.name || currentUser?.role || '').toLowerCase();
-    const isTI = roleName.includes('developer') || roleName.includes('desenvolvedor') || roleName.includes('ti') || roleName.includes('admin');
+    const isTI = ehDevOuTI(currentUser);
     // Mesma regra do resto do módulo: quem não tem acesso à frota
     // (has_fleet_access) só enxerga a própria embarcação.
     const isGlobalViewer = Boolean(currentUser?.has_fleet_access) || isTI;

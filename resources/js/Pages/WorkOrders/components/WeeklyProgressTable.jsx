@@ -121,7 +121,7 @@ export default function WeeklyProgressTable({
 
     const handleExportReport = async () => {
         const selectedOSObjects = workOrders.filter(os => selectedIds.includes(os.id));
-        const blob = await pdf(<ReportPdfTemplate workOrders={selectedOSObjects} />).toBlob();
+        const blob = await pdf(<ReportPdfTemplate workOrders={selectedOSObjects} weekStart={weekStart} weekEnd={weekEnd} />).toBlob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url; link.download = `SIGMAN_Relatorio_Progresso.pdf`;

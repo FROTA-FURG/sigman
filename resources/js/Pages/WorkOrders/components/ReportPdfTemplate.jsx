@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
     logo: { width: 60, height: 'auto', objectFit: 'contain' },
     titleMain: { fontSize: 14, fontFamily: 'Helvetica-Bold', textAlign: 'center' },
     titleSub: { fontSize: 10, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginTop: 4 },
+    titlePeriodo: { fontSize: 9, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginTop: 3, color: '#1e293b' },
     
     // Tabela do Relatório
     table: { width: '100%', borderWidth: 1, borderColor: '#000' },
@@ -26,12 +27,32 @@ const styles = StyleSheet.create({
 });
 
 const translateStatus = (status) => {
-    const s = { open: 'Aberto', in_progress: 'Andamento', completed: 'Fechado', cancelled: 'Cancelado' };
+    const s = {
+        open: 'Aberto',
+        in_progress: 'Andamento',
+        scheduled: 'Agendada',
+        completed: 'Fechado',
+        cancelled: 'Cancelado',
+    };
     return s[status] || status;
 };
 
-const ReportPdfTemplate = ({ workOrders = [] }) => {
+/**
+ * weekStart/weekEnd são os Date locais do intervalo selecionado na aba
+ * Andamento (segunda a domingo) -- não vêm do backend, então dá pra ler os
+ * campos locais direto, sem o cuidado de fuso que as datas de OS exigem.
+ */
+const formatarData = (date) => {
+    if (!date) return null;
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}/${date.getFullYear()}`;
+};
+
+const ReportPdfTemplate = ({ workOrders = [], weekStart = null, weekEnd = null }) => {
     const dataEmissao = new Date().toLocaleDateString('pt-BR');
+    const inicio = formatarData(weekStart);
+    const fim = formatarData(weekEnd);
 
     return (
         <Document>
@@ -44,6 +65,9 @@ const ReportPdfTemplate = ({ workOrders = [] }) => {
                     <View style={styles.headerTitleCell}>
                         <Text style={styles.titleMain}>UNIVERSIDADE FEDERAL DO RIO GRANDE - FURG</Text>
                         <Text style={styles.titleSub}>COORDENAÇÃO DA FROTA - RELATÓRIO DE ORDENS DE SERVIÇO</Text>
+                        {inicio && fim && (
+                            <Text style={styles.titlePeriodo}>ANDAMENTO DAS ATIVIDADES DE {inicio} A {fim}</Text>
+                        )}
                         <Text style={{ fontSize: 8, marginTop: 5, color: '#475569' }}>Emitido em: {dataEmissao} | Total de OS: {workOrders.length}</Text>
                     </View>
                 </View>
