@@ -4,13 +4,20 @@ import React from 'react';
  * Cumprimento dos planos de manutenção — versão compacta.
  * Anel radial com o índice geral + duas barras por tipo de plano.
  */
+/*
+ * A aderência compara inspeções/OS realizadas contra previstas no período.
+ * O plano preditivo ainda não está cadastrado no sistema e o preventivo não
+ * tem o fechamento do período apurado, então os índices ficam zerados até a
+ * apuração existir.
+ */
 const PLANOS = [
-    { label: 'Plano Preventivo', pct: 92, color: '#38bdf8', text: 'text-sky-400' },
-    { label: 'Plano Preditivo', pct: 92, color: '#34d399', text: 'text-emerald-400' },
+    { label: 'Plano Preventivo', pct: 0, color: '#38bdf8', text: 'text-sky-400' },
+    { label: 'Plano Preditivo', pct: 0, color: '#34d399', text: 'text-emerald-400' },
 ];
 
 export default function MaintenanceComplianceCharts() {
     const overall = Math.round(PLANOS.reduce((s, p) => s + p.pct, 0) / PLANOS.length);
+    const semDados = PLANOS.every((p) => p.pct === 0);
     const R = 34;
     const C = 2 * Math.PI * R;
     const dash = (overall / 100) * C;
@@ -18,7 +25,14 @@ export default function MaintenanceComplianceCharts() {
     return (
         <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-emerald-500/50">
             <div className="shrink-0 border-b border-slate-800 px-4 py-2.5">
-                <h3 className="text-sm font-semibold text-white">Cumprimento dos Planos</h3>
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                    Cumprimento dos Planos
+                    {semDados && (
+                        <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-400" title="Aderência ainda não apurada no sistema">
+                            Aguardando dados
+                        </span>
+                    )}
+                </h3>
             </div>
 
             <div className="flex flex-1 items-center gap-4 p-4">

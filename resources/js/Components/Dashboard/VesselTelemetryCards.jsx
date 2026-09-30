@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -8,17 +8,13 @@ import 'leaflet/dist/leaflet.css';
  * Cards de monitoramento da frota.
  *
  * Nome, tipo, status, health score, localização e última inspeção são dados REAIS.
- * A telemetria (motor, óleo, combustível, bateria, posição GPS, rota) ainda NÃO
- * existe — é derivada do health score como prévia até a integração de uma API de
- * monitoramento. Cada embarcação terá seu PRÓPRIO sistema, então o "sincronizado"
- * é individual por card.
+ * A telemetria (motor, óleo, combustível, bateria, velocidade, rumo, horímetro,
+ * GPS) ainda NÃO existe: fica zerada e o mapa avisa "Aguardando telemetria",
+ * com o marcador no porto de referência da embarcação (não é posição apurada).
+ * Ao integrar os sensores, basta trocar TELEMETRIA_ZERADA pela leitura real e
+ * alimentar o `center` do mapa com o GPS.
  *
- * Layout: telemetria empilhada à esquerda + carta náutica (costa de Rio Grande/RS)
- * à direita. O mapa é um SVG estilizado, sem biblioteca externa; ao integrar GPS
- * real basta trocar o <CoastMap/> por um mapa de tiles (ex: Leaflet).
- *
- * Embarcação em docagem (status Manutenção) não possui telemetria: mostra dados
- * informados manualmente, e no mapa aparece atracada no cais, sem sincronização.
+ * Embarcação em docagem (status Manutenção) usa o card de docagem.
  */
 
 const FALLBACK = [
@@ -27,11 +23,7 @@ const FALLBACK = [
     { id: 'll', name: 'Lancha Larus', type: 'Lancha de Apoio', status: 'Manutenção', navigation_status: 'Atracada', health_score: 15, location: 'Cais de Rio Grande', last_inspection: '2023-08-20' },
 ];
 
-const hash = (str = '') => {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i);
-    return Math.abs(h);
-};
+const SEM_LEITURA = { text: 'text-slate-500', bar: 'bg-slate-600', glow: '' };
 
 const band = (value, warn, danger, invert = false) => {
     const bad = invert ? value <= danger : value >= danger;
@@ -62,36 +54,21 @@ const REGIONS = {
 };
 const regionOf = (vessel) => (/ci[eê]ncias do mar/i.test(vessel.name || '') ? REGIONS.floripa : REGIONS.riogrande);
 
-function buildTelemetry(vessel) {
-    const health = vessel.health_score ?? 60;
-    const h = hash(vessel.name || vessel.id);
-    const wear = (100 - health) / 100;
-    const region = regionOf(vessel);
-    const lat = region.latBase - ((h % 40) / 1000);
-    const lng = region.lngBase - (((h >> 3) % 40) / 1000);
-    const docked = vessel.navigation_status === 'Atracada';
-    return {
-        lat, lng,
-        speed: docked ? 0 : +(6 + (h % 8) + wear).toFixed(1),
-        heading: h % 360,
-        engineTemp: Math.round(78 + wear * 34 + (h % 5)),
-        oilPressure: +(5.2 - wear * 3.1 - (h % 3) * 0.15).toFixed(1),
-        fuel: Math.max(8, Math.round(95 - wear * 70 - (h % 10))),
-        battery: +(27.4 - wear * 3.4 - (h % 4) * 0.1).toFixed(1),
-        runningHours: 4200 + (h % 6000),
-    };
-}
-
-// Relógio de sincronização INDIVIDUAL (cada embarcação é um sistema próprio)
-function useOwnSync(seed) {
-    const [syncedAt, setSyncedAt] = useState(() => new Date().toLocaleTimeString('pt-BR'));
-    useEffect(() => {
-        const interval = 4000 + (seed % 5) * 1000;
-        const id = setInterval(() => setSyncedAt(new Date().toLocaleTimeString('pt-BR')), interval);
-        return () => clearInterval(id);
-    }, [seed]);
-    return syncedAt;
-}
+/*
+ * Não há sensor integrado em nenhuma embarcação da frota: motor, óleo,
+ * combustível, bateria, velocidade, rumo, horímetro e GPS ficam zerados até
+ * a integração existir. Antes isso era derivado do health score, o que dava
+ * a um painel de parede a aparência de leitura real de sensor.
+ */
+const TELEMETRIA_ZERADA = {
+    speed: 0,
+    heading: 0,
+    engineTemp: 0,
+    oilPressure: 0,
+    fuel: 0,
+    battery: 0,
+    runningHours: 0,
+};
 
 // Reajusta o tamanho do mapa depois de montar (evita tiles cinzas quando o
 // container inicia com dimensão indefinida dentro do flex).
@@ -122,7 +99,7 @@ function vesselIcon(hex, moving) {
  * Não-interativo (painel de parede): sem arrastar/zoom. A posição usa as coordenadas
  * reais do porto/região; quando houver GPS de verdade, basta alimentar `center`.
  */
-function VesselMap({ vessel, statusStyle, docked, center, zoom, region, syncedAt }) {
+function VesselMap({ statusStyle, center, zoom, region }) {
     return (
         <div className="relative h-full min-h-[150px] w-full overflow-hidden rounded-lg border border-slate-800">
             <MapContainer
@@ -137,7 +114,9 @@ function VesselMap({ vessel, statusStyle, docked, center, zoom, region, syncedAt
                 style={{ height: '100%', width: '100%', background: '#071528' }}
             >
                 <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" subdomains="abcd" />
-                <Marker position={center} icon={vesselIcon(statusStyle.hex, !docked)} />
+                {/* Sem GPS integrado, o marcador fica no porto de referência da
+                    embarcação -- não é posição apurada, e o rótulo diz isso. */}
+                <Marker position={center} icon={vesselIcon(statusStyle.hex, false)} />
                 <ResizeOnMount />
             </MapContainer>
 
@@ -145,20 +124,12 @@ function VesselMap({ vessel, statusStyle, docked, center, zoom, region, syncedAt
             <div className="absolute left-2 top-1.5 rounded bg-slate-950/70 px-1.5 py-0.5 text-[9px] font-semibold text-sky-300 backdrop-blur-sm">
                 {region.label}
             </div>
-            <div className="absolute bottom-1 left-2 rounded bg-slate-950/70 px-1.5 py-0.5 font-mono text-[9px] text-slate-300 backdrop-blur-sm">
-                {vessel.__coords}
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 bg-slate-950/80 py-1 text-[9px] font-medium text-slate-300 backdrop-blur-sm">
+                <svg className="h-2.5 w-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Aguardando telemetria
             </div>
-            {docked ? (
-                <div className="absolute right-2 top-1.5 flex items-center gap-1 rounded bg-slate-950/70 px-1.5 py-0.5 text-[9px] font-medium text-slate-300 backdrop-blur-sm">
-                    <svg className="h-2.5 w-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m0 0a7 7 0 007-7m-7 7a7 7 0 01-7-7m7-6a2 2 0 100-4 2 2 0 000 4z" /></svg>
-                    Atracada
-                </div>
-            ) : (
-                <div className="absolute right-2 top-1.5 flex items-center gap-1 rounded bg-slate-950/70 px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 backdrop-blur-sm">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                    {syncedAt}
-                </div>
-            )}
         </div>
     );
 }
@@ -201,23 +172,17 @@ function Meter({ label, value, unit, pct, band }) {
                 <span className={`text-[11px] font-bold tabular-nums ${band.text}`}>{value}<span className="ml-0.5 text-[9px] font-medium text-slate-500">{unit}</span></span>
             </div>
             <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                <div className={`h-full rounded-full ${band.bar} ${band.glow} transition-all`} style={{ width: `${Math.max(4, Math.min(100, pct))}%` }} />
+                <div className={`h-full rounded-full ${band.bar} ${band.glow} transition-all`} style={{ width: `${pct > 0 ? Math.max(4, Math.min(100, pct)) : 0}%` }} />
             </div>
         </div>
     );
 }
 
 function TelemetryCard({ vessel, ss }) {
-    const t = buildTelemetry(vessel);
-    const syncedAt = useOwnSync(hash(vessel.name || vessel.id));
+    const t = TELEMETRIA_ZERADA;
     const region = regionOf(vessel);
-    // Ciências do Mar (Florianópolis) é monitorada no mar, afastada da costa.
-    const atSea = Boolean(region.sea);
-    const docked = atSea ? false : t.speed === 0;
-    const center = atSea ? region.sea : (docked ? region.port : [t.lat, t.lng]);
-    const coords = `${center[0].toFixed(4)}, ${center[1].toFixed(4)}`;
-    // No mar, mostra velocidade coerente (station-keeping) em vez de 0 kn.
-    const speed = atSea && t.speed === 0 ? +(2 + (hash(vessel.name || vessel.id) % 4)).toFixed(1) : t.speed;
+    const center = region.port;
+    const speed = t.speed;
 
     return (
         <CardShell vessel={vessel} ss={ss} subtitle={vessel.location || vessel.navigation_status || vessel.type}>
@@ -230,23 +195,25 @@ function TelemetryCard({ vessel, ss }) {
                         <Stat label="Saúde"><span className={band(vessel.health_score ?? 0, 50, 30, true).text}>{vessel.health_score ?? '—'}%</span></Stat>
                     </div>
                     <div className="grid flex-1 grid-cols-2 content-center gap-x-3 gap-y-2 2xl:grid-cols-1 2xl:gap-y-3">
-                        <Meter label="Motor" value={t.engineTemp} unit="°C" pct={(t.engineTemp / 120) * 100} band={band(t.engineTemp, 95, 105)} />
-                        <Meter label="Óleo" value={t.oilPressure} unit="bar" pct={(t.oilPressure / 6) * 100} band={band(t.oilPressure, 3.0, 2.0, true)} />
-                        <Meter label="Comb." value={t.fuel} unit="%" pct={t.fuel} band={band(t.fuel, 40, 20, true)} />
-                        <Meter label="Bateria" value={t.battery} unit="V" pct={((t.battery - 22) / 6) * 100} band={band(t.battery, 24.5, 23.5, true)} />
+                        {/* Sem sensor, zero é "sem leitura", não alarme: faixa neutra em
+                            vez das cores de alerta (óleo/comb./bateria em zero ficariam vermelhos). */}
+                        <Meter label="Motor" value={t.engineTemp} unit="°C" pct={0} band={SEM_LEITURA} />
+                        <Meter label="Óleo" value={t.oilPressure} unit="bar" pct={0} band={SEM_LEITURA} />
+                        <Meter label="Comb." value={t.fuel} unit="%" pct={0} band={SEM_LEITURA} />
+                        <Meter label="Bateria" value={t.battery} unit="V" pct={0} band={SEM_LEITURA} />
                     </div>
                     <div className="flex shrink-0 items-center justify-between border-t border-slate-800 pt-1.5">
                         <span className="flex items-center gap-1 text-[10px] text-slate-400">
                             <svg className="h-3 w-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             <span className="font-semibold text-slate-300 tabular-nums">{t.runningHours.toLocaleString('pt-BR')} h</span>
                         </span>
-                        <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-400/80" title="Dados de sensores ainda não integrados">Simulado</span>
+                        <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-400" title="Nenhum sensor integrado: os valores ficam zerados até a integração">Sem telemetria</span>
                     </div>
                 </div>
 
                 {/* DIREITA: mapa real */}
                 <div className="w-1/2 shrink-0">
-                    <VesselMap vessel={{ ...vessel, __coords: coords }} statusStyle={ss} docked={docked} center={center} zoom={region.zoom} region={region} syncedAt={syncedAt} />
+                    <VesselMap statusStyle={ss} center={center} zoom={region.zoom} region={region} />
                 </div>
             </div>
         </CardShell>
@@ -254,10 +221,12 @@ function TelemetryCard({ vessel, ss }) {
 }
 
 function DockingCard({ vessel, ss }) {
-    const docking = { situacao: 'Em docagem', inicio: '10/07/2026', previsao: '25/08/2026', progresso: 40, responsavel: 'Estaleiro Local' };
+    // Os dados de docagem ainda não chegam ao dashboard (existem no módulo de
+    // Docagens, mas não são enviados pra esta tela). Até ligar, ficam em
+    // branco -- antes eram datas e progresso inventados, fixos no código.
+    const docking = { situacao: 'Em docagem', inicio: '—', previsao: '—', progresso: 0, responsavel: '—' };
     const region = regionOf(vessel);
     const center = region.port;
-    const coords = `${center[0].toFixed(4)}, ${center[1].toFixed(4)}`;
 
     return (
         <CardShell vessel={vessel} ss={ss} subtitle={vessel.location || 'Cais de Rio Grande'}>
@@ -301,7 +270,7 @@ function DockingCard({ vessel, ss }) {
 
                 {/* DIREITA: mapa — atracada no cais */}
                 <div className="w-1/2 shrink-0">
-                    <VesselMap vessel={{ ...vessel, __coords: coords }} statusStyle={ss} docked center={center} zoom={region.zoom} region={region} />
+                    <VesselMap statusStyle={ss} center={center} zoom={region.zoom} region={region} />
                 </div>
             </div>
         </CardShell>
