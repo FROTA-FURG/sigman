@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
+use App\Models\CruiseLeg;
 use App\Models\OilActionPlanItem;
 use App\Models\OilAnalysisReport;
 use App\Models\OilSample;
@@ -74,9 +75,7 @@ class OilAnalysisController extends Controller
             ]);
 
         // Plano de cruzeiro (mesma fonte do calendário da tela de OS).
-        $disk = Storage::disk('local');
-        $caminhoCruzeiro = "cruise-plans/{$embarcacao->tag}.json";
-        $planoCruzeiro = $disk->exists($caminhoCruzeiro) ? (json_decode($disk->get($caminhoCruzeiro), true) ?? []) : [];
+        $planoCruzeiro = CruiseLeg::periodosPorEmbarcacao($embarcacao->id)[$embarcacao->tag] ?? [];
 
         return Inertia::render('OilAnalysis/Vessel', [
             'familias' => config('oil_analysis.familias'),

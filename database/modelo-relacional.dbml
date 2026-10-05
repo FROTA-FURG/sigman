@@ -206,6 +206,28 @@ Table work_order_activity [headercolor: #1D4ED8] {
   Note: 'Atividades registradas durante a execução de uma OS (o que foi feito, por quem, início e fim).'
 }
 
+Table cruise_legs [headercolor: #0F766E] {
+  id             uuid [pk]
+  vessel_id      uuid [not null]
+  leg_number     smallint [not null, note: 'Nº da etapa (Etapa 01, 02...); não repete no mesmo ano']
+  area           varchar(255) [not null, note: 'Área de operação, ex.: Oceânico Sul']
+  starts_at      date [not null]
+  ends_at        date [not null, note: '>= starts_at; etapas da mesma embarcação não se sobrepõem']
+  embark_port    varchar(255) [not null, note: 'Porto de embarque, ex.: RG']
+  disembark_port varchar(255) [not null, note: 'Porto de desembarque, ex.: Itajaí']
+  notes          text
+  created_by     uuid
+  updated_by     uuid
+  created_at     timestamp
+  updated_at     timestamp
+
+  indexes {
+    (vessel_id, starts_at)
+  }
+
+  Note: 'Plano de cruzeiro: uma linha por etapa. É o período em que a embarcação está fora (hachurado no calendário de OS).'
+}
+
 Table execution_windows [headercolor: #1D4ED8] {
   id         uuid [pk]
   vessel_id  uuid [not null]
@@ -457,6 +479,9 @@ Ref: work_order_activity.work_order_id > work_orders.id [delete: cascade]
 Ref: work_order_activity.responsible_user_id > users.id [delete: cascade]
 
 // Janelas de execução
+Ref: cruise_legs.vessel_id > vessels.id [delete: cascade]
+Ref: cruise_legs.created_by > users.id [delete: set null]
+Ref: cruise_legs.updated_by > users.id [delete: set null]
 Ref: execution_windows.vessel_id > vessels.id [delete: no action]
 Ref: execution_windows.created_by > users.id [delete: no action]
 Ref: execution_windows.updated_by > users.id [delete: no action]
@@ -504,6 +529,7 @@ TableGroup frota_e_equipamentos {
   vessels
   equipment
   component
+  cruise_legs
 }
 
 TableGroup ordens_de_servico {

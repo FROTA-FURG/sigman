@@ -7,8 +7,10 @@ import CreateWorkOrderModal from '@/Pages/WorkOrders/components/CreateOSModal';
 import EditVesselModal from './components/EditVesselModal';
 import VesselReportPDF from './components/VesselReportPDF';
 import CreateServiceRequestModal from '../ServiceRequests/ServiceRequests/CreateSRModal';
+import CruisePlanCard from './components/CruisePlanCard';
+import StyledTooltips from '@/Components/StyledTooltips';
 
-export default function VesselShow({ vessel, equipments = [], users = [] }) {
+export default function VesselShow({ vessel, equipments = [], users = [], cruiseLegs = [], canEditCruisePlan = false }) {
     const [isOpenCreateOS, setIsOpenCreateOS] = useState(false);
     const [isOpenCreateSS, setIsOpenCreateSS] = useState(false);
     const [isOpenEditVessel, setIsOpenEditVessel] = useState(false);
@@ -50,6 +52,7 @@ export default function VesselShow({ vessel, equipments = [], users = [] }) {
     return (
         <SIGMANLayout>
             <Head title={`${vessel.name} | Detalhes | SIGMAN`} />
+            <StyledTooltips />
             
             <CreateWorkOrderModal 
                 isOpen={isOpenCreateOS} 
@@ -178,6 +181,9 @@ export default function VesselShow({ vessel, equipments = [], users = [] }) {
                             </div>
                         </div>
                     </div>
+
+                    {/* PLANO DE CRUZEIRO (calendário ou lista; CRUD para a gestão) */}
+                    <CruisePlanCard vessel={vessel} etapas={cruiseLegs} podeEditar={canEditCruisePlan} />
 
                     {/* TELEMETRIA (dados futuros — sensores ainda não integrados) */}
                     <div className="rounded-xl bg-[#0b203c]/90 border border-slate-800 p-6 shadow-lg backdrop-blur-md">

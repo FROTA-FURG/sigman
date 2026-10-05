@@ -56,6 +56,7 @@ const renderPriorityBadge = (priority) => {
 export default function FutureOS({ 
     workOrders = [], 
     equipments = [],
+    cruisePlans = {},
     vesselFilter,
     statusFilter,
     periodFilter,
@@ -525,6 +526,7 @@ export default function FutureOS({
                 onClose={() => setIsWeekPickerOpen(false)}
                 onApply={aplicarIntervalo}
                 onClear={voltarParaProximasSemanas}
+                cruisePeriods={vesselFilter ? (cruisePlans[vesselFilter] || []) : []}
             />
 
         </div>

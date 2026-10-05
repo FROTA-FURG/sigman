@@ -97,7 +97,7 @@ function MiniMonth({ year, month, marcasPorDia, diasEmCruzeiro, onDiaClick, diaD
                                                 onClick={temOS ? () => onDiaClick(info.items, `${day}/${month + 1}/${year}`) : undefined}
                                                 className={`relative flex h-full w-full flex-col items-center justify-center rounded ${destacado ? 'z-10 bg-amber-400/30 ring-2 ring-amber-400' : info?.completed ? 'bg-emerald-500/15 ring-1 ring-emerald-500/70' : ''} ${temOS ? 'cursor-pointer hover:ring-1 hover:ring-blue-400' : ''}`}
                                                 style={emCruzeiro ? HACHURA_CRUZEIRO : undefined}
-                                                title={emCruzeiro ? 'Embarcação em cruzeiro' : (temOS ? 'Ver OS deste dia' : undefined)}
+                                                title={emCruzeiro ? ['Embarcação em cruzeiro', diasEmCruzeiro.get(chave), temOS && 'Clique para ver as OS deste dia'].filter(Boolean).join('\n') : (temOS ? 'Ver OS deste dia' : undefined)}
                                             >
                                                 {/* Dia apontado de fora (ex.: hover numa linha de tabela): pisca. */}
                                                 {destacado && <span className="pointer-events-none absolute -inset-1 animate-ping rounded bg-amber-400/50" />}
@@ -201,8 +201,9 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
         return mapa;
     }, [workOrders, year, tiposOcultos, ocultarConcluidas]);
 
+    // dia -> descrição da etapa (ex.: "Etapa 01 · Oceânico Sul"), pro balão do dia.
     const diasEmCruzeiro = useMemo(() => {
-        const set = new Set();
+        const set = new Map();
         if (!mostrarCruzeiro) return set;
 
         for (const periodo of cruisePeriods) {
@@ -213,7 +214,7 @@ export default function MaintenanceYearCalendar({ workOrders = [], emptyLabel = 
             const fim = new Date(ye, me - 1, de);
             while (cursor <= fim) {
                 if (cursor.getFullYear() === year) {
-                    set.add(`${cursor.getMonth()}-${cursor.getDate()}`);
+                    set.set(`${cursor.getMonth()}-${cursor.getDate()}`, periodo.descricao || '');
                 }
                 cursor.setDate(cursor.getDate() + 1);
             }

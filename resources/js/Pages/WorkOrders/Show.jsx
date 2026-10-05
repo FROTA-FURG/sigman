@@ -347,20 +347,18 @@ export default function Show({ workOrder, equipments = [] }) {
                         </Card>
                     )}
 
-                    {/* AVALIAÇÃO DO ESTAGIÁRIO */}
-                    <Card title="Avaliação do Estagiário" className="lg:col-span-2">
-                        {workOrder.intern_status ? (
+                    {/* AVALIAÇÃO DO ESTAGIÁRIO -- opcional: só aparece quando ele escreveu algo */}
+                    {workOrder.intern_reason?.trim() && (
+                        <Card title="Avaliação do Estagiário" className="lg:col-span-2">
                             <dl className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-3">
-                                <Field label="Situação">{INTERN_STATUS[workOrder.intern_status] ?? workOrder.intern_status}</Field>
+                                <Field label="Situação">{INTERN_STATUS[workOrder.intern_status] ?? workOrder.intern_status ?? '—'}</Field>
                                 <Field label="Estagiário">{workOrder.intern_name}</Field>
                                 <Field label="Justificativa" className="sm:col-span-1">
                                     {workOrder.intern_reason}
                                 </Field>
                             </dl>
-                        ) : (
-                            <p className="text-sm text-slate-500">Esta OS ainda não foi avaliada por um estagiário.</p>
-                        )}
-                    </Card>
+                        </Card>
+                    )}
 
                     {/* ATIVIDADES */}
                     <Card title={`Atividades Registradas (${activities.length})`} className="lg:col-span-2">

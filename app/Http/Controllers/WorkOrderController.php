@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CruiseLeg;
 use App\Models\User;
 use App\Models\Equipment;
 use App\Models\ThirdParty;
-use App\Models\Vessel;
 use App\Models\WorkOrder;
 use App\Services\WorkOrderDispatchNotifier;
 use App\Services\WorkOrderService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class WorkOrderController extends Controller
@@ -42,29 +41,8 @@ class WorkOrderController extends Controller
             'equipments' => $equipments,
             'users' => $users,
             'thirdParties' => $thirdParties,
-            'cruisePlans' => $this->loadCruisePlans(),
+            'cruisePlans' => CruiseLeg::periodosPorEmbarcacao(),
         ]);
-    }
-
-    /**
-     * Planejamento de cruzeiro por embarcação, pra sobrepor no calendário
-     * anual de manutenção (mostra quando ela está indisponível). Hoje são
-     * arquivos gerados aleatoriamente (cruise-plans:seed-random); o formato
-     * é o mesmo que a leitura do planejamento real vai produzir depois.
-     */
-    private function loadCruisePlans(): array
-    {
-        $disk = Storage::disk('local');
-        $planos = [];
-
-        foreach (Vessel::all(['tag']) as $vessel) {
-            $path = "cruise-plans/{$vessel->tag}.json";
-            if ($disk->exists($path)) {
-                $planos[$vessel->tag] = json_decode($disk->get($path), true) ?? [];
-            }
-        }
-
-        return $planos;
     }
 
     public function store(Request $request)
