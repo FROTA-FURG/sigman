@@ -36,8 +36,9 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear, cru
     // Hooks precisam rodar sempre na mesma ordem -- o early return de
     // `!isOpen` fica depois de todos eles (já causou "rendered more hooks
     // than previous render" uma vez neste módulo, ver CreateExecutionWindowModal).
+    // dia -> descrição da etapa (ex.: "Etapa 01 · Oceânico Sul").
     const diasEmCruzeiro = useMemo(() => {
-        const set = new Set();
+        const set = new Map();
         for (const periodo of cruisePeriods) {
             if (!periodo?.inicio || !periodo?.fim) continue;
             const [ys, ms, ds] = periodo.inicio.split('-').map(Number);
@@ -45,7 +46,7 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear, cru
             const cursor = new Date(ys, ms - 1, ds);
             const fim = new Date(ye, me - 1, de);
             while (cursor <= fim) {
-                set.add(chaveDia(cursor));
+                set.set(chaveDia(cursor), periodo.descricao || '');
                 cursor.setDate(cursor.getDate() + 1);
             }
         }
@@ -202,7 +203,7 @@ export default function WeekPickerModal({ isOpen, onClose, onApply, onClear, cru
                                             <div
                                                 key={dayIndex}
                                                 style={emCruzeiro ? HACHURA_CRUZEIRO : undefined}
-                                                title={emCruzeiro ? 'Embarcação em cruzeiro' : undefined}
+                                                title={emCruzeiro ? ['Embarcação em cruzeiro', diasEmCruzeiro.get(chaveDia(new Date(year, month, day)))].filter(Boolean).join('\n') : undefined}
                                                 className={`rounded py-2 text-sm font-medium text-center tabular-nums ${day ? (isRangeEdge || isInRange || isHovered ? 'text-blue-300' : 'text-slate-300') : ''}`}
                                             >
                                                 {day || ''}

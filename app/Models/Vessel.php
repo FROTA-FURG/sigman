@@ -44,4 +44,9 @@ class Vessel extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function cruiseLegs()
+    {
+        return $this->hasMany(CruiseLeg::class)->orderBy('starts_at');
+    }
 }

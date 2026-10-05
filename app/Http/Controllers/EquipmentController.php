@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CruiseLeg;
 use App\Models\Vessel;
 use App\Models\Equipment;
 use App\Models\Component;
@@ -37,6 +38,10 @@ class EquipmentController extends Controller
             'equipment' => $equipment,
             'workOrders' => $workOrders,
             'lastInspection' => $lastInspection,
+            // Plano de cruzeiro da embarcação do equipamento, hachurado no calendário anual.
+            'cruisePeriods' => $equipment->vessel
+                ? (CruiseLeg::periodosPorEmbarcacao($equipment->vessel_id)[$equipment->vessel->tag] ?? [])
+                : [],
         ]);
     }
 

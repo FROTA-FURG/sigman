@@ -55,6 +55,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                 onClose={() => setIsWeekPickerOpen(false)} 
                 onApply={(start, end) => { setWeekStart(start); setWeekEnd(end); setIsWeekPickerOpen(false); }}
                 onClear={() => { setWeekStart(null); setWeekEnd(null); setIsWeekPickerOpen(false); }}
+                cruisePeriods={vesselFilter ? (cruisePlans[vesselFilter] || []) : []}
             />
 
             {isSidebarOpen && (
@@ -191,7 +192,7 @@ export default function Index({ auth, workOrders = [], equipments = [], users = 
                 <div className="flex-1 min-h-0 mt-0">
                     {activeTab === 'planning' && <FullPlan workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} />}
                     {activeTab === 'weekly' && <WeeklyProgress currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} weekStart={weekStart} weekEnd={weekEnd} />}
-                    {activeTab === 'future' && <FutureOS currentUser={auth?.user} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} internStatusFilter={internStatusFilter} />}
+                    {activeTab === 'future' && <FutureOS currentUser={auth?.user} cruisePlans={cruisePlans} workOrders={workOrders} equipments={equipments} users={users} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} internStatusFilter={internStatusFilter} />}
                     {activeTab === 'calendar' && <FleetCalendar currentUser={auth?.user} workOrders={workOrders} equipments={equipments} cruisePlans={cruisePlans} vesselFilter={vesselFilter} statusFilter={statusFilter} periodFilter={periodFilter} typeFilter={typeFilter} planFilter={planFilter} />}
                 </div>
             </div>

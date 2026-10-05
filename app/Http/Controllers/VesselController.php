@@ -87,10 +87,32 @@ class VesselController extends Controller
             'equipmentsCount' => $vessel->equipments_count ?? 0,
         ];
 
+        // Plano de cruzeiro: uma linha por etapa (CRUD em CruiseLegController).
+        $quem = fn ($u) => $u ? ($u->nickname ?: $u->username) : null;
+        $cruiseLegs = $vessel->cruiseLegs()
+            ->with(['creator:id,username,nickname', 'updater:id,username,nickname'])
+            ->get()
+            ->map(fn ($etapa) => [
+            'id' => $etapa->id,
+            'legNumber' => $etapa->leg_number,
+            'area' => $etapa->area,
+            'startsAt' => $etapa->starts_at->format('Y-m-d'),
+            'endsAt' => $etapa->ends_at->format('Y-m-d'),
+            'embarkPort' => $etapa->embark_port,
+            'disembarkPort' => $etapa->disembark_port,
+            'notes' => $etapa->notes,
+            'createdBy' => $quem($etapa->creator),
+            'createdAt' => $etapa->created_at?->toIso8601String(),
+            'updatedBy' => $quem($etapa->updater),
+            'updatedAt' => $etapa->updated_at?->toIso8601String(),
+        ]);
+
         return Inertia::render('Vessels/VesselDetails', [ 
             'vessel'     => $formattedVessel,
             'equipments' => $equipments, 
-            'users'      => $users    
+            'users'      => $users,
+            'cruiseLegs' => $cruiseLegs,
+            'canEditCruisePlan' => CruiseLegController::podeEditar(auth()->user()),
         ]);
     }
 

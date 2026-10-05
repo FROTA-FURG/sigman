@@ -15,6 +15,7 @@ use App\Http\Controllers\WorkOrderActivityController;
 use App\Http\Controllers\CrewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VesselController;
+use App\Http\Controllers\CruiseLegController;
 use App\Http\Controllers\DryDockingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,11 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::post('/crew/{id}/restore', [UserController::class, 'restore'])->name('crew.restore');
 
     Route::put('/vessels/{id}', [VesselController::class, 'update'])->name('vessels.update');
+
+    // Plano de cruzeiro (etapas) -- CRUD na tela de detalhes da embarcação
+    Route::post('/vessels/{vessel}/cruise-legs', [CruiseLegController::class, 'store'])->name('cruise-legs.store');
+    Route::put('/cruise-legs/{cruiseLeg}', [CruiseLegController::class, 'update'])->name('cruise-legs.update');
+    Route::delete('/cruise-legs/{cruiseLeg}', [CruiseLegController::class, 'destroy'])->name('cruise-legs.destroy');
 
     // Terceiros (empresas terceirizadas) — gestão restrita a managers
     Route::get('/third-parties', [ThirdPartyController::class, 'index'])->name('third-parties.index');

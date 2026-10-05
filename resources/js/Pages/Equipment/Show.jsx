@@ -62,7 +62,7 @@ const renderCriticality = (criticality) => {
     return <span className="text-slate-400">{criticality}</span>;
 };
 
-export default function Show({ equipment, workOrders = [], lastInspection = null }) {
+export default function Show({ equipment, workOrders = [], lastInspection = null, cruisePeriods = [] }) {
     const { auth } = usePage().props;
     const allowedRoles = ['intern', 'coordinator', 'engineer', 'dev'];
     const canEdit = auth?.user && allowedRoles.includes(auth.user.role);
@@ -354,7 +354,7 @@ export default function Show({ equipment, workOrders = [], lastInspection = null
                     )}
                 </div>
 
-                <MaintenanceYearCalendar workOrders={workOrders} emptyLabel="Nenhuma OS registrada para este equipamento" />
+                <MaintenanceYearCalendar workOrders={workOrders} cruisePeriods={cruisePeriods} emptyLabel="Nenhuma OS registrada para este equipamento" />
             </div>
         </SIGMANLayout>
     );
