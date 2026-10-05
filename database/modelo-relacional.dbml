@@ -1,0 +1,535 @@
+// ==========================================
+// SIGMAN - MODELO RELACIONAL
+// Estado atual do banco (PostgreSQL) em 05/10/2026.
+// Gerado a partir do esquema real: tipos, nulos, defaults, únicos, CHECKs e
+// FKs batem com o banco. Abrir em https://dbdiagram.io (colar o conteúdo).
+// ==========================================
+
+Project SIGMAN {
+  database_type: 'PostgreSQL'
+  Note: '''
+  Sistema de Gestão de Manutenção da frota de embarcações da FURG (Laravel 13 + Inertia/React).
+  Embarcações: Atlântico Sul (AS), Ciências do Mar 1 (CM1) e Lancha Larus (LL).
+
+  Convenções deste diagrama:
+  - Todas as chaves primárias de domínio são UUID; a única exceção é execution_window_work_order (bigint).
+  - Toda relação marcada tem FK no banco; a regra de exclusão aparece em cada uma (cascade, set null, no action).
+  - Campos de "enum" são varchar com CHECK no banco; os valores aceitos estão na nota de cada coluna.
+  - notifications.notifiable_* é polimórfico (padrão Laravel), sem FK.
+  - Tabelas de infraestrutura do Laravel ficaram de fora: cache, cache_locks, jobs, job_batches, failed_jobs, sessions, password_reset_tokens, migrations.
+
+  O que NÃO está no banco (fica em arquivo, por decisão de projeto):
+  - Seção e sistema do equipamento na árvore ISO 14224: derivados do tag via storage/app/private/equipment-tree/hierarquia-secoes-sistemas.json.
+  - Manifestos de migração de tags (storage/app/private/equipment-tag-migration/*.json).
+  - Catálogo da Análise de Óleo (famílias e parâmetros analisados): config/oil_analysis.php. Carga inicial da planilha: php artisan oil-analysis:import.
+  - PDFs de laudo: disco local (storage/app/private/oil-analysis/laudos); o banco guarda o caminho.
+
+  Relações por texto, sem FK (snapshot ou referência fraca):
+  - work_orders.ss_number -> service_requests.ss_number (OS gerada a partir de uma SS).
+  - work_orders.tag_number/series_number_id/model/manufacturer: cópia do equipamento na criação da OS (reescrita quando o tag migra).
+  - work_orders.intern_name e work_orders.engineer_comment_by guardam nome, não id.
+  - service_requests.tag_number: cópia do tag do equipamento.
+  '''
+}
+
+// ==========================================
+// 1. ACESSO E PERMISSÕES
+// ==========================================
+
+Table roles [headercolor: #1F3864] {
+  id         uuid [pk]
+  name       varchar(255) [unique, not null, note: 'dev, coordinator, engineer, technician, intern, seaman, terceiro']
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Perfis de acesso. As regras por perfil ficam no código (ex.: estagiário só altera status das OS da embarcação em que está lotado; dev edita qualquer OS).'
+}
+
+Table users [headercolor: #1F3864] {
+  id                uuid [pk]
+  role_id           uuid [not null]
+  cpf               varchar(255) [unique, not null]
+  username          varchar(255) [not null]
+  nickname          varchar(255) [note: 'Nome curto exibido nas telas (ex.: responsável pela atividade)']
+  email             varchar(255) [unique, not null]
+  email_verified_at timestamp
+  password          varchar(255) [not null, note: 'Hash']
+  remember_token    varchar(100)
+  phone             varchar(20)
+  status            varchar(255) [not null, default: 'Active']
+  last_updated_by   varchar(255) [note: 'Quem fez a última alteração (texto, sem FK)']
+  vessel_id         uuid [note: 'Embarcação em que o usuário está lotado (tripulante/estagiário). Nulo = sem lotação']
+  third_party_id    uuid [note: 'Preenchido só para o perfil terceiro: empresa a que o usuário pertence']
+  has_fleet_access  boolean [not null, default: false, note: 'Enxerga a frota inteira, não só a embarcação de lotação']
+  deleted_at        timestamp [note: 'Soft delete']
+  created_at        timestamp
+  updated_at        timestamp
+
+  Note: 'Usuários do sistema (equipe FURG e terceirizadas). O usuário terceiro só acessa as OS/SS da própria empresa.'
+}
+
+Table third_parties [headercolor: #1F3864] {
+  id           uuid [pk]
+  razao_social varchar(255) [not null]
+  cnpj         varchar(255) [unique, not null]
+  contact_name varchar(255)
+  email        varchar(255)
+  phone        varchar(255)
+  status       varchar(255) [not null, default: 'Active']
+  deleted_at   timestamp [note: 'Soft delete']
+  created_at   timestamp
+  updated_at   timestamp
+
+  Note: 'Empresas terceirizadas que executam OS/SS. Seus usuários (users.third_party_id) logam com perfil terceiro.'
+}
+
+// ==========================================
+// 2. FROTA E ÁRVORE DE EQUIPAMENTOS
+// ==========================================
+
+Table vessels [headercolor: #0F766E] {
+  id                uuid [pk]
+  tag               varchar(255) [note: 'AS | CM1 | LL. Prefixo do número da OS (ex.: AS0042)']
+  code              varchar(255)
+  name              varchar(255) [not null]
+  class             varchar(255)
+  type              varchar(255) [note: 'Navio Oceanográfico, Navio de Ensino e Pesquisa, Lancha de Apoio']
+  location          varchar(255)
+  status            varchar(255) [not null, default: 'Operacional', note: 'Operacional | Atenção | Manutenção']
+  navigation_status varchar(255) [not null, default: 'Atracada', note: 'Atracada | Navegando']
+  health_score      int [not null, default: 100, note: 'Valor fixo do seed; ainda não é calculado']
+  active_wos        int [not null, default: 0, note: 'Valor fixo do seed; a contagem real vem de work_orders']
+  pending_srs       int [not null, default: 0, note: 'Valor fixo do seed; a contagem real vem de service_requests']
+  last_inspection   date
+  model_path        varchar(255) [note: 'Modelo 3D (.glb) em public/models']
+  dimensions        json [note: 'length, beam, draft']
+  builder           varchar(255)
+  year              varchar(255)
+  crew_capacity     int
+  created_at        timestamp
+  updated_at        timestamp
+
+  Note: 'Embarcações da frota.'
+}
+
+Table equipment [headercolor: #0F766E] {
+  id              uuid [pk]
+  vessel_id       uuid [not null]
+  parent_id       uuid [note: 'Hierarquia equipamento > subequipamento. Prevista no código, sem uso hoje (nenhum registro preenchido)']
+  tag_number      varchar(255) [not null, note: 'Tag atual. Na árvore nova (ISO 14224): <EMB>-<SEÇÃO>-<SISTEMA>-<TIPO>-<Nº>[-<SUFIXO>], ex.: CM01-CMA-SPP-MTA-03-CMB']
+  tag_antigo      varchar(255) [note: 'Tag anterior, gravado ao vincular na migração para a árvore nova. Nulo = ainda não migrado (ou criado já no padrão novo)']
+  series_number   varchar(255)
+  name            varchar(255) [not null]
+  manufacturer    varchar(255)
+  model           varchar(255)
+  description     text
+  image_url       varchar(255)
+  purchase_date   date
+  in_service_date date
+  criticality     varchar(255) [note: 'A | B | C (CHECK)']
+  status          varchar(255) [not null, default: 'active', note: 'active | inactive | in_maintenance | decommissioned (CHECK)']
+  created_at      timestamp
+  updated_at      timestamp
+
+  Note: 'Equipamentos de cada embarcação. Seção e sistema não são colunas: saem do tag pela hierarquia em JSON (ver nota do projeto).'
+}
+
+Table component [headercolor: #0F766E] {
+  id           uuid [pk]
+  equipment_id uuid [not null]
+  name         varchar(255) [not null]
+  tag_number   varchar(255)
+  tipo         varchar(255) [not null, note: 'sobressalente_rotativo | sobressalente_consumivel | item_critico (CHECK)']
+  manufacturer varchar(255)
+  model        varchar(255)
+  description  text
+  created_at   timestamp
+  updated_at   timestamp
+
+  Note: 'Componentes e sobressalentes de um equipamento (nível opcional da árvore).'
+}
+
+// ==========================================
+// 3. ORDENS DE SERVIÇO
+// ==========================================
+
+Table work_orders [headercolor: #1D4ED8] {
+  id                  uuid [pk]
+  os_number           varchar(255) [unique, note: 'Tag da embarcação + sequencial de 4 dígitos (AS0001, CM10042)']
+  equipment_id        uuid [not null]
+  ss_number           varchar(255) [note: 'SS de origem, quando a OS nasce de uma solicitação. Sem FK']
+  tag_number          varchar(255) [note: 'Snapshot do tag do equipamento; reescrito quando o tag migra']
+  series_number_id    varchar(255) [note: 'Snapshot do nº de série do equipamento']
+  model               varchar(255) [note: 'Snapshot']
+  manufacturer        varchar(255) [note: 'Snapshot']
+  description         text [not null]
+  maintenance_type    varchar(255) [not null, note: 'corrective | preventive | predictive (CHECK)']
+  priority            varchar(255) [not null, note: 'low | medium | high | critical (CHECK)']
+  status              varchar(255) [not null, default: 'open', note: 'open | scheduled | in_progress | completed | cancelled (CHECK). scheduled = disparada para data futura; o comando app:check-scheduled-os libera no dia']
+  periodicity         varchar(255) [note: 'Calendário: weekly, monthly, bimonthly, quarterly, semiannual, annual, biennial, triennial, quadrennial, sexennial. Horímetro: 100h, 250h, 350h, 500h, 1000h, 2000h, 3000h. Evento: docking. Preventiva concluída com intervalo fixo gera a próxima ocorrência']
+  in_52_week_plan     boolean [not null, default: false, note: 'Faz parte do Plano de 52 Semanas (cronograma anual), não é OS avulsa']
+  estimated_hours     decimal(8,2)
+  vendor_name         varchar(255)
+  third_party_id      uuid [note: 'Terceirizada responsável pela execução']
+  created_at          timestamp [note: 'Data-alvo da OS (dia previsto, meia-noite), não o instante de cadastro. Lida como data, sem fuso']
+  dispatched_at       timestamp [note: 'Quando a OS foi disparada e os responsáveis avisados. Nulo enquanto agendada para o futuro']
+  started_at          timestamp [note: 'Início real da execução (status virou in_progress)']
+  completed_at        timestamp
+  updated_at          timestamp
+  intern_status       varchar(255) [not null, default: 'pending', note: 'pending | approved | waiting. Conferência do estagiário antes do engenheiro']
+  intern_reason       varchar(255) [note: 'Motivo do atraso, quando houver']
+  intern_name         varchar(255) [note: 'Estagiário que conferiu (nome, sem FK)']
+  approved_by         uuid
+  approved_at         timestamp
+  engineer_comment    text [note: 'Observação do engenheiro no planejamento, antes do disparo']
+  engineer_comment_by varchar(255) [note: 'Nome, sem FK']
+  engineer_comment_at timestamp
+  is_inactive         boolean [not null, default: false, note: 'Ocorrência que não vai acontecer na data marcada (foi reprogramada). Usa status cancelled por baixo para sair das métricas']
+  inactivated_at      timestamp
+  inactivated_by      uuid
+  inactivation_reason text
+  rescheduled_from_id uuid [note: 'Na OS nova: aponta para a OS antiga que ela substituiu']
+
+  Note: 'Ordens de serviço. Fluxo: criada (open) -> conferida pelo estagiário -> aprovada/disparada pelo engenheiro (open ou scheduled) -> in_progress -> completed.'
+}
+
+Table work_order_activity [headercolor: #1D4ED8] {
+  id                  uuid [pk]
+  work_order_id       uuid [not null]
+  responsible_user_id uuid [not null]
+  description         text [not null]
+  started_at          timestamp [not null, note: 'Instante real (UTC)']
+  completed_at        timestamp [note: 'Nulo = em andamento']
+  created_at          timestamp
+  updated_at          timestamp
+
+  Note: 'Atividades registradas durante a execução de uma OS (o que foi feito, por quem, início e fim).'
+}
+
+Table execution_windows [headercolor: #1D4ED8] {
+  id         uuid [pk]
+  vessel_id  uuid [not null]
+  start_date date [not null]
+  end_date   date [not null]
+  created_by uuid [not null]
+  updated_by uuid
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Janela de execução: período em que a embarcação fica disponível para manutenção, com o pacote de OS a executar.'
+}
+
+Table execution_window_work_order [headercolor: #1D4ED8] {
+  id                  bigint [pk, increment]
+  execution_window_id uuid [not null]
+  work_order_id       uuid [not null]
+  added_by            uuid [not null]
+  added_at            timestamp [not null]
+  removed_by          uuid
+  removed_at          timestamp [note: 'Remoção lógica: a linha fica para histórico de quem incluiu/retirou a OS']
+  created_at          timestamp
+  updated_at          timestamp
+
+  Note: 'OS incluídas em cada janela de execução (N:N com histórico de inclusão e remoção).'
+}
+
+// ==========================================
+// 4. SOLICITAÇÕES DE SERVIÇO
+// ==========================================
+
+Table service_requests [headercolor: #7C3AED] {
+  id                  uuid [pk]
+  ss_number           varchar(255) [unique]
+  vessel_id           uuid [not null]
+  equipment_id        uuid [note: 'Opcional: a SS pode ser aberta só para a embarcação']
+  tag_number          varchar(255) [note: 'Snapshot do tag do equipamento']
+  responsible_user_id uuid
+  requester_name      varchar(255)
+  description         text [not null]
+  desired_date        date
+  maintenance_type    varchar(255) [not null, default: 'corrective', note: 'corrective | preventive | predictive (CHECK)']
+  priority            varchar(255) [not null, default: 'normal', note: 'normal | urgent (convertida para medium | critical ao gerar a OS)']
+  status              varchar(255) [not null, default: 'pending', note: 'pending | approved | rejected']
+  budget              decimal(10,2)
+  vendor_cnpj         varchar(255)
+  vendor_name         varchar(255)
+  third_party_id      uuid
+  completed_at        timestamp
+  created_at          timestamp
+  updated_at          timestamp
+
+  Note: 'Solicitações de serviço (SS). Aprovada, vira uma OS que guarda o ss_number.'
+}
+
+// ==========================================
+// 5. DOCAGENS
+// ==========================================
+
+Table dry_dockings [headercolor: #B45309] {
+  id                 uuid [pk]
+  vessel_id          uuid [not null]
+  shipyard           varchar(255)
+  planned_start_date date [not null]
+  planned_end_date   date [not null]
+  actual_start_date  date
+  actual_end_date    date
+  budget             decimal(15,2)
+  actual_cost        decimal(15,2)
+  status             varchar(255) [not null, default: 'planning', note: 'planning | quoting | in_progress | completed | cancelled (CHECK)']
+  notes              text
+  created_at         timestamp
+  updated_at         timestamp
+
+  Note: 'Docagens (estaleiro): prazo, orçamento e custo real.'
+}
+
+Table dry_docking_phases [headercolor: #B45309] {
+  id             uuid [pk]
+  dry_docking_id uuid [not null]
+  name           varchar(255) [not null]
+  start_date     date [not null]
+  end_date       date [not null]
+  order_index    int [not null, default: 0]
+  created_at     timestamp
+  updated_at     timestamp
+
+  Note: 'Fases do cronograma da docagem (Gantt).'
+}
+
+Table dry_docking_tasks [headercolor: #B45309] {
+  id                   uuid [pk]
+  dry_docking_phase_id uuid [not null]
+  title                varchar(255) [not null]
+  description          text
+  status               varchar(255) [not null, default: 'todo', note: 'todo | in_progress | blocked | done (CHECK)']
+  planned_cost         decimal(10,2) [not null, default: 0]
+  actual_cost          decimal(10,2) [not null, default: 0]
+  weight_percentage    int [not null, default: 1, note: 'Peso da tarefa no progresso da fase']
+  start_date           date
+  end_date             date
+  assigned_to          uuid
+  created_at           timestamp
+  updated_at           timestamp
+
+  Note: 'Tarefas de cada fase da docagem.'
+}
+
+// ==========================================
+// 6. NOTIFICAÇÕES
+// ==========================================
+
+Table notifications [headercolor: #475569] {
+  id              uuid [pk]
+  type            varchar(255) [not null, note: 'Classe da notificação: WorkOrderApproved, WorkOrderDispatched, ServiceRequestCreated, ExecutionWindowCreated']
+  notifiable_type varchar(255) [not null, note: 'Polimórfico (hoje sempre App\\Models\\User)']
+  notifiable_id   uuid [not null, note: 'Sem FK']
+  data            text [not null, note: 'JSON com o conteúdo exibido no sino']
+  read_at         timestamp
+  created_at      timestamp
+  updated_at      timestamp
+
+  Note: 'Notificações in-app (tabela padrão do Laravel), entregues também em tempo real via Reverb.'
+}
+
+// ==========================================
+// 7. ANÁLISE DE ÓLEO
+// ==========================================
+
+Table oil_sampling_points [headercolor: #CA8A04] {
+  id           uuid [pk]
+  vessel_id    uuid [not null]
+  equipment_id uuid [note: 'Equipamento do cadastro (gera OS e lista manutenções). Nulo = sem equivalente no cadastro']
+  sheet_key    varchar(255) [not null, note: 'Aba da planilha de gestão; chave da importação. Único por embarcação']
+  sheet_tag    varchar(255) [not null, note: 'TAG escrito na planilha (tag antigo)']
+  name         varchar(255) [not null]
+  family       varchar(255) [not null, note: 'motor | redutora | hidraulica (CHECK). Define os parâmetros (config/oil_analysis.php)']
+  limits       json [note: '{amarelo:{param: valor}, vermelho:{...}, verde?:{nas}}. Viscosidade como faixa: viscosidade_inf / viscosidade_sup']
+  created_at   timestamp
+  updated_at   timestamp
+
+  indexes {
+    (vessel_id, sheet_key) [unique]
+  }
+
+  Note: 'Ponto de coleta: equipamento monitorado pela análise de óleo, com família e limites de condenação.'
+}
+
+Table oil_samples [headercolor: #CA8A04] {
+  id                    uuid [pk]
+  oil_sampling_point_id uuid [not null]
+  sample_number         int [not null, note: 'Sequencial por ponto, definido pelo servidor']
+  laboratory            varchar(255)
+  product               varchar(255) [note: 'Óleo em uso']
+  nominal_viscosity     decimal(10,2)
+  volume                decimal(10,2)
+  service_hours         decimal(12,2)
+  top_up                decimal(10,2) [note: 'Reposição (L)']
+  oil_changed           boolean
+  collected_at          date
+  report_number         varchar(255) [note: 'Nº do laudo do laboratório']
+  results               json [not null, note: '{parametro: valor} -- chaves do catálogo da família']
+  condition             varchar(255) [note: 'normal | atencao | intervir (CHECK). Do laudo ou calculada pelos limites']
+  lab_opinion           text [note: 'Parecer do laboratório (costuma ser genérico)']
+  team_action           text [note: 'Ação específica da equipe']
+  source                varchar(255) [not null, default: 'manual', note: 'planilha | manual | pdf (CHECK)']
+  report_path           varchar(255) [note: 'PDF do laudo no disco local']
+  report_original_name  varchar(255)
+  created_by            uuid
+  created_at            timestamp
+  updated_at            timestamp
+
+  indexes {
+    (oil_sampling_point_id, collected_at)
+  }
+
+  Note: 'Cada coleta e o resultado do laudo.'
+}
+
+Table oil_action_plan_items [headercolor: #CA8A04] {
+  id                    uuid [pk]
+  vessel_id             uuid [not null]
+  oil_sampling_point_id uuid [note: 'Nulo para item da planilha sem ponto de coleta correspondente']
+  oil_sample_id         uuid [note: 'Amostra que originou o item (gerado no sistema)']
+  equipment_name        varchar(255) [not null]
+  sheet_tag             varchar(255)
+  frequency_months      decimal(5,1)
+  frequency_hours       decimal(10,1)
+  collected_at          date
+  next_collection_at    date
+  hour_meter            decimal(12,1)
+  next_hour_meter       decimal(12,1)
+  condition             varchar(255) [note: 'normal | atencao | intervir (CHECK)']
+  action                text
+  notes                 text
+  responsible           varchar(255)
+  deadline              date
+  lab_opinion           text
+  status                varchar(255) [not null, default: 'vigente', note: 'vigente | arquivado (CHECK). Gerar um item novo arquiva o vigente do ponto (abas ARMAZ. da planilha)']
+  archived_at           timestamp
+  source                varchar(255) [not null, default: 'amostra', note: 'planilha | amostra (CHECK)']
+  created_by            uuid
+  created_at            timestamp
+  updated_at            timestamp
+
+  indexes {
+    (vessel_id, status)
+  }
+
+  Note: 'Plano de Ação da análise de óleo: vigente e histórico na mesma tabela.'
+}
+
+Table oil_analysis_reports [headercolor: #CA8A04] {
+  id            uuid [pk]
+  vessel_id     uuid [not null]
+  oil_sample_id uuid [note: 'Amostra gerada a partir do laudo, quando processado']
+  path          varchar(255) [not null]
+  original_name varchar(255) [not null]
+  size          bigint [not null]
+  status        varchar(255) [not null, default: 'aguardando_leitura', note: 'aguardando_leitura | processado (CHECK)']
+  uploaded_by   uuid
+  created_at    timestamp
+  updated_at    timestamp
+
+  Note: 'Laudos em PDF submetidos em lote, guardados até a leitura automática existir.'
+}
+
+// ==========================================
+// RELACIONAMENTOS (FKs reais do banco)
+// ==========================================
+
+// Acesso
+Ref: users.role_id > roles.id [delete: no action]
+Ref: users.vessel_id > vessels.id [delete: set null]
+Ref: users.third_party_id > third_parties.id [delete: set null]
+
+// Frota e equipamentos
+Ref: equipment.vessel_id > vessels.id [delete: cascade]
+Ref: equipment.parent_id > equipment.id [delete: set null]
+Ref: component.equipment_id > equipment.id [delete: cascade]
+
+// Ordens de serviço
+Ref: work_orders.equipment_id > equipment.id [delete: cascade]
+Ref: work_orders.third_party_id > third_parties.id [delete: set null]
+Ref: work_orders.approved_by > users.id [delete: set null]
+Ref: work_orders.inactivated_by > users.id [delete: set null]
+Ref: work_orders.rescheduled_from_id > work_orders.id [delete: set null]
+Ref: work_order_activity.work_order_id > work_orders.id [delete: cascade]
+Ref: work_order_activity.responsible_user_id > users.id [delete: cascade]
+
+// Janelas de execução
+Ref: execution_windows.vessel_id > vessels.id [delete: no action]
+Ref: execution_windows.created_by > users.id [delete: no action]
+Ref: execution_windows.updated_by > users.id [delete: no action]
+Ref: execution_window_work_order.execution_window_id > execution_windows.id [delete: cascade]
+Ref: execution_window_work_order.work_order_id > work_orders.id [delete: cascade]
+Ref: execution_window_work_order.added_by > users.id [delete: no action]
+Ref: execution_window_work_order.removed_by > users.id [delete: no action]
+
+// Solicitações de serviço
+Ref: service_requests.vessel_id > vessels.id [delete: cascade]
+Ref: service_requests.equipment_id > equipment.id [delete: set null]
+Ref: service_requests.responsible_user_id > users.id [delete: set null]
+Ref: service_requests.third_party_id > third_parties.id [delete: set null]
+
+// Docagens
+Ref: dry_dockings.vessel_id > vessels.id [delete: cascade]
+Ref: dry_docking_phases.dry_docking_id > dry_dockings.id [delete: cascade]
+Ref: dry_docking_tasks.dry_docking_phase_id > dry_docking_phases.id [delete: cascade]
+Ref: dry_docking_tasks.assigned_to > users.id [delete: no action]
+
+// Análise de óleo
+Ref: oil_sampling_points.vessel_id > vessels.id [delete: cascade]
+Ref: oil_sampling_points.equipment_id > equipment.id [delete: set null]
+Ref: oil_samples.oil_sampling_point_id > oil_sampling_points.id [delete: cascade]
+Ref: oil_samples.created_by > users.id [delete: set null]
+Ref: oil_action_plan_items.vessel_id > vessels.id [delete: cascade]
+Ref: oil_action_plan_items.oil_sampling_point_id > oil_sampling_points.id [delete: set null]
+Ref: oil_action_plan_items.oil_sample_id > oil_samples.id [delete: set null]
+Ref: oil_action_plan_items.created_by > users.id [delete: set null]
+Ref: oil_analysis_reports.vessel_id > vessels.id [delete: cascade]
+Ref: oil_analysis_reports.oil_sample_id > oil_samples.id [delete: set null]
+Ref: oil_analysis_reports.uploaded_by > users.id [delete: set null]
+
+// ==========================================
+// AGRUPAMENTOS (cores no dbdiagram)
+// ==========================================
+
+TableGroup acesso {
+  roles
+  users
+  third_parties
+}
+
+TableGroup frota_e_equipamentos {
+  vessels
+  equipment
+  component
+}
+
+TableGroup ordens_de_servico {
+  work_orders
+  work_order_activity
+  execution_windows
+  execution_window_work_order
+}
+
+TableGroup solicitacoes {
+  service_requests
+}
+
+TableGroup docagens {
+  dry_dockings
+  dry_docking_phases
+  dry_docking_tasks
+}
+
+TableGroup notificacoes {
+  notifications
+}
+
+TableGroup analise_de_oleo {
+  oil_sampling_points
+  oil_samples
+  oil_action_plan_items
+  oil_analysis_reports
+}

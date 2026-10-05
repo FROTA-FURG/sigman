@@ -12,12 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // CHECK nomeado é coisa do Postgres; no SQLite dos testes não há o que recriar.
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement('ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS work_orders_status_check');
         DB::statement("ALTER TABLE work_orders ADD CONSTRAINT work_orders_status_check CHECK (status::text = ANY (ARRAY['open', 'in_progress', 'scheduled', 'completed', 'cancelled']::text[]))");
     }
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         // Volta ao enum antigo. As OS agendadas viram 'open' para não violar o CHECK.
         DB::statement("UPDATE work_orders SET status = 'open' WHERE status = 'scheduled'");
         DB::statement('ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS work_orders_status_check');

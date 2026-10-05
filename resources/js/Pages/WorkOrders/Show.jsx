@@ -25,7 +25,7 @@ const MAINTENANCE_TYPE = {
     predictive: 'Preditiva',
 };
 
-// Mesmas legendas do bloco "Validação Prévia" em EditWorkOrderModal.jsx.
+// Mesmas legendas do bloco "Observação do Estagiário" em EditWorkOrderModal.jsx.
 const INTERN_STATUS = {
     pending: 'Pendente',
     waiting: 'Aguardando Insumo',

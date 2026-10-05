@@ -11,6 +11,9 @@ use Illuminate\Validation\ValidationException;
 
 class WorkOrderService
 {
+    /** Fuso de quem conclui as OS (o app roda em UTC). */
+    private const FUSO_DA_EQUIPE = 'America/Sao_Paulo';
+
     public function getAllWorkOrders(?string $thirdPartyId = null)
     {
         // Traz as OS ordenadas pelas mais recentes, incluindo os dados do equipamento,
@@ -308,10 +311,19 @@ class WorkOrderService
             return null;
         }
 
-        $novaData = PeriodicityInterval::proximaData($workOrder->periodicity, Carbon::parse($workOrder->completed_at));
-        if ($novaData === null) {
+        // completed_at é um instante em UTC; a base é o DIA em que a OS foi
+        // concluída no horário da equipe. Sem isso, concluir depois das 21h
+        // (meia-noite em UTC) jogava a próxima OS um dia pra frente. A nova
+        // OS guarda só a data (meia-noite), como toda data-alvo de OS.
+        $diaConclusao = Carbon::parse($workOrder->completed_at)
+            ->setTimezone(self::FUSO_DA_EQUIPE)
+            ->startOfDay();
+
+        $proxima = PeriodicityInterval::proximaData($workOrder->periodicity, $diaConclusao);
+        if ($proxima === null) {
             return null;
         }
+        $novaData = $proxima->format('Y-m-d');
 
         $workOrder->loadMissing('equipment.vessel');
         $vesselTag = $workOrder->equipment->vessel->tag ?? 'ERR';
@@ -326,7 +338,9 @@ class WorkOrderService
             'maintenance_type' => $workOrder->maintenance_type,
             'priority' => $workOrder->priority,
             'periodicity' => $workOrder->periodicity,
-            'in_52_week_plan' => $workOrder->in_52_week_plan,
+            // Cast: OS criada sem o campo fica com null no objeto (o default false
+            // é do banco), e a coluna não aceita null.
+            'in_52_week_plan' => (bool) $workOrder->in_52_week_plan,
             'estimated_hours' => $workOrder->estimated_hours,
             'status' => 'open',
             'os_number' => $this->proximoOsNumber($vesselTag),

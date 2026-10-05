@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -24,15 +25,18 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        // return [
-        //     'username' => fake()->name(),
-        //     'nickname' => fake()->firstName(),
-        //     'email' => fake()->unique()->safeEmail(),
-        //     'email_verified_at' => now(),
-        //     'password' => static::$password ??= Hash::make('password'),
-        //     'remember_token' => Str::random(10),
-        // ];
-        return [];
+        return [
+            // role_id e cpf são obrigatórios no SIGMAN (o factory padrão do
+            // Breeze não tinha). Perfil padrão: engenheiro.
+            'role_id' => fn () => Role::firstOrCreate(['name' => 'engineer'])->id,
+            'cpf' => fake()->unique()->numerify('###########'),
+            'username' => fake()->name(),
+            'nickname' => fake()->firstName(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
+        ];
     }
 
     /**

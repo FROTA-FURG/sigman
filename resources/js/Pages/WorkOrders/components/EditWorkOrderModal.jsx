@@ -482,7 +482,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                             <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
                                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                                     <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Validação Prévia (Pelo Estagiário)
+                                    Observação do Estagiário
                                 </h4>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div>
