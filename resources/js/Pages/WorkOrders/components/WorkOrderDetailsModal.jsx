@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router, usePage } from '@inertiajs/react';
-import BrDateTimeInput from '@/Components/BrDateTimeInput';
+import BrDateTimeFields from '@/Components/BrDateTimeFields';
 
 export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, osNumber, activities = [], users = [] }) {
     const { auth } = usePage().props; // Pega os dados do usuário logado
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
+
+    // O fim é sugerido a partir do início (mesmo dia, 1h depois) enquanto o
+    // usuário não mexer nele. Assim a sugestão acompanha as correções do
+    // início, mas para de existir no instante em que ele define o fim --
+    // nunca sobrescreve o que a pessoa digitou.
+    const [fimSugerido, setFimSugerido] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         work_order_id: '',
@@ -37,8 +43,34 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
         return `${datePart} às ${timePart}`;
     };
 
+    const UMA_HORA_MS = 60 * 60 * 1000;
+
+    const handleInicioChange = (valor) => {
+        setData(d => {
+            const atualizado = { ...d, started_at: valor };
+
+            const podeSugerir = valor && (!d.completed_at || fimSugerido);
+            if (podeSugerir) {
+                const inicio = new Date(valor);
+                if (!Number.isNaN(inicio.getTime())) {
+                    atualizado.completed_at = new Date(inicio.getTime() + UMA_HORA_MS).toISOString();
+                }
+            }
+
+            return atualizado;
+        });
+
+        if (valor) setFimSugerido(true);
+    };
+
+    const handleFimChange = (valor) => {
+        setFimSugerido(false); // A partir daqui o fim é escolha do usuário.
+        setData('completed_at', valor);
+    };
+
     const handleAddNew = () => {
         setEditingId(null);
+        setFimSugerido(false);
         reset('description', 'started_at', 'completed_at');
         setData(d => ({ 
             ...d, 
@@ -51,6 +83,8 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
 
     const handleEditClick = (activity) => {
         setEditingId(activity.id);
+        // Atividade já gravada: o fim que está ali é o real, não uma sugestão.
+        setFimSugerido(false);
         setData({
             work_order_id: workOrderId,
             responsible_user_id: activity.responsible_user_id || '',
@@ -197,13 +231,16 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Data/Hora de Início <span className="text-red-500">*</span></label>
-                                <BrDateTimeInput value={data.started_at} onChange={value => setData('started_at', value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Início <span className="text-red-500">*</span></label>
+                                <BrDateTimeFields value={data.started_at} onChange={handleInicioChange} />
                                 {errors.started_at && <span className="text-xs text-red-500">{errors.started_at}</span>}
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Data/Hora de Fim</label>
-                                <BrDateTimeInput value={data.completed_at} onChange={value => setData('completed_at', value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500" />
+                                <label className="mb-1 block text-xs font-medium text-slate-400">
+                                    Fim
+                                    {fimSugerido && <span className="ml-1.5 text-[10px] font-normal text-slate-500">sugerido — ajuste se precisar</span>}
+                                </label>
+                                <BrDateTimeFields value={data.completed_at} onChange={handleFimChange} />
                                 {errors.completed_at && <span className="text-xs text-red-500">{errors.completed_at}</span>}
                             </div>
                         </div>

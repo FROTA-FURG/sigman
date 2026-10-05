@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, router, usePage } from '@inertiajs/react';
 import BrDateInput from '@/Components/BrDateInput';
+import { ehDevOuTI, ehEngenheiro, ehEstagiario, ehCoordenador } from '@/utils/roles';
 
 export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], currentUser }) {
     const [mounted, setMounted] = useState(false);
@@ -42,6 +43,41 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         const day = String(d.getDate()).padStart(2, '0');
         return `${y}-${m}-${day}`;
     };
+
+    /** yyyy-mm-dd (contrato do BrDateInput) -> dd/mm/aaaa, sem passar por Date. */
+    const formatarDataBr = (valor) => {
+        if (!valor) return '';
+        const [ano, mes, dia] = valor.split('T')[0].split('-');
+        return ano && mes && dia ? `${dia}/${mes}/${ano}` : '';
+    };
+
+    /**
+     * Atividades já registradas nesta OS (vêm com a OS, relação
+     * activities.responsibleUser). started_at/completed_at daqui são
+     * instantes reais, então converte UTC -> local pra exibir.
+     */
+    const atividades = osData?.activities || [];
+
+    const formatarInstante = (iso) => {
+        if (!iso) return null;
+        return new Date(iso).toLocaleString('pt-BR', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+        });
+    };
+
+    /**
+     * Quando o agendamento foi confirmado. approved_at é o carimbo da
+     * validação do engenheiro (é o que existe numa OS agendada; o
+     * dispatched_at só é preenchido quando a data chega e a OS é disparada
+     * de fato). Instante real -> converte pro fuso local.
+     */
+    const dataDoAgendamento = (() => {
+        const carimbo = osData?.approved_at || osData?.dispatched_at;
+        if (!carimbo) return null;
+        return new Date(carimbo).toLocaleString('pt-BR', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+        });
+    })();
 
     useEffect(() => {
         if (osData && isOpen) {
@@ -93,11 +129,10 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     const vesselPrefix = currentEq?.vessel?.tag || currentEq?.vessel?.prefix || '-';
     const eqVesselId = currentEq?.vessel_id || currentEq?.vessel?.id;
 
-    // Lógica de Permissão de Edição Global
-    const roleName = String(currentUser?.role?.name || currentUser?.role || '').toLowerCase();
-    const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
-    const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
-    const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
+    // Lógica de Permissão de Edição Global (ver utils/roles.js)
+    const isTI = ehDevOuTI(currentUser);
+    const isEngenheiro = ehEngenheiro(currentUser);
+    const isEstagiario = ehEstagiario(currentUser);
 
     const userVesselId = currentUser?.vessel_id;
     const isLinkedToVessel = String(eqVesselId) === String(userVesselId);
@@ -113,8 +148,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     // A observação do engenheiro é da gestão. O estagiário até abre este modal
     // (edita outros campos da OS da embarcação dele), mas o campo fica só de
     // leitura — a trava de verdade está no servidor, isto aqui é a interface.
-    const isCoordenador = roleName.includes('coordinator') || roleName.includes('coordenador');
-    const canComment = isTI || isEngenheiro || isCoordenador;
+    const canComment = isTI || isEngenheiro || ehCoordenador(currentUser);
 
     // Estilo padrão para os inputs dependendo da permissão
     const inputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canEdit ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
@@ -355,6 +389,81 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     </div>
                                 </div>
                                 <p className="mt-3 text-[10px] text-slate-500">Pra lançar uma OS antiga no sistema, dá pra preencher início e fim direto aqui, sem depender da mudança de status.</p>
+
+                                {/* OS agendada: a data em que ela entra em vigor é a própria Data da
+                                    OS -- é ela que o app:check-scheduled-os compara com "hoje" pra
+                                    liberar a OS e avisar os responsáveis. */}
+                                {data.status === 'scheduled' && (
+                                    <div className="mt-3 rounded-lg border border-purple-500/30 bg-purple-500/5 p-3">
+                                        <div className="flex items-center gap-2">
+                                            <svg className="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <span className="text-xs font-semibold text-purple-300">Ordem de Serviço agendada</span>
+                                        </div>
+
+                                        <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <div>
+                                                <span className="block text-[10px] uppercase tracking-wider text-slate-500">Agendada para</span>
+                                                <span className="text-sm font-semibold text-slate-200">{formatarDataBr(data.created_at) || '—'}</span>
+                                                <p className="mt-0.5 text-[10px] text-slate-500">Data prevista da OS. É nela que o sistema libera a OS sozinho e avisa os responsáveis.</p>
+                                            </div>
+                                            <div>
+                                                <span className="block text-[10px] uppercase tracking-wider text-slate-500">Agendada em</span>
+                                                <span className="text-sm font-semibold text-slate-200">{dataDoAgendamento || 'Não registrado'}</span>
+                                                <p className="mt-0.5 text-[10px] text-slate-500">
+                                                    {dataDoAgendamento
+                                                        ? 'Quando o agendamento foi confirmado no sistema.'
+                                                        : 'OS agendada antes deste registro existir (importação do plano), por isso sem data de confirmação.'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ATIVIDADES REGISTRADAS NA OS (somente leitura aqui --
+                                quem registra/edita é o modal de Detalhamento) */}
+                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Atividades Registradas</h4>
+                                    <span className="text-[10px] text-slate-500">{atividades.length} no total</span>
+                                </div>
+
+                                {atividades.length === 0 ? (
+                                    <div className="rounded-md border border-dashed border-slate-700 py-6 text-center">
+                                        <p className="text-xs text-slate-500">Nenhuma atividade registrada nesta OS ainda.</p>
+                                        <p className="mt-1 text-[10px] text-slate-600">As atividades são lançadas pelo botão de detalhamento da OS, na listagem.</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {atividades.map((atividade) => {
+                                            const inicio = formatarInstante(atividade.started_at);
+                                            const fim = formatarInstante(atividade.completed_at);
+                                            const responsavel = atividade.responsible_user?.nickname
+                                                || atividade.responsible_user?.username
+                                                || 'Não informado';
+
+                                            return (
+                                                <div key={atividade.id} className="rounded-md border border-slate-700/60 bg-slate-900/50 p-3">
+                                                    <p className="whitespace-pre-wrap text-sm text-slate-300">{atividade.description}</p>
+
+                                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-700/40 pt-2 text-[11px]">
+                                                        <span className="text-slate-500">
+                                                            Início: <span className="text-slate-300">{inicio || '—'}</span>
+                                                        </span>
+                                                        <span className="text-slate-500">
+                                                            Fim: {fim
+                                                                ? <span className="text-slate-300">{fim}</span>
+                                                                : <span className="text-yellow-400">Em andamento</span>}
+                                                        </span>
+                                                        <span className="ml-auto text-slate-500">
+                                                            Responsável: <span className="text-slate-300">{responsavel}</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -373,7 +482,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                             <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">
                                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                                     <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Validação Prévia (Pelo Estagiário)
+                                    Observação do Estagiário
                                 </h4>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div>

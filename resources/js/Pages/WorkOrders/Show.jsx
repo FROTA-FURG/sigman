@@ -2,6 +2,7 @@ import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import EditWorkOrderModal from './components/EditWorkOrderModal';
+import { ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 
 const STATUS = {
     open:        { label: 'Aberta',       classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -24,7 +25,7 @@ const MAINTENANCE_TYPE = {
     predictive: 'Preditiva',
 };
 
-// Mesmas legendas do bloco "Validação Prévia" em EditWorkOrderModal.jsx.
+// Mesmas legendas do bloco "Observação do Estagiário" em EditWorkOrderModal.jsx.
 const INTERN_STATUS = {
     pending: 'Pendente',
     waiting: 'Aguardando Insumo',
@@ -144,10 +145,9 @@ export default function Show({ workOrder, equipments = [] }) {
     // própria embarcação (fora dela, continua só aprovando via intern_status).
     // Uma OS inativada não muda de status por aqui -- isso é papel do fluxo
     // de reprogramação dela.
-    const roleName = String(auth?.user?.role?.name || auth?.user?.role || '').toLowerCase();
-    const isTI = roleName.includes('ti') || roleName.includes('developer') || roleName.includes('admin') || roleName.includes('desenvolvedor');
-    const isEngenheiro = roleName.includes('engenheir') || roleName.includes('engineer');
-    const isEstagiario = roleName.includes('intern') || roleName.includes('estagiari');
+    const isTI = ehDevOuTI(auth?.user);
+    const isEngenheiro = ehEngenheiro(auth?.user);
+    const isEstagiario = ehEstagiario(auth?.user);
     const isLinkedToVessel = String(vessel.id) === String(auth?.user?.vessel_id);
     const canEditFields = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
     const canChangeStatus = !workOrder.is_inactive && (isTI || isEngenheiro || (isEstagiario && isLinkedToVessel));

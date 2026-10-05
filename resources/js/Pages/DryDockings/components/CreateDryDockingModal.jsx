@@ -62,7 +62,7 @@ export default function CreateDryDockingModal({ isOpen, onClose, vessels = [] })
                                     onChange={e => setData('vessel_id', e.target.value)}
                                     className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
                                 >
-                                    <option value="">Selecione o navio...</option>
+                                    <option value="">Selecione a embarcação...</option>
                                     {vessels.map(vessel => (
                                         <option key={vessel.id} value={vessel.id}>
                                             {vessel.name} ({vessel.tag})

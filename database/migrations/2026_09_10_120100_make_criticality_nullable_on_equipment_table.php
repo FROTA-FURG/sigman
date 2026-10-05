@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -19,6 +21,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // SQLite (testes) não tem ALTER COLUMN; lá o Laravel recria a tabela.
+        if (DB::getDriverName() !== 'pgsql') {
+            Schema::table('equipment', function (Blueprint $table) {
+                $table->string('criticality')->nullable()->default(null)->change();
+            });
+
+            return;
+        }
+
         DB::statement('ALTER TABLE equipment ALTER COLUMN criticality DROP NOT NULL');
         DB::statement('ALTER TABLE equipment ALTER COLUMN criticality DROP DEFAULT');
     }
@@ -26,6 +37,11 @@ return new class extends Migration
     public function down(): void
     {
         DB::statement("UPDATE equipment SET criticality = 'A' WHERE criticality IS NULL");
+
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE equipment ALTER COLUMN criticality SET DEFAULT 'A'");
         DB::statement('ALTER TABLE equipment ALTER COLUMN criticality SET NOT NULL');
     }

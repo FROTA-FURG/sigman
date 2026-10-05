@@ -2,27 +2,42 @@ import React from 'react';
 
 /*
  * Custos por mês — barras agrupadas (Faturamento x Custo) em CSS puro,
- * com eixos Y (R$ mil) e X (meses) rotulados. Compacto para caber no painel.
+ * com eixos Y (R$ mil) e X (meses) rotulados.
+ *
+ * O controle de custos ainda não existe no sistema: não há lançamento de
+ * faturamento nem de custo por OS. Os valores ficam zerados até essa
+ * entrada existir -- número inventado aqui viraria decisão errada lá na
+ * ponta. Quando houver, basta alimentar DATA com os dados reais.
  */
 const DATA = [
-    { mes: 'Jan', faturamento: 100000, custo: 100000 },
-    { mes: 'Fev', faturamento: 40000, custo: 45000 },
-    { mes: 'Mar', faturamento: 42000, custo: 54000 },
-    { mes: 'Abr', faturamento: 12000, custo: 12000 },
+    { mes: 'Jan', faturamento: 0, custo: 0 },
+    { mes: 'Fev', faturamento: 0, custo: 0 },
+    { mes: 'Mar', faturamento: 0, custo: 0 },
+    { mes: 'Abr', faturamento: 0, custo: 0 },
 ];
 
 const fmtK = (v) => `${Math.round(v / 1000)}`;
 
 export default function MonthlyChart() {
     const rawMax = Math.max(...DATA.flatMap((d) => [d.faturamento, d.custo]));
-    // Arredonda o topo para um múltiplo "redondo" de 25 mil
-    const max = Math.ceil(rawMax / 25000) * 25000;
+    // Arredonda o topo para um múltiplo "redondo" de 25 mil. Sem dados, mantém
+    // uma escala fixa pro eixo não quebrar (divisão por zero) e o gráfico
+    // continuar legível, só que vazio.
+    const max = rawMax > 0 ? Math.ceil(rawMax / 25000) * 25000 : 100000;
+    const semDados = rawMax === 0;
     const ticks = [max, max * 0.75, max * 0.5, max * 0.25, 0]; // topo -> base
 
     return (
         <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition hover:ring-sky-500/50">
             <div className="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-2.5">
-                <h3 className="text-sm font-semibold text-white">Custos por Mês <span className="text-[10px] font-normal text-slate-500">(R$ mil)</span></h3>
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                    Custos por Mês <span className="text-[10px] font-normal text-slate-500">(R$ mil)</span>
+                    {semDados && (
+                        <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-400" title="O sistema ainda não registra custo nem faturamento por OS">
+                            Aguardando dados
+                        </span>
+                    )}
+                </h3>
                 <div className="flex items-center gap-3 text-[10px] font-medium">
                     <span className="flex items-center gap-1 text-sky-400"><span className="h-2 w-2 rounded-full bg-sky-400" />Faturamento</span>
                     <span className="flex items-center gap-1 text-orange-400"><span className="h-2 w-2 rounded-full bg-orange-400" />Custo</span>

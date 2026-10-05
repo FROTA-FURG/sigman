@@ -56,7 +56,13 @@ class EquipmentTagMigrationController extends Controller
             : [];
 
         $vesselModel = Vessel::where('tag', $vessel)->firstOrFail();
+        // Contagem de OS (e quantas são do Plano de 52 semanas) pra priorizar
+        // na tela os equipamentos que mais pesam no planejamento.
         $equipamentos = Equipment::where('vessel_id', $vesselModel->id)
+            ->withCount([
+                'workOrders as os_total',
+                'workOrders as os_plano_52' => fn ($q) => $q->where('in_52_week_plan', true),
+            ])
             ->orderBy('tag_number')
             ->get(['id', 'tag_number', 'tag_antigo', 'name'])
             ->map(fn (Equipment $e) => [
@@ -65,6 +71,8 @@ class EquipmentTagMigrationController extends Controller
                 'tag_antigo' => $e->tag_antigo,
                 'name' => $e->name,
                 'ja_migrado' => ! is_null($e->tag_antigo),
+                'os_total' => $e->os_total,
+                'os_plano_52' => $e->os_plano_52,
             ]);
 
         $tagsJaUsadas = $equipamentos->pluck('tag_number')->all();
@@ -76,13 +84,26 @@ class EquipmentTagMigrationController extends Controller
 
         $jaMigrados = $equipamentos->where('ja_migrado', true)->values();
 
+        // Criados pela ferramenta como "novo equipamento": já nascem com o tag
+        // novo e sem tag_antigo. Não são candidatos a vínculo -- e a tela
+        // confere se algum deles duplica um equipamento antigo.
+        $tagsDoManifesto = collect($manifest['clean'])->pluck('tag_novo')->all();
+        $criadosNovos = $equipamentos
+            ->where('ja_migrado', false)
+            ->filter(fn ($e) => in_array($e['tag_number'], $tagsDoManifesto, true))
+            ->values();
+
         return Inertia::render('Equipment/TagMigration', [
             'vessel' => ['id' => $vesselModel->id, 'name' => $vesselModel->name, 'tag' => $vesselModel->tag],
             'vesselsDisponiveis' => Vessel::whereIn('tag', array_keys(self::MANIFESTS))
                 ->orderBy('name')
                 ->get(['tag', 'name']),
             'pendentes' => $pendentes,
-            'candidatos' => $equipamentos->where('ja_migrado', false)->values(),
+            'candidatos' => $equipamentos
+                ->where('ja_migrado', false)
+                ->reject(fn ($e) => in_array($e['tag_number'], $tagsDoManifesto, true))
+                ->values(),
+            'criadosNovos' => $criadosNovos,
             'jaMigrados' => $jaMigrados,
             'malformados' => $manifest['malformed_excluidos'] ?? [],
             'ambiguos' => $manifest['ambiguous_excluidos'] ?? [],
@@ -121,10 +142,13 @@ class EquipmentTagMigrationController extends Controller
         // Reescreve o snapshot de TODA OS já lançada pra esse equipamento --
         // decisão explícita: unifica a visualização em vez de manter o tag
         // antigo congelado no histórico.
+        // As OS seguem o equipamento pelo equipment_id (inclusive as futuras
+        // do Plano de 52 semanas); só o snapshot da tag precisa acompanhar.
         $osAtualizadas = WorkOrder::where('equipment_id', $equipment->id)
             ->update(['tag_number' => $validated['tag_novo']]);
+        $osPlano = WorkOrder::where('equipment_id', $equipment->id)->where('in_52_week_plan', true)->count();
 
-        return back()->with('success', "Vinculado: {$tagAntigo} -> {$validated['tag_novo']}. {$osAtualizadas} OS atualizada(s).");
+        return back()->with('success', "Vinculado: {$tagAntigo} -> {$validated['tag_novo']}. {$osAtualizadas} OS atualizada(s), {$osPlano} do Plano de 52 semanas.");
     }
 
     /** Linha do manifesto sem correspondente hoje: cria um equipamento novo direto com o tag novo. */

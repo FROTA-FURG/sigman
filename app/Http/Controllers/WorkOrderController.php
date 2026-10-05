@@ -113,6 +113,12 @@ class WorkOrderController extends Controller
 
         $this->workOrderService->createWorkOrder($validatedData);
 
+        // OS gerada de outra tela (ex.: Análise de Óleo) volta pra ela em vez
+        // de cair na listagem -- o usuário segue no contexto em que estava.
+        if ($request->boolean('voltar')) {
+            return back()->with('success', 'Ordem de Serviço criada com sucesso.');
+        }
+
         return redirect()->route('work-orders.index')
             ->with('success', 'Ordem de Serviço criada com sucesso.');
     }

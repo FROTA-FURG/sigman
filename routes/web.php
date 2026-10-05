@@ -6,6 +6,7 @@ use App\Http\Controllers\EquipmentTagMigrationController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\ExecutionWindowController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OilAnalysisController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\ThirdPartyController;
@@ -105,6 +106,20 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
 
     Route::resource('dry-dockings', DryDockingController::class);
+
+    // Análise de Óleo -- pontos de coleta, amostras/laudos, plano de ação e
+    // laudos submetidos. Carga inicial: php artisan oil-analysis:import.
+    Route::prefix('oil-analysis')->name('oil-analysis.')->group(function () {
+        Route::get('/', [OilAnalysisController::class, 'index'])->name('index');
+        Route::post('/points/{point}/samples', [OilAnalysisController::class, 'storeSample'])->name('samples.store');
+        Route::post('/points/{point}/action-plan', [OilAnalysisController::class, 'storeActionPlanItem'])->name('action-plan.store');
+        Route::patch('/samples/{sample}/notes', [OilAnalysisController::class, 'updateSampleNotes'])->name('samples.notes');
+        Route::get('/samples/{sample}/report', [OilAnalysisController::class, 'downloadSampleReport'])->name('samples.report');
+        Route::get('/reports/{report}', [OilAnalysisController::class, 'downloadReport'])->name('reports.download');
+        // Por último: {vessel} é a tag da embarcação (AS, CM1, LL...).
+        Route::post('/{vessel}/reports', [OilAnalysisController::class, 'storeReports'])->name('reports.store');
+        Route::get('/{vessel}', [OilAnalysisController::class, 'show'])->name('show');
+    });
 });
 
 require __DIR__.'/auth.php';

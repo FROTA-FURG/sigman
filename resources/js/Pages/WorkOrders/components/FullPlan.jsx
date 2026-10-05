@@ -1,16 +1,28 @@
 import React, { useState, useMemo } from 'react';
-import { 
+import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { Chart } from "react-google-charts";
+import { pdf } from '@react-pdf/renderer';
+import MetricsPdfTemplate from './MetricsPdfTemplate';
 
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 export default function FullPlan({ workOrders = [], equipments = [], users = [] }) {
 
-    const [chartMode, setChartMode] = useState('monthly'); 
+    const [chartMode, setChartMode] = useState('monthly');
     const [chartYear, setChartYear] = useState(new Date().getFullYear());
     const [chartMonth, setChartMonth] = useState(new Date().getMonth());
+
+    // Flag de filtro: ligada, todas as métricas desta aba (cartões, carga de
+    // trabalho e periodicidades) passam a considerar só as OS marcadas como
+    // parte do Plano de 52 Semanas -- o resto da tela não muda.
+    const [soPlano52, setSoPlano52] = useState(false);
+
+    const osConsideradas = useMemo(
+        () => (soPlano52 ? workOrders.filter(os => Boolean(os.in_52_week_plan)) : workOrders),
+        [workOrders, soPlano52]
+    );
 
     const handlePrevYear = () => setChartYear(y => y - 1);
     const handleNextYear = () => setChartYear(y => y + 1);
@@ -43,7 +55,7 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
         let awaitingApproval = [];
         const periodCounts = { daily: 0, weekly: 0, biweekly: 0, monthly: 0, bimonthly: 0, quarterly: 0, semiannual: 0, annual: 0, biennial: 0, triennial: 0, quadrennial: 0, sexennial: 0, docking: 0, avulsa: 0 };
 
-        workOrders.forEach(os => {
+        osConsideradas.forEach(os => {
             const isActive = activeStatuses.includes(os.status);
             const isCompleted = os.status === 'completed';
             const osDate = os.created_at ? new Date(os.created_at) : now;
@@ -102,14 +114,17 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
             pieData, 
             googleChartData,
             googleChartColors,
-            awaitingApproval: awaitingApproval.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6) 
+            // Sem .slice() aqui: o cartão "Fila Aprovação" usa o .length desta
+            // lista como valor, então cortá-la fazia o indicador parar de
+            // contar (mostrava no máximo 6, qualquer que fosse o total real).
+            awaitingApproval: awaitingApproval.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         };
-    }, [workOrders]);
+    }, [osConsideradas]);
 
     const barChartData = useMemo(() => {
         const vesselStats = {};
 
-        workOrders.forEach(os => {
+        osConsideradas.forEach(os => {
             if (!os.created_at) return;
             
             const [datePart] = os.created_at.split('T');
@@ -131,7 +146,47 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
         });
 
         return Object.values(vesselStats);
-    }, [workOrders, chartMode, chartYear, chartMonth]);
+    }, [osConsideradas, chartMode, chartYear, chartMonth]);
+
+    // Exporta exatamente o que está na tela agora: os mesmos números já
+    // calculados (metrics/barChartData) e as OS que os alimentaram, no
+    // escopo escolhido pela flag do Plano de 52 Semanas.
+    const [gerandoPdf, setGerandoPdf] = useState(false);
+
+    // A carga por embarcação segue o recorte escolhido no gráfico (todas /
+    // ano / mês); o PDF precisa dizer qual recorte é, senão a tabela sai sem
+    // contexto.
+    const rotuloPeriodoCarga = chartMode === 'all'
+        ? 'Todas as datas'
+        : chartMode === 'annual'
+            ? String(chartYear)
+            : `${MONTHS[chartMonth]}/${chartYear}`;
+
+    const handleExportarMetricas = async () => {
+        setGerandoPdf(true);
+        try {
+            const blob = await pdf(
+                <MetricsPdfTemplate
+                    workOrders={osConsideradas}
+                    metrics={metrics}
+                    cargaPorEmbarcacao={barChartData}
+                    periodoCarga={rotuloPeriodoCarga}
+                    apenasPlano52={soPlano52}
+                />
+            ).toBlob();
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `SIGMAN_Metricas${soPlano52 ? '_Plano52Semanas' : ''}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } finally {
+            setGerandoPdf(false);
+        }
+    };
 
     const KpiCard = ({ title, value, subtitle, icon, trendColor }) => (
         <div className="flex flex-col justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 p-2.5 shadow-sm hover:bg-slate-800/60 transition-colors">
@@ -148,7 +203,48 @@ export default function FullPlan({ workOrders = [], equipments = [], users = [] 
 
     return (
         <div className="flex flex-col h-full w-full gap-2 pb-2 overflow-y-auto custom-scrollbar">
-            
+
+            <div className="flex items-center justify-between gap-2 flex-shrink-0">
+                <p className="text-[10px] font-medium text-slate-500">
+                    {soPlano52
+                        ? `Considerando apenas as ${osConsideradas.length} OS do Plano de 52 Semanas`
+                        : `Considerando todas as ${workOrders.length} OS da frota`}
+                </p>
+
+                <div className="flex items-center gap-2">
+                <button
+                    onClick={handleExportarMetricas}
+                    disabled={gerandoPdf}
+                    className="flex items-center gap-1.5 rounded-lg bg-slate-900/80 px-2.5 py-1 text-[10px] font-semibold text-slate-400 ring-1 ring-slate-700/50 transition-all hover:text-slate-200 disabled:opacity-50"
+                >
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    </svg>
+                    {gerandoPdf ? 'Gerando...' : 'Exportar Relatório'}
+                </button>
+
+                <button
+                    onClick={() => setSoPlano52(v => !v)}
+                    className={`group relative flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition-all ring-1 ${
+                        soPlano52
+                            ? 'bg-blue-600 text-white ring-blue-500 shadow'
+                            : 'bg-slate-900/80 text-slate-400 ring-slate-700/50 hover:text-slate-200'
+                    }`}
+                >
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                    </svg>
+                    Plano de 52 Semanas
+
+                    <span className="pointer-events-none absolute right-0 top-full z-20 mt-2 w-72 rounded-lg border border-slate-700 bg-slate-900 p-3 text-left text-xs font-normal normal-case leading-relaxed text-slate-300 opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                        {soPlano52
+                            ? 'Filtro ligado: os cartões e os gráficos desta aba estão considerando só as OS do Plano de Manutenção Preventiva de 52 Semanas. Clique para voltar a ver a frota inteira.'
+                            : 'Considera apenas as OS que fazem parte do Plano de Manutenção Preventiva de 52 Semanas (ISO 8601). As avulsas e as corretivas abertas fora do plano saem dos cartões e dos gráficos.'}
+                    </span>
+                </button>
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-shrink-0">
                 <KpiCard 
                     title="OS Ativas" value={metrics.totalActive} subtitle="Trabalhos em andamento"
