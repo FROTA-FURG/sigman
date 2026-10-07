@@ -155,7 +155,7 @@ export default function Index({ dryDockings = [], vessels = [] }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-6">
+                <div className="grid auto-rows-max grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-6">
                     {filteredDockings.map((docking) => (
                         <div key={docking.id} className="flex flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition-all hover:ring-blue-500/50 hover:shadow-blue-900/20">
                             
