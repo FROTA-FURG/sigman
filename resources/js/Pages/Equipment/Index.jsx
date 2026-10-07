@@ -1,12 +1,13 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import { Head, Link, usePage} from '@inertiajs/react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import CreateNodeModal from './Equipments/CreateNodeModal';
 import EditNodeModal from './Equipments/EditNodeModal';
 import DeleteNodeModal from './Equipments/DeleteNodeModal';
 import ImageLightbox from './components/ImageLightbox';
 import TreeMetrics, { ehEquipamento } from './components/TreeMetrics';
 import StyledTooltips from '@/Components/StyledTooltips';
+import { filtrarArvore, termosDaBusca } from './buscaArvore';
 
 /**
  * Seção/Sistema de cada embarcação vêm do backend (`estruturaHierarquica`,
@@ -18,10 +19,11 @@ import StyledTooltips from '@/Components/StyledTooltips';
  */
 
 // Componente Recursivo da Árvore
-const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expandedNodes }) => {
+const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expandedNodes, resultados }) => {
     const isExpanded = expandedNodes.has(node.id);
     const isSelected = selectedNode?.id === node.id;
     const hasChildren = node.children && node.children.length > 0;
+    const ehResultado = resultados?.has(node.id);
 
     const getIcon = (type) => {
         switch (type) {
@@ -46,7 +48,7 @@ const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expande
                 </div>
                 <div className="flex items-center gap-2 overflow-hidden">
                     {getIcon(node.type)}
-                    <span className={`text-sm truncate ${isSelected ? 'text-blue-400 font-semibold' : 'text-slate-300'}`}>{node.name}</span>
+                    <span className={`text-sm truncate ${isSelected ? 'text-blue-400 font-semibold' : ehResultado ? 'rounded bg-amber-400/15 px-1 font-semibold text-amber-200' : 'text-slate-300'}`}>{node.name}</span>
                     {node.tag && <span className="hidden sm:inline-flex items-center rounded-md bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-400">{node.tag}</span>}
                 </div>
             </div>
@@ -55,7 +57,7 @@ const TreeNode = ({ node, level = 0, selectedNode, onSelect, toggleNode, expande
                 <div className="relative">
                     <div className="absolute left-0 top-0 bottom-0 border-l border-slate-700/50" style={{ left: `${level * 1.5 + 1.25}rem` }}></div>
                     {node.children.map(child => (
-                        <TreeNode key={child.id} node={child} level={level + 1} selectedNode={selectedNode} onSelect={onSelect} toggleNode={toggleNode} expandedNodes={expandedNodes} />
+                        <TreeNode key={child.id} node={child} level={level + 1} selectedNode={selectedNode} onSelect={onSelect} toggleNode={toggleNode} expandedNodes={expandedNodes} resultados={resultados} />
                     ))}
                 </div>
             )}
@@ -144,6 +146,26 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
 
     const [selectedNode, setSelectedNode] = useState(null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
+
+    // Busca: poda a árvore e abre o caminho até cada resultado. Ao limpar,
+    // volta a árvore como estava aberta antes de buscar.
+    const [busca, setBusca] = useState('');
+    const termos = useMemo(() => termosDaBusca(busca), [busca]);
+    const filtro = useMemo(() => (termos.length ? filtrarArvore(structuredTree, termos) : null), [structuredTree, termos]);
+    const idsResultado = useMemo(() => new Set(filtro?.resultados.map((n) => n.id) || []), [filtro]);
+    const abertosAntesDaBusca = useRef(null);
+
+    useEffect(() => {
+        if (filtro) {
+            if (!abertosAntesDaBusca.current) abertosAntesDaBusca.current = expandedNodes;
+            setExpandedNodes(new Set(filtro.expandir));
+        } else if (abertosAntesDaBusca.current) {
+            setExpandedNodes(abertosAntesDaBusca.current);
+            abertosAntesDaBusca.current = null;
+        }
+    }, [filtro]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const arvoreVisivel = filtro ? filtro.arvore : structuredTree;
     
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -221,7 +243,24 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                     
                     <div className="flex items-center gap-3">
                         <div className="relative hidden sm:block">
-                            <input type="text" placeholder="Buscar equipamento, TAG..." className="w-64 rounded-md border-slate-700 bg-slate-900 py-1.5 pl-3 pr-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+                            <svg className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" /></svg>
+                            <input
+                                type="search"
+                                value={busca}
+                                onChange={(e) => setBusca(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') setBusca('');
+                                    if (e.key === 'Enter' && filtro?.resultados.length) setSelectedNode(filtro.resultados[0]);
+                                }}
+                                placeholder="Buscar equipamento, TAG, sistema..."
+                                title={'Busca por nome, TAG (novo ou antigo), sistema, seção, embarcação, descrição, fabricante, modelo ou nº de série.\nCombine palavras: "motor atlantico".\nEnter abre o 1º resultado · Esc limpa.'}
+                                className="w-80 rounded-md border-slate-700 bg-slate-900 py-1.5 pl-8 pr-8 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 [&::-webkit-search-cancel-button]:hidden"
+                            />
+                            {busca && (
+                                <button type="button" onClick={() => setBusca('')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:text-white" aria-label="Limpar busca">
+                                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            )}
                         </div>
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
@@ -237,13 +276,24 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                     
                     {/* ESQUERDA: Árvore */}
                     <div className="lg:w-1/3 flex flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md">
-                        <div className="border-b border-slate-700/50 bg-slate-900/50 px-4 py-3">
+                        <div className="flex items-center justify-between gap-2 border-b border-slate-700/50 bg-slate-900/50 px-4 py-3">
                             <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Estrutura Hierárquica</h3>
+                            {filtro && (
+                                <span className="text-xs text-amber-300">
+                                    {filtro.resultados.length} resultado{filtro.resultados.length === 1 ? '' : 's'}
+                                </span>
+                            )}
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-                            {structuredTree.map(node => (
-                                <TreeNode key={node.id} node={node} selectedNode={selectedNode} onSelect={setSelectedNode} toggleNode={toggleNode} expandedNodes={expandedNodes} />
+                            {arvoreVisivel.map(node => (
+                                <TreeNode key={node.id} node={node} selectedNode={selectedNode} onSelect={setSelectedNode} toggleNode={toggleNode} expandedNodes={expandedNodes} resultados={idsResultado} />
                             ))}
+                            {filtro && filtro.resultados.length === 0 && (
+                                <div className="px-4 py-10 text-center">
+                                    <p className="text-sm text-slate-400">Nada encontrado para "{busca.trim()}".</p>
+                                    <p className="mt-1 text-xs text-slate-500">Tente o TAG antigo, uma sigla (SPP, CMA) ou menos palavras.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
