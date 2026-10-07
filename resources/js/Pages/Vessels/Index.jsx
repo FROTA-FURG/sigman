@@ -80,7 +80,7 @@ export default function Index({ vessels = [] }) {
                     <div className="flex h-32 items-center justify-center text-slate-400">Nenhuma embarcação encontrada.</div>
                 )}
 
-                <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto custom-scrollbar pb-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid min-h-0 flex-1 auto-rows-max grid-cols-1 gap-6 overflow-y-auto custom-scrollbar pb-6 md:grid-cols-2 lg:grid-cols-3">
                     {filteredVessels.map((vessel) => (
                         <div key={vessel.id} className="flex flex-col overflow-hidden rounded-xl bg-[#0b203c]/90 shadow-xl ring-1 ring-slate-800 backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-blue-900/20 hover:ring-blue-500/50">
 
