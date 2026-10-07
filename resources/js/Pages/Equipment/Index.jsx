@@ -5,6 +5,8 @@ import CreateNodeModal from './Equipments/CreateNodeModal';
 import EditNodeModal from './Equipments/EditNodeModal';
 import DeleteNodeModal from './Equipments/DeleteNodeModal';
 import ImageLightbox from './components/ImageLightbox';
+import TreeMetrics, { ehEquipamento } from './components/TreeMetrics';
+import StyledTooltips from '@/Components/StyledTooltips';
 
 /**
  * Seção/Sistema de cada embarcação vêm do backend (`estruturaHierarquica`,
@@ -78,6 +80,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                     name: sys.nome,
                     prefix: sys.sigla,
                     status: 'active',
+                    virtual: true, // agrupador da árvore, não é um equipamento do banco
                     children: []
                 }));
 
@@ -150,8 +153,15 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
     const allowedRoles = ['intern', 'coordinator', 'engineer', 'dev'];
     const hasPermission = auth?.user && allowedRoles.includes(auth.user.role);
 
-    // Esconde os botões se for uma seção (virtual) ou embarcação
-    const canEditOrDelete = hasPermission && selectedNode && !['section', 'vessel'].includes(selectedNode.type);
+    // Esconde os botões em seção, sistema (agrupadores virtuais) e embarcação
+    const canEditOrDelete = hasPermission && selectedNode && !selectedNode.virtual && !['section', 'vessel'].includes(selectedNode.type);
+    const ehAgrupador = selectedNode && (selectedNode.type === 'vessel' || selectedNode.type === 'section' || selectedNode.virtual);
+
+    // Clique numa linha das métricas: seleciona o filho e abre o caminho até ele.
+    const abrirFilho = (filho) => {
+        setExpandedNodes((atual) => new Set([...atual, selectedNode.id]));
+        setSelectedNode(filho);
+    };
 
     useEffect(() => {
         if (structuredTree && structuredTree.length > 0 && !selectedNode) {
@@ -185,10 +195,10 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
     };
 
 
-    console.log("item",selectedNode);
     return (
         <SIGMANLayout>
             <Head title="Árvore de Equipamentos | SIGMAN" />
+            <StyledTooltips />
 
             <CreateNodeModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} selectedParent={selectedNode} />
             <EditNodeModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} nodeData={selectedNode} />
@@ -243,7 +253,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                             <>
                                 <div className="border-b border-slate-700/50 bg-slate-900/50 p-6 flex items-start justify-between">
                                     <div className="flex items-start gap-4">
-                                        {['equipment', 'component'].includes(selectedNode.type) && (
+                                        {(ehEquipamento(selectedNode) || selectedNode.type === 'component') && (
                                             selectedNode.image_url ? (
                                                 <img
                                                     src={`/storage/${selectedNode.image_url}`}
@@ -260,7 +270,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
-                                                    {selectedNode.type === 'vessel' ? 'Embarcação' : selectedNode.type === 'section' ? 'Seção' : selectedNode.type === 'system' ? 'Sistema' : selectedNode.type === 'equipment' ? 'Equipamento' : 'Componente'}
+                                                    {selectedNode.type === 'vessel' ? 'Embarcação' : selectedNode.type === 'section' ? 'Seção' : selectedNode.virtual ? 'Sistema' : ehEquipamento(selectedNode) ? 'Equipamento' : 'Componente'}
                                                 </span>
                                                 {selectedNode.tag && <span className="rounded bg-slate-800 px-2 py-0.5 text-xs font-mono text-slate-300 ring-1 ring-slate-700">{selectedNode.tag}</span>}
                                             </div>
@@ -272,7 +282,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
 
                                         <div className="flex items-center gap-2 mt-1">
                                             {/* Componente não tem página própria -- vive dentro da do equipamento pai */}
-                                            {selectedNode.type === 'equipment' && (
+                                            {ehEquipamento(selectedNode) && (
                                                 <Link
                                                     href={route('equipments.show', selectedNode.id)}
                                                     className="flex items-center rounded-md bg-blue-600/10 px-3 py-1.5 text-xs font-medium text-blue-400 transition hover:bg-blue-600/20 hover:text-blue-300 ring-1 ring-inset ring-blue-600/20"
@@ -306,7 +316,10 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                                    {['equipment', 'component'].includes(selectedNode.type) && (
+                                    {ehAgrupador ? (
+                                        <TreeMetrics node={selectedNode} onAbrir={abrirFilho} />
+                                    ) : (<>
+                                    {(ehEquipamento(selectedNode) || selectedNode.type === 'component') && (
                                         <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
                                             <h4 className="text-sm font-semibold text-white mb-2">Descrição</h4>
                                             <p className="text-sm text-slate-300 whitespace-pre-line">
@@ -317,9 +330,9 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
 
                                     <h4 className="text-sm font-semibold text-white mb-4 border-b border-slate-800 pb-2">Especificações Técnicas</h4>
 
-                                    {['equipment', 'component'].includes(selectedNode.type) ? (
+                                    {(ehEquipamento(selectedNode) || selectedNode.type === 'component') ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
-                                            {selectedNode.type === 'equipment' && (
+                                            {ehEquipamento(selectedNode) && (
                                                 <>
                                                     <div className="bg-slate-900/50 p-4 rounded-lg ring-1 ring-slate-800">
                                                         <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Tag Antigo</span>
@@ -364,7 +377,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
 
                                     <h4 className="text-sm font-semibold text-white mb-4 border-b border-slate-800 pb-2">Ordens de Serviço Relacionadas</h4>
 
-                                    {selectedNode.type === 'equipment' ? (
+                                    {ehEquipamento(selectedNode) ? (
                                         <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-900/30 rounded-lg border border-dashed border-slate-700">
                                             <svg className="h-10 w-10 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             <p className="text-sm text-slate-400 mb-3">OS vinculadas, última inspeção e calendário anual de manutenção.</p>
@@ -384,7 +397,7 @@ export default function Index({ equipmentTree, estruturaHierarquica = {} }) {
                                             <p className="text-sm text-slate-500">OS vinculadas se aplicam apenas a equipamentos específicos.</p>
                                         </div>
                                     )}
-
+                                    </>)}
                                 </div>
                             </>
                         ) : (
