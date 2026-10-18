@@ -115,7 +115,7 @@ export default function HullMap({ desenho, regiao, analises, corDe, selecionada,
                             <p className="mt-1 text-[10px]" style={{ color: PRAZO[a.prazo].cor }}>{PRAZO[a.prazo].rot}</p>
                         </>
                     ) : (
-                        <p className="mt-1 text-slate-500">Sem medição até a campanha escolhida.</p>
+                        <p className="mt-1 text-slate-500">Sem medição até a inspeção escolhida.</p>
                     )}
                 </div>
             )}

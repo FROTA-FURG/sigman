@@ -195,7 +195,7 @@ export default function Index({ embarcacoes = [] }) {
                             <label className="flex items-center gap-2 text-xs text-slate-400">Colorir por
                                 <Segmentado opcoes={[['status', '% de perda'], ['prazo', 'Vida residual × docagem']]} valor={corPor} onChange={setCorPor} />
                             </label>
-                            <label className="flex items-center gap-2 text-xs text-slate-400">Campanha
+                            <label className="flex items-center gap-2 text-xs text-slate-400">Inspeção
                                 <Segmentado opcoes={anos.map((a) => [a, String(a)])} valor={anoVisto} onChange={setAteAno} />
                             </label>
                             <label className="flex items-center gap-2 text-xs text-slate-400">Próxima docagem

@@ -29,7 +29,7 @@ function Dica({ active, payload }) {
     if (p.tipo === 'tendencia') return <div className="rounded border border-slate-700 bg-slate-900/95 px-2 py-1 text-xs text-purple-200">Tendência {Math.floor(p.x)}: {fmt(p.y)} mm</div>;
     return (
         <div className="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs shadow-xl">
-            <p className="font-semibold text-white">Campanha {p.campanha.id}</p>
+            <p className="font-semibold text-white">Inspeção {p.campanha.id}</p>
             <p className="text-slate-300">Leitura: <span className="font-bold text-white">{fmt(p.y)} mm</span></p>
         </div>
     );
@@ -72,16 +72,16 @@ export default function PlatePanel({ chave, regiaoNome, chapa, analise: a, modo,
             </div>
 
             {!a.atual ? (
-                <p className="rounded-lg border border-dashed border-slate-700 px-4 py-6 text-center text-sm text-slate-500">Sem medição desta chapa até a campanha escolhida.</p>
+                <p className="rounded-lg border border-dashed border-slate-700 px-4 py-6 text-center text-sm text-slate-500">Sem medição desta chapa até a inspeção escolhida.</p>
             ) : (
                 <>
                     <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        <Indicador rotulo={`Espessura (${modo === 'media' ? 'média' : 'mínima'})`} valor={`${fmt(a.atual.y)} mm`} detalhe={`Projeto ${fmt(a.ep)} mm · campanha ${a.atual.campanha.id}`} />
+                        <Indicador rotulo={`Espessura (${modo === 'media' ? 'média' : 'mínima'})`} valor={`${fmt(a.atual.y)} mm`} detalhe={`Projeto ${fmt(a.ep)} mm · inspeção ${a.atual.campanha.id}`} />
                         <Indicador rotulo="Perda" valor={fmtPct(a.perda)} destaque={a.status === 'critico' ? 'text-red-300' : a.status === 'alerta' ? 'text-amber-300' : undefined} detalhe={`EMA ${fmt(a.emaAlerta)} (20%) · ${fmt(a.emaCritica)} (25%)`} />
                         <Indicador rotulo="Vida residual" valor={a.vidaResidual != null ? `${fmt(a.vidaResidual, 1)} anos` : '—'} detalhe={a.dataLimite ? `Limite em ${fmtData(a.dataLimite)} · TC ${a.fonteTc === 'tendencia' ? 'tendência' : 'norma'}` : 'Sem taxa para projetar'} />
                         <Indicador rotulo="TC norma (API 570)" valor={a.tcNorma != null ? `${fmt(a.tcNorma, 3)} mm/ano` : '—'} detalhe={a.tcNormaBaseCurta ? 'Base < 3 anos: não usada na projeção' : a.substituida ? 'Desde a substituição' : 'Desde a construção'} />
-                        <Indicador rotulo="TC tendência" valor={a.tcTendencia != null ? `${fmt(a.tcTendencia, 3)} mm/ano` : '—'} detalhe={a.tcTendencia != null ? `Reta por ${a.trecho.length} campanhas` : 'Precisa de 2+ campanhas'} />
-                        <Indicador rotulo="Campanhas" valor={a.serie.length} detalhe={chapa?.origem ? `${a.serie.map((p) => p.campanha.id).join(' · ')} · ${chapa.origem}` : a.serie.map((p) => p.campanha.id).join(' · ')} />
+                        <Indicador rotulo="TC tendência" valor={a.tcTendencia != null ? `${fmt(a.tcTendencia, 3)} mm/ano` : '—'} detalhe={a.tcTendencia != null ? `Reta por ${a.trecho.length} inspeções` : 'Precisa de 2+ inspeções'} />
+                        <Indicador rotulo="Inspeções" valor={a.serie.length} detalhe={chapa?.origem ? `${a.serie.map((p) => p.campanha.id).join(' · ')} · ${chapa.origem}` : a.serie.map((p) => p.campanha.id).join(' · ')} />
                     </div>
 
                     <div className="h-64">
@@ -110,7 +110,7 @@ export default function PlatePanel({ chave, regiaoNome, chapa, analise: a, modo,
                         <table className="w-full text-xs">
                             <thead className="bg-slate-900/70 text-[10px] uppercase tracking-wider text-slate-400">
                                 <tr>
-                                    <th className="px-2 py-1.5 text-left">Campanha</th>
+                                    <th className="px-2 py-1.5 text-left">Inspeção</th>
                                     {Array.from({ length: maxPontos }, (_, i) => <th key={i} className="px-2 py-1.5 text-right">P{i + 1}</th>)}
                                     <th className="px-2 py-1.5 text-right">Mín.</th>
                                     <th className="px-2 py-1.5 text-right">Média</th>
