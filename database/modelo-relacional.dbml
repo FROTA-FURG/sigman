@@ -57,6 +57,8 @@ Table users [headercolor: #1F3864] {
   remember_token    varchar(100)
   phone             varchar(20)
   status            varchar(255) [not null, default: 'Active']
+  last_seen_at      timestamp [note: 'Visto por último: última requisição autenticada (atualiza no máx. 1x/min). Visível só para dev/coordenador/engenheiro']
+  last_logout_at    timestamp [note: 'Quando saiu pelo Sair; se for depois do last_seen_at, não conta como online']
   last_updated_by   varchar(255) [note: 'Quem fez a última alteração (texto, sem FK)']
   vessel_id         uuid [note: 'Embarcação em que o usuário está lotado (tripulante/estagiário). Nulo = sem lotação']
   third_party_id    uuid [note: 'Preenchido só para o perfil terceiro: empresa a que o usuário pertence']
@@ -455,6 +457,135 @@ Table oil_analysis_reports [headercolor: #CA8A04] {
   Note: 'Laudos em PDF submetidos em lote, guardados até a leitura automática existir.'
 }
 
+// ------------------------------------------
+// MEDIÇÃO DE ESPESSURA (migration 2026_10_18_100000; carga da planilha:
+// php artisan hull-thickness:import)
+// ------------------------------------------
+
+Table hull_regions [headercolor: #0E7490] {
+  id               uuid [pk]
+  vessel_id        uuid [not null]
+  code             varchar(10) [not null, note: 'BB | BE | CC | CP | AV | AR | EP']
+  name             varchar(255) [not null, note: 'Ex.: Boreste']
+  plate_count      smallint [not null, note: 'Chapas previstas no desenho (progresso do mapeamento)']
+  sort_order       smallint [not null, default: 0]
+  frame_width      decimal(10,2) [note: 'Quadro de coordenadas da região (definido pela 1ª imagem; contornos e imagens usam este quadro)']
+  frame_height     decimal(10,2)
+  current_image_id uuid [note: 'Imagem em uso (null = sem imagem)']
+  image_updated_by uuid [note: 'Quem enviou, ajustou ou removeu a imagem por último']
+  image_updated_at timestamp [note: 'Quando a imagem foi atualizada por último']
+  created_at       timestamp
+  updated_at       timestamp
+
+  indexes {
+    (vessel_id, code) [unique]
+  }
+
+  Note: 'Partes do casco por embarcação: bombordo, boreste, conveses, anteparas, espelho de popa. A Visão geral não tem mapeamento próprio: a tela arruma as regiões em linhas automaticamente.'
+}
+
+Table hull_region_images [headercolor: #0E7490] {
+  id             uuid [pk]
+  hull_region_id uuid [not null]
+  path           varchar(255) [not null, note: 'Arquivo no storage (hull/{tag}/{code}/...)']
+  original_name  varchar(255) [not null]
+  size           bigint [not null]
+  width_px       integer [not null]
+  height_px      integer [not null]
+  x              decimal(10,2) [not null, note: 'Posição/escala da imagem dentro do quadro da região']
+  y              decimal(10,2) [not null]
+  width          decimal(10,2) [not null]
+  height         decimal(10,2) [not null]
+  scale          decimal(6,3) [not null, default: 1, note: 'Escala escolhida no ajuste (1 = imagem inteira no quadro)']
+  uploaded_by    uuid
+  uploaded_at    timestamp [not null]
+  positioned_by  uuid [note: 'Último ajuste de posição/escala']
+  positioned_at  timestamp
+  replaced_at    timestamp [note: 'Quando deixou de ser a imagem em uso (null = em uso)']
+  removed_by     uuid [note: 'Quem tirou de uso sem pôr outra no lugar (null se foi substituída)']
+  created_at     timestamp
+  updated_at     timestamp
+
+  Note: 'Histórico de imagens de cada região: nunca apaga, só marca replaced_at. É a lista "Imagens usadas" do Mapeamento.'
+}
+
+Table hull_plates [headercolor: #0E7490] {
+  id                  uuid [pk]
+  hull_region_id      uuid [not null]
+  number              smallint [not null, note: 'Nº da chapa no desenho']
+  plate_type          varchar(30) [note: 'Fundo | Costado | Piso | Antepara | Espelho']
+  design_thickness_mm decimal(5,2) [note: 'Espessura de projeto (E.P.); null em chapa desenhada sem planilha']
+  area_m2             decimal(6,2) [note: 'Para orçar a substituição']
+  contour             json [note: 'Polígono [[x,y],...] no quadro da região; null = ainda não mapeada']
+  contour_updated_by  uuid
+  contour_updated_at  timestamp
+  source_ref          varchar(255) [note: 'Origem na planilha, ex.: AS_BE · chapa 34']
+  notes               text
+  created_at          timestamp
+  updated_at          timestamp
+
+  indexes {
+    (hull_region_id, number) [unique]
+  }
+
+  Note: 'Chapa do casco. Limites de 20% (alerta) e 25% (crítico) ficam em config, não no banco.'
+}
+
+Table thickness_campaigns [headercolor: #0E7490] {
+  id                       uuid [pk]
+  vessel_id                uuid [not null]
+  measured_at              date [not null, note: 'Da planilha vem só o ano: 01/07 do ano']
+  dry_docking_id           uuid [note: 'Docagem em que a medição foi feita']
+  third_party_id           uuid [note: 'Empresa que mediu']
+  inspector_name           varchar(255)
+  inspector_qualification  varchar(255) [note: 'ISO 9712 (nível/certificado)']
+  instrument               varchar(255) [note: 'Aparelho de ultrassom e nº de série']
+  instrument_calibrated_at date [note: 'Aferição (ASTM E797)']
+  report_path              varchar(255) [note: 'Laudo em PDF']
+  report_original_name     varchar(255)
+  source                   varchar(20) [not null, default: 'manual', note: 'planilha | manual (CHECK)']
+  notes                    text
+  created_by               uuid
+  updated_by               uuid
+  created_at               timestamp
+  updated_at               timestamp
+
+  indexes {
+    (vessel_id, measured_at) [unique]
+  }
+
+  Note: 'Campanha de medição por ultrassom (2018, 2022, 2024...).'
+}
+
+Table thickness_readings [headercolor: #0E7490] {
+  id                    bigint [pk, increment]
+  thickness_campaign_id uuid [not null]
+  hull_plate_id         uuid [not null]
+  point_number          smallint [not null, note: 'P1..P5']
+  thickness_mm          decimal(5,2) [not null]
+
+  indexes {
+    (thickness_campaign_id, hull_plate_id, point_number) [unique]
+    hull_plate_id
+  }
+
+  Note: 'Uma linha por ponto medido: mínima e média saem de MIN/AVG. Taxa de corrosão e vida residual são calculadas, nunca gravadas.'
+}
+
+Table hull_plate_replacements [headercolor: #0E7490] {
+  id               uuid [pk]
+  hull_plate_id    uuid [not null]
+  replaced_at      date [not null]
+  dry_docking_id   uuid
+  new_thickness_mm decimal(5,2) [note: 'Se a chapa nova tiver outra espessura, vira a nova E.P.']
+  notes            text
+  created_by       uuid
+  created_at       timestamp
+  updated_at       timestamp
+
+  Note: 'Troca de chapa: a tendência e a vida residual recomeçam a partir daqui.'
+}
+
 // ==========================================
 // RELACIONAMENTOS (FKs reais do banco)
 // ==========================================
@@ -515,6 +646,27 @@ Ref: oil_analysis_reports.vessel_id > vessels.id [delete: cascade]
 Ref: oil_analysis_reports.oil_sample_id > oil_samples.id [delete: set null]
 Ref: oil_analysis_reports.uploaded_by > users.id [delete: set null]
 
+// Medição de espessura
+Ref: hull_regions.vessel_id > vessels.id [delete: cascade]
+Ref: hull_regions.current_image_id - hull_region_images.id [delete: set null]
+Ref: hull_regions.image_updated_by > users.id [delete: set null]
+Ref: hull_region_images.hull_region_id > hull_regions.id [delete: cascade]
+Ref: hull_region_images.uploaded_by > users.id [delete: set null]
+Ref: hull_region_images.positioned_by > users.id [delete: set null]
+Ref: hull_region_images.removed_by > users.id [delete: set null]
+Ref: hull_plates.hull_region_id > hull_regions.id [delete: cascade]
+Ref: hull_plates.contour_updated_by > users.id [delete: set null]
+Ref: thickness_campaigns.vessel_id > vessels.id [delete: cascade]
+Ref: thickness_campaigns.dry_docking_id > dry_dockings.id [delete: set null]
+Ref: thickness_campaigns.third_party_id > third_parties.id [delete: set null]
+Ref: thickness_campaigns.created_by > users.id [delete: set null]
+Ref: thickness_campaigns.updated_by > users.id [delete: set null]
+Ref: thickness_readings.thickness_campaign_id > thickness_campaigns.id [delete: cascade]
+Ref: thickness_readings.hull_plate_id > hull_plates.id [delete: cascade]
+Ref: hull_plate_replacements.hull_plate_id > hull_plates.id [delete: cascade]
+Ref: hull_plate_replacements.dry_docking_id > dry_dockings.id [delete: set null]
+Ref: hull_plate_replacements.created_by > users.id [delete: set null]
+
 // ==========================================
 // AGRUPAMENTOS (cores no dbdiagram)
 // ==========================================
@@ -558,4 +710,13 @@ TableGroup analise_de_oleo {
   oil_samples
   oil_action_plan_items
   oil_analysis_reports
+}
+
+TableGroup medicao_de_espessura {
+  hull_regions
+  hull_region_images
+  hull_plates
+  thickness_campaigns
+  thickness_readings
+  hull_plate_replacements
 }

@@ -16,6 +16,7 @@ use App\Http\Controllers\CrewController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VesselController;
 use App\Http\Controllers\CruiseLegController;
+use App\Http\Controllers\HullThicknessController;
 use App\Http\Controllers\DryDockingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -112,6 +113,18 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
 
     Route::resource('dry-dockings', DryDockingController::class);
+
+    // Medição de Espessura de chapas: painel do casco, mapeamento das chapas
+    // (contornos) e imagens por região. Carga da planilha: php artisan hull-thickness:import.
+    Route::prefix('hull-thickness')->name('hull-thickness.')->group(function () {
+        Route::get('/', [HullThicknessController::class, 'index'])->name('index');
+        Route::put('regions/{region}/contours', [HullThicknessController::class, 'updateContours'])->name('contours.update');
+        Route::post('regions/{region}/images', [HullThicknessController::class, 'storeImage'])->name('images.store');
+        Route::delete('regions/{region}/image', [HullThicknessController::class, 'removeImage'])->name('images.remove');
+        Route::patch('images/{image}/position', [HullThicknessController::class, 'positionImage'])->name('images.position');
+        Route::post('images/{image}/reuse', [HullThicknessController::class, 'reuseImage'])->name('images.reuse');
+        Route::get('images/{image}/file', [HullThicknessController::class, 'imageFile'])->name('images.file');
+    });
 
     // Análise de Óleo -- pontos de coleta, amostras/laudos, plano de ação e
     // laudos submetidos. Carga inicial: php artisan oil-analysis:import.

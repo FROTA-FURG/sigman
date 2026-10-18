@@ -88,7 +88,7 @@ export default function Index({ vessels = [] }) {
                             <div className="relative h-44 w-full cursor-grab border-b border-slate-700/50 bg-[#051326] active:cursor-grabbing">
                                 <StaticVesselViewer modelPath={vessel.modelPath} name={vessel.name} />
                                 <div className="pointer-events-none absolute right-3 top-3 z-10">{renderStatusBadge(vessel.status)}</div>
-                                <div className="pointer-events-none absolute bottom-2 left-4 z-10 text-4xl font-black tracking-tighter text-white/10">{vessel.tag}</div>
+                                <div className="pointer-events-none absolute bottom-2 left-4 z-10 text-4xl font-black tracking-tighter text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{vessel.tag}</div>
                                 {/* Localização real (dado já trabalhado) */}
                                 <div className="pointer-events-none absolute bottom-2.5 right-3 z-10 flex items-center gap-1 rounded bg-slate-950/70 px-1.5 py-0.5 text-[10px] font-medium text-slate-300 backdrop-blur-sm">
                                     <svg className="h-2.5 w-2.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>

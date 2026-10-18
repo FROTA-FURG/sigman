@@ -113,6 +113,8 @@ class VesselController extends Controller
             'users'      => $users,
             'cruiseLegs' => $cruiseLegs,
             'canEditCruisePlan' => CruiseLegController::podeEditar(auth()->user()),
+            // Embarcações com medição de espessura cadastrada (hoje AS e CM1) ganham o atalho.
+            'hasHullThickness' => $vessel->hullRegions()->exists(),
         ]);
     }
 

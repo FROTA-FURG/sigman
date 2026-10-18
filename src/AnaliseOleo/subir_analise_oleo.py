@@ -15,8 +15,8 @@ O que ele faz, em ordem:
   3. git pull do branch atual.
   4. composer install + npm ci + npm run build.
   5. php artisan migrate (cria as tabelas oil_*).
-  6. Carga da planilha: oil-analysis:import em modo de conferência e, se
-     você confirmar, de verdade. Os dados já estão prontos no repositório
+  6. Cargas das planilhas: oil-analysis:import e hull-thickness:import, cada
+     uma em modo de conferência e, se você confirmar, de verdade. Os dados já estão prontos no repositório
      (src/AnaliseOleo/analise_oleo.json, extraídos da planilha de gestão).
   7. Limpa caches, acerta dono das pastas e confere o limite de upload do PHP.
 
@@ -196,6 +196,15 @@ class Subida:
         if self.perguntar('Gravar a carga no banco?'):
             self.rodar(['php', 'artisan', 'oil-analysis:import'])
             ok('Carga gravada')
+
+        # Medição de Espessura: só os valores da planilha (regiões, chapas,
+        # campanhas e leituras). Desenhos e contornos são feitos no sistema.
+        print('  Medição de Espessura — conferência (nada é gravado):')
+        self.rodar(['php', 'artisan', 'hull-thickness:import', '--dry-run'])
+        print(_c('2', '    Esperado numa base nova: 13 regiões, 4 campanhas, 206 chapas e 2165 leituras. Também corrige o ano do AS para 1973.'))
+        if self.perguntar('Gravar a carga da Medição de Espessura?'):
+            self.rodar(['php', 'artisan', 'hull-thickness:import'])
+            ok('Carga da Medição de Espessura gravada')
 
     def finalizar(self):
         titulo('7/7 Caches, permissões e limites de upload')

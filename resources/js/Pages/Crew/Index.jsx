@@ -1,5 +1,6 @@
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import { Head, router, usePage } from '@inertiajs/react';
+import StyledTooltips from '@/Components/StyledTooltips';
 import { useState } from 'react';
 import CreateUserModal from './components/CreateUserModal';
 import EditUserModal from './components/EditUserModal';
@@ -16,7 +17,33 @@ const roleMap = {
     'dev': 'Desenvolvedor'
 };
 
-export default function Index({ users, roles, vessels, historyUsers }) {
+// "Visto por último": relativo pra leitura rápida, data/hora completa no balão.
+// "Online agora" vem do servidor (is_online): acesso recente e sem ter saído depois.
+function vistoPorUltimo(iso, online) {
+    if (!iso) return null;
+    const data = new Date(iso);
+    const min = Math.max(0, Math.floor((Date.now() - data.getTime()) / 60000));
+    const hora = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const hoje = new Date();
+    const ontem = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 1);
+    let texto;
+    if (online) texto = 'Online agora';
+    else if (min < 1) texto = 'Agora há pouco';
+    else if (min < 60) texto = `Há ${min} min`;
+    else if (data.toDateString() === hoje.toDateString()) texto = `Hoje, ${hora}`;
+    else if (data.toDateString() === ontem.toDateString()) texto = `Ontem, ${hora}`;
+    else if (min < 7 * 24 * 60) texto = `Há ${Math.floor(min / 1440)} dias`;
+    else texto = data.toLocaleDateString('pt-BR');
+    return {
+        texto,
+        online,
+        // Mais de 30 dias sem acessar: destaca pra gestão notar contas paradas.
+        antigo: min > 30 * 24 * 60,
+        completo: data.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    };
+}
+
+export default function Index({ users, roles, vessels, historyUsers, canSeeLastSeen = false }) {
     const { auth } = usePage().props;
     
     const loggedInUser = users?.find(user => user.id === auth?.user?.id);
@@ -141,6 +168,7 @@ export default function Index({ users, roles, vessels, historyUsers }) {
     return (
         <SIGMANLayout>
             <Head title="Tripulação e Equipe | SIGMAN" />
+            <StyledTooltips />
 
             {canManageUsers && (
                 <>
@@ -226,6 +254,7 @@ export default function Index({ users, roles, vessels, historyUsers }) {
                                     <th className="px-6 py-4 font-semibold">Cargo</th>
                                     <th className="px-6 py-4 font-semibold">Embarcação Base</th>
                                     <th className="px-6 py-4 font-semibold">Status</th>
+                                    {canSeeLastSeen && <th className="px-6 py-4 font-semibold">Visto por último</th>}
                                     {canManageUsers && <th className="px-6 py-4 font-semibold text-right">Ações</th>}
                                 </tr>
                             </thead>
@@ -264,6 +293,21 @@ export default function Index({ users, roles, vessels, historyUsers }) {
                                         <td className="px-6 py-4">
                                             {renderStatusBadge(user.status)}
                                         </td>
+                                        {canSeeLastSeen && (() => {
+                                            const visto = vistoPorUltimo(user.last_seen_at, Boolean(user.is_online));
+                                            return (
+                                                <td className="px-6 py-4" title={visto ? `Último acesso: ${visto.completo}` : 'Ainda não acessou o sistema desde que o registro de acesso foi ativado'}>
+                                                    {!visto ? (
+                                                        <span className="text-xs italic text-slate-600">Nunca acessou</span>
+                                                    ) : (
+                                                        <span className={`inline-flex items-center gap-1.5 text-xs ${visto.online ? 'font-semibold text-emerald-400' : visto.antigo ? 'text-amber-400/80' : 'text-slate-300'}`}>
+                                                            {visto.online && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_#10b981]" />}
+                                                            {visto.texto}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            );
+                                        })()}
                                         
                                         {canManageUsers && (
                                             <td className="px-6 py-4 text-right">
@@ -279,7 +323,7 @@ export default function Index({ users, roles, vessels, historyUsers }) {
                                 ))}
                                 {sortedUsers.length === 0 && (
                                     <tr>
-                                        <td colSpan={canManageUsers ? "5" : "4"} className="px-6 py-8 text-center text-slate-500">
+                                        <td colSpan={4 + (canManageUsers ? 1 : 0) + (canSeeLastSeen ? 1 : 0)} className="px-6 py-8 text-center text-slate-500">
                                             Nenhum usuário encontrado.
                                         </td>
                                     </tr>
