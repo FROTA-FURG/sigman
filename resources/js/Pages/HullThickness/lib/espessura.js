@@ -34,6 +34,7 @@ export const PRAZO = {
     seguinte: { rot: 'Atinge o limite até a docagem seguinte (~2,5 anos depois)', cor: '#fbbf24' },
     folga: { rot: 'Com folga', cor: '#34d399' },
     semDados: { rot: 'Sem dados para projetar', cor: '#64748b' },
+    semDocagem: { rot: 'Informe a próxima docagem para comparar', cor: '#64748b' },
 };
 const INTERVALO_ENTRE_DOCAGENS_ANOS = 2.5;
 
@@ -122,6 +123,7 @@ export function analisarChapa({ ep, medicoes }, campanhas, { modo, ateAno, anoBa
         const doc = anoDecimal(proximaDocagem);
         prazo = anoLimite <= doc ? 'antes' : anoLimite <= doc + INTERVALO_ENTRE_DOCAGENS_ANOS ? 'seguinte' : 'folga';
     } else if (tc === 0) prazo = 'folga';
+    else if (anoLimite != null) prazo = 'semDocagem'; // há projeção, só falta a data da docagem
 
     return {
         ...base,
