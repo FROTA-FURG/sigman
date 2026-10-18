@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +28,16 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         $this->configurePasswordResetMail();
+
+        // "Sair": marca a saída pra o usuário deixar de aparecer como online
+        // na Tripulação (ver User::estaOnline). O visto por último vira a hora da saída.
+        Event::listen(Logout::class, function (Logout $evento) {
+            if ($evento->user) {
+                $agora = now();
+                DB::table('users')->where('id', $evento->user->getAuthIdentifier())
+                    ->update(['last_seen_at' => $agora, 'last_logout_at' => $agora]);
+            }
+        });
     }
 
     /**

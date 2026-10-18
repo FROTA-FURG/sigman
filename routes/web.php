@@ -113,6 +113,13 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
 
     Route::resource('dry-dockings', DryDockingController::class);
 
+    // Medição de Espessura de chapas -- protótipo só de frontend (dados de
+    // exemplo + contornos em JSON); o backend vem depois de validar as telas.
+    Route::get('/hull-thickness', fn () => \Inertia\Inertia::render('HullThickness/Index', [
+        // id <-> tag: o estagiário mapeia só a embarcação em que está lotado.
+        'embarcacoesSistema' => \App\Models\Vessel::orderBy('tag')->get(['id', 'tag']),
+    ]))->name('hull-thickness.index');
+
     // Análise de Óleo -- pontos de coleta, amostras/laudos, plano de ação e
     // laudos submetidos. Carga inicial: php artisan oil-analysis:import.
     Route::prefix('oil-analysis')->name('oil-analysis.')->group(function () {

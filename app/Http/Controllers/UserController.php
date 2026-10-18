@@ -28,6 +28,16 @@ class UserController extends Controller
     {
         $users = $this->userService->getAllUsers();
         $historyUsers = \App\Models\User::withTrashed()->with('role')->get();
+
+        // "Visto por último": só dev/coordenador/engenheiro recebem o campo.
+        // Pros demais ele nem sai do servidor (fica no $hidden do User).
+        $canSeeLastSeen = in_array(auth()->user()->role->name ?? null, self::MANAGER_ROLES, true);
+        if ($canSeeLastSeen) {
+            $users->each(function ($u) {
+                $u->makeVisible('last_seen_at');
+                $u->setAttribute('is_online', $u->estaOnline());
+            });
+        }
         $roles = \App\Models\Role::orderBy('name')->get(['id', 'name']);
         $vessels = \App\Models\Vessel::orderBy('name')->get(['id', 'name']);
 
@@ -35,7 +45,8 @@ class UserController extends Controller
             'users' => $users,
             'historyUsers' => $historyUsers,
             'roles' => $roles,
-            'vessels' => $vessels
+            'vessels' => $vessels,
+            'canSeeLastSeen' => $canSeeLastSeen,
         ]);
     }
 

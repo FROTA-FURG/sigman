@@ -116,6 +116,15 @@ export default function SIGMANLayout({ children }) {
                         {isSidebarExpanded && <span className="font-medium">Análise de Óleo</span>}
                     </Link>
 
+                    {/* Medição de Espessura (Ícone de camadas / chapas) */}
+                    <Link href={route('hull-thickness.index')} className={`flex items-center rounded-lg px-3 py-2 transition hover:bg-slate-800 hover:text-white ${!isSidebarExpanded && 'justify-center'}`}>
+                        <svg className={`h-5 w-5 ${isSidebarExpanded ? 'mr-3' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l9 4.5-9 4.5-9-4.5L12 3z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5" />
+                        </svg>
+                        {isSidebarExpanded && <span className="font-medium">Medição de Espessura</span>}
+                    </Link>
+
                     {/* Docagens (Ícone de Caixa de Entrada / Inbox) */}
                     <Link 
                         href={route('dry-dockings.index')} 

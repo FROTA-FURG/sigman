@@ -1,0 +1,44 @@
+{
+    "AS": {
+        "tagSistema": "AS",
+        "imagem": "/images/espessura/AS.jpg",
+        "largura": 972,
+        "altura": 543,
+        "regioes": {
+            "BB": { "nome": "Bombordo", "caixa": [0, 25, 560, 212], "chapas": 34 },
+            "BE": { "nome": "Boreste", "caixa": [0, 225, 560, 410], "chapas": 35 },
+            "CC": { "nome": "Convés castelo", "caixa": [568, 22, 770, 400], "chapas": 22 },
+            "CP": { "nome": "Convés principal", "caixa": [770, 22, 972, 400], "chapas": 16 },
+            "AV": { "nome": "Antepara de vante", "caixa": [40, 425, 240, 540], "chapas": 3 },
+            "AR": { "nome": "Antepara de ré", "caixa": [340, 425, 560, 540], "chapas": 4 },
+            "EP": { "nome": "Espelho de popa", "caixa": [665, 425, 900, 540], "chapas": 3 }
+        },
+        "contornos": [
+            { "regiao": "AV", "numero": 1, "pontos": [[67, 443], [213, 443], [190, 488], [90, 488]] },
+            { "regiao": "AV", "numero": 2, "pontos": [[90, 488], [140, 488], [140, 530], [112, 530]] },
+            { "regiao": "AV", "numero": 3, "pontos": [[140, 488], [190, 488], [168, 530], [140, 530]] },
+            { "regiao": "AR", "numero": 4, "pontos": [[356, 457], [455, 457], [455, 491], [372, 491]] },
+            { "regiao": "AR", "numero": 3, "pontos": [[455, 457], [550, 457], [540, 491], [455, 491]] },
+            { "regiao": "AR", "numero": 1, "pontos": [[372, 491], [455, 491], [455, 525], [388, 525]] },
+            { "regiao": "AR", "numero": 2, "pontos": [[455, 491], [540, 491], [520, 525], [455, 525]] },
+            { "regiao": "EP", "numero": 1, "pontos": [[681, 458], [732, 458], [732, 492], [681, 492]] },
+            { "regiao": "EP", "numero": 3, "pontos": [[845, 458], [890, 458], [890, 492], [845, 492]] },
+            { "regiao": "EP", "numero": 2, "pontos": [[681, 492], [732, 492], [732, 485], [845, 485], [845, 492], [890, 492], [885, 511], [792, 527], [690, 511]] }
+        ]
+    },
+    "CMI": {
+        "tagSistema": "CM1",
+        "imagem": "/images/espessura/CMI.jpg",
+        "largura": 907,
+        "altura": 547,
+        "regioes": {
+            "BB": { "nome": "Bombordo", "caixa": [0, 30, 605, 215], "chapas": 34 },
+            "BE": { "nome": "Boreste", "caixa": [0, 232, 610, 408], "chapas": 34 },
+            "CP": { "nome": "Convés", "caixa": [685, 35, 885, 398], "chapas": 15 },
+            "AV": { "nome": "Antepara de vante", "caixa": [40, 410, 250, 543], "chapas": 2 },
+            "AR": { "nome": "Antepara de ré", "caixa": [340, 420, 560, 535], "chapas": 3 },
+            "EP": { "nome": "Espelho de popa", "caixa": [665, 425, 900, 540], "chapas": 1 }
+        },
+        "contornos": []
+    }
+}
