@@ -45,6 +45,16 @@ class Vessel extends Model
         return $this->hasMany(User::class);
     }
 
+    public function hullRegions()
+    {
+        return $this->hasMany(HullRegion::class)->orderBy('sort_order');
+    }
+
+    public function thicknessCampaigns()
+    {
+        return $this->hasMany(ThicknessCampaign::class)->orderBy('measured_at');
+    }
+
     public function cruiseLegs()
     {
         return $this->hasMany(CruiseLeg::class)->orderBy('starts_at');

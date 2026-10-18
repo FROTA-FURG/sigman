@@ -1,48 +1,25 @@
-import { VISAO_GERAL } from '../lib/contornos';
-
 /*
- * Fundo de uma região no SVG: o desenho original da embarcação, ou a imagem
- * que o usuário subiu só para essa região (posicionada na moldura dela).
- * `opacidadeOriginal` (0–1) mostra o desenho antigo por cima da imagem nova,
- * para alinhar uma à outra no Mapeamento.
- *
- * Na visão geral: a folha inteira, com cada imagem trocada recortada na
- * moldura da sua região.
+ * Fundo de uma região no SVG (coordenadas do quadro da região): a imagem em
+ * uso, posicionada onde o usuário deixou. `anterior` + `opacidadeAnterior`
+ * mostram a imagem anterior por cima, para alinhar a nova às chapas já
+ * desenhadas. Sem imagem: um quadro vazio.
  */
+export default function RegionBackground({ regiao, imagem, anterior = null, opacidadeAnterior = 0, idRecorte }) {
+    const q = regiao.quadro;
+    if (!q) return null;
+    const recorte = idRecorte ?? `recorte-${regiao.id}`;
 
-function ImagemTrocada({ desenho, regiao, nova, id }) {
-    const [x1, y1, x2, y2] = desenho.regioes[regiao].caixa;
     return (
         <>
-            <clipPath id={id}><rect x={x1} y={y1} width={x2 - x1} height={y2 - y1} /></clipPath>
-            <g clipPath={`url(#${id})`}>
-                <rect x={x1} y={y1} width={x2 - x1} height={y2 - y1} fill="#fff" />
-                <image href={nova.src} x={nova.x} y={nova.y} width={nova.largura} height={nova.altura} preserveAspectRatio="none" />
+            <clipPath id={recorte}><rect x="0" y="0" width={q.largura} height={q.altura} /></clipPath>
+            <g clipPath={`url(#${recorte})`}>
+                <rect x="0" y="0" width={q.largura} height={q.altura} fill="#fff" />
+                {imagem && <image href={imagem.url ?? imagem.src} x={imagem.x} y={imagem.y} width={imagem.largura} height={imagem.altura} preserveAspectRatio="none" />}
+                {anterior && opacidadeAnterior > 0 && (
+                    <image href={anterior.url} x={anterior.x} y={anterior.y} width={anterior.largura} height={anterior.altura}
+                           preserveAspectRatio="none" opacity={opacidadeAnterior} className="pointer-events-none" />
+                )}
             </g>
-        </>
-    );
-}
-
-export default function RegionBackground({ desenho, regiao, imagens = {}, opacidadeOriginal = 0 }) {
-    const original = <image href={desenho.imagem} x="0" y="0" width={desenho.largura} height={desenho.altura} />;
-
-    if (regiao === VISAO_GERAL) {
-        return (
-            <>
-                {original}
-                {Object.entries(imagens).filter(([r]) => desenho.regioes[r]).map(([r, nova]) => (
-                    <ImagemTrocada key={r} desenho={desenho} regiao={r} nova={nova} id={`recorte-geral-${r}`} />
-                ))}
-            </>
-        );
-    }
-
-    const nova = imagens[regiao];
-    if (!nova) return original;
-    return (
-        <>
-            <ImagemTrocada desenho={desenho} regiao={regiao} nova={nova} id={`recorte-${regiao}`} />
-            {opacidadeOriginal > 0 && <g opacity={opacidadeOriginal} className="pointer-events-none">{original}</g>}
         </>
     );
 }

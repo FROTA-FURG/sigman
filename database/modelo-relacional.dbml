@@ -458,8 +458,8 @@ Table oil_analysis_reports [headercolor: #CA8A04] {
 }
 
 // ------------------------------------------
-// MEDIÇÃO DE ESPESSURA (PLANEJADO -- ainda sem migration; hoje a tela usa
-// os JSONs em resources/js/Pages/HullThickness/data)
+// MEDIÇÃO DE ESPESSURA (migration 2026_10_18_100000; carga da planilha:
+// php artisan hull-thickness:import)
 // ------------------------------------------
 
 Table hull_regions [headercolor: #0E7490] {
@@ -469,12 +469,8 @@ Table hull_regions [headercolor: #0E7490] {
   name             varchar(255) [not null, note: 'Ex.: Boreste']
   plate_count      smallint [not null, note: 'Chapas previstas no desenho (progresso do mapeamento)']
   sort_order       smallint [not null, default: 0]
-  frame_width      decimal(10,2) [not null, note: 'Quadro da região: contornos e imagens usam estas coordenadas']
-  frame_height     decimal(10,2) [not null]
-  overview_x       decimal(10,2) [not null, note: 'Posição da região na Visão geral (todas as partes juntas)']
-  overview_y       decimal(10,2) [not null]
-  overview_width   decimal(10,2) [not null, note: 'Tamanho na Visão geral; o quadro da região é escalado para caber aqui']
-  overview_height  decimal(10,2) [not null]
+  frame_width      decimal(10,2) [note: 'Quadro de coordenadas da região (definido pela 1ª imagem; contornos e imagens usam este quadro)']
+  frame_height     decimal(10,2)
   current_image_id uuid [note: 'Imagem em uso (null = sem imagem)']
   image_updated_by uuid [note: 'Quem enviou, ajustou ou removeu a imagem por último']
   image_updated_at timestamp [note: 'Quando a imagem foi atualizada por último']
@@ -485,7 +481,7 @@ Table hull_regions [headercolor: #0E7490] {
     (vessel_id, code) [unique]
   }
 
-  Note: 'Partes do casco por embarcação: bombordo, boreste, conveses, anteparas, espelho de popa. A Visão geral não tem mapeamento próprio: cada região (imagem + contornos) é desenhada no seu retângulo overview_*.'
+  Note: 'Partes do casco por embarcação: bombordo, boreste, conveses, anteparas, espelho de popa. A Visão geral não tem mapeamento próprio: a tela arruma as regiões em linhas automaticamente.'
 }
 
 Table hull_region_images [headercolor: #0E7490] {
@@ -500,12 +496,15 @@ Table hull_region_images [headercolor: #0E7490] {
   y              decimal(10,2) [not null]
   width          decimal(10,2) [not null]
   height         decimal(10,2) [not null]
-  uploaded_by    uuid [not null]
+  scale          decimal(6,3) [not null, default: 1, note: 'Escala escolhida no ajuste (1 = imagem inteira no quadro)']
+  uploaded_by    uuid
   uploaded_at    timestamp [not null]
   positioned_by  uuid [note: 'Último ajuste de posição/escala']
   positioned_at  timestamp
   replaced_at    timestamp [note: 'Quando deixou de ser a imagem em uso (null = em uso)']
-  removed_by     uuid [note: 'Quem tirou de uso voltando ao desenho original (null se foi substituída por outra)']
+  removed_by     uuid [note: 'Quem tirou de uso sem pôr outra no lugar (null se foi substituída)']
+  created_at     timestamp
+  updated_at     timestamp
 
   Note: 'Histórico de imagens de cada região: nunca apaga, só marca replaced_at. É a lista "Imagens usadas" do Mapeamento.'
 }
@@ -515,11 +514,12 @@ Table hull_plates [headercolor: #0E7490] {
   hull_region_id      uuid [not null]
   number              smallint [not null, note: 'Nº da chapa no desenho']
   plate_type          varchar(30) [note: 'Fundo | Costado | Piso | Antepara | Espelho']
-  design_thickness_mm decimal(5,2) [not null, note: 'Espessura de projeto (E.P.)']
+  design_thickness_mm decimal(5,2) [note: 'Espessura de projeto (E.P.); null em chapa desenhada sem planilha']
   area_m2             decimal(6,2) [note: 'Para orçar a substituição']
   contour             json [note: 'Polígono [[x,y],...] no quadro da região; null = ainda não mapeada']
   contour_updated_by  uuid
   contour_updated_at  timestamp
+  source_ref          varchar(255) [note: 'Origem na planilha, ex.: AS_BE · chapa 34']
   notes               text
   created_at          timestamp
   updated_at          timestamp
@@ -581,6 +581,7 @@ Table hull_plate_replacements [headercolor: #0E7490] {
   notes            text
   created_by       uuid
   created_at       timestamp
+  updated_at       timestamp
 
   Note: 'Troca de chapa: a tendência e a vida residual recomeçam a partir daqui.'
 }
@@ -645,12 +646,12 @@ Ref: oil_analysis_reports.vessel_id > vessels.id [delete: cascade]
 Ref: oil_analysis_reports.oil_sample_id > oil_samples.id [delete: set null]
 Ref: oil_analysis_reports.uploaded_by > users.id [delete: set null]
 
-// Medição de espessura (planejado)
+// Medição de espessura
 Ref: hull_regions.vessel_id > vessels.id [delete: cascade]
 Ref: hull_regions.current_image_id - hull_region_images.id [delete: set null]
 Ref: hull_regions.image_updated_by > users.id [delete: set null]
 Ref: hull_region_images.hull_region_id > hull_regions.id [delete: cascade]
-Ref: hull_region_images.uploaded_by > users.id [delete: no action]
+Ref: hull_region_images.uploaded_by > users.id [delete: set null]
 Ref: hull_region_images.positioned_by > users.id [delete: set null]
 Ref: hull_region_images.removed_by > users.id [delete: set null]
 Ref: hull_plates.hull_region_id > hull_regions.id [delete: cascade]

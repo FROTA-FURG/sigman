@@ -4,7 +4,7 @@ Extrai as medições de espessura da planilha "Controle de espessura.xlsx"
 (ferramenta de gestão do monitoramento de chapas) para o JSON que a tela
 Medição de Espessura usa:
 
-    resources/js/Pages/HullThickness/data/medicoes.json
+    src/MedicaoEspessura/medicoes.json (carregado no banco por: php artisan hull-thickness:import)
 
 Uso (da raiz do projeto):
     src/.venv/bin/python src/MedicaoEspessura/extrair_medicoes.py [caminho.xlsx]
@@ -31,7 +31,7 @@ import openpyxl
 
 RAIZ = Path(__file__).resolve().parents[2]
 PLANILHA = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ / 'docs' / 'Controle de espessura.xlsx'
-SAIDA = RAIZ / 'resources/js/Pages/HullThickness/data/medicoes.json'
+SAIDA = RAIZ / 'src/MedicaoEspessura/medicoes.json'
 
 EMBARCACOES = {
     'AS': {'construcao': 1973},

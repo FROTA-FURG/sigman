@@ -77,9 +77,11 @@ function regressao(pontos) {
  * `ateAno` (o controle de campanha "volta no tempo").
  */
 export function analisarChapa({ ep, medicoes }, campanhas, { modo, ateAno, anoBase, proximaDocagem }) {
-    const serie = campanhas
-        .filter((c) => anoDecimal(c.data) <= ateAno + 0.999 && medicoes?.[c.id]?.length)
-        .map((c) => ({ campanha: c, x: anoDecimal(c.data), y: leitura(medicoes[c.id], modo), pontos: medicoes[c.id] }));
+    // Sem E.P. (chapa só desenhada, sem planilha) não há como calcular perda.
+    const serie = !ep ? [] : campanhas
+        .map((c) => ({ c, pontos: (medicoes?.[c.id] ?? []).filter((v) => v != null) }))
+        .filter(({ c, pontos }) => anoDecimal(c.data) <= ateAno + 0.999 && pontos.length)
+        .map(({ c, pontos }) => ({ campanha: c, x: anoDecimal(c.data), y: leitura(pontos, modo), pontos }));
 
     const emaAlerta = ep * (1 - LIMITE_ALERTA);
     const emaCritica = ep * (1 - LIMITE_CRITICO);

@@ -10,7 +10,7 @@ import CreateServiceRequestModal from '../ServiceRequests/ServiceRequests/Create
 import CruisePlanCard from './components/CruisePlanCard';
 import StyledTooltips from '@/Components/StyledTooltips';
 
-export default function VesselShow({ vessel, equipments = [], users = [], cruiseLegs = [], canEditCruisePlan = false }) {
+export default function VesselShow({ vessel, equipments = [], users = [], cruiseLegs = [], canEditCruisePlan = false, hasHullThickness = false }) {
     const [isOpenCreateOS, setIsOpenCreateOS] = useState(false);
     const [isOpenCreateSS, setIsOpenCreateSS] = useState(false);
     const [isOpenEditVessel, setIsOpenEditVessel] = useState(false);
@@ -90,6 +90,20 @@ export default function VesselShow({ vessel, equipments = [], users = [], cruise
                     </div>
                 </div>
                 <div className="flex gap-3">
+                    {hasHullThickness && (
+                        <Link
+                            href={route('hull-thickness.index', { emb: vessel.tag })}
+                            className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                            title="Mapa do casco, espessura das chapas, taxa de corrosão e vida residual"
+                        >
+                            <svg className="h-4 w-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l9 4.5-9 4.5-9-4.5L12 3z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5" />
+                            </svg>
+                            Medição de Espessura do Casco
+                        </Link>
+                    )}
+
                     <PDFDownloadLink 
                         document={<VesselReportPDF vessel={vessel} />} 
                         fileName={`Relatorio_${vessel.tag}_${new Date().getTime()}.pdf`}

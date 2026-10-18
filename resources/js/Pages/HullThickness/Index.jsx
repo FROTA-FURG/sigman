@@ -1,34 +1,29 @@
 import { useMemo, useState } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import BrDateField from '@/Components/BrDateField';
-import { ehCoordenador, ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 import HullMap from './components/HullMap';
 import PlatePanel from './components/PlatePanel';
 import MapperTool from './components/MapperTool';
 import OverviewMapper from './components/OverviewMapper';
-import { EMBARCACOES, VISAO_GERAL, carregarDesenho, nomeDaRegiao } from './lib/contornos';
-import medicoes from './data/medicoes.json';
+import { VISAO_GERAL, montarDesenho, nomeDaRegiao } from './lib/contornos';
 import { PRAZO, STATUS, analisarChapa, fmtPct } from './lib/espessura';
 
 /*
- * Medição de Espessura de chapas (ultrassom) -- PROTÓTIPO SÓ DE FRONTEND.
+ * Medição de Espessura de chapas (ultrassom).
  *
- *  - Painel: mapa do casco por região, pintado pela condição de cada chapa,
- *    com detalhe da chapa (curva, TC norma/tendência, vida residual).
- *  - Mapeamento: ferramenta para desenhar o contorno das chapas sobre o
- *    desenho (gestão: dev, coordenador, engenheiro).
+ *  - Painel: mapa do casco por região (ou visão geral), pintado pela
+ *    condição de cada chapa, com detalhe da chapa (curva, TC norma/tendência,
+ *    vida residual).
+ *  - Mapeamento: imagem de cada região e contorno das chapas (gestão; e o
+ *    estagiário lotado na embarcação). Tudo salvo no servidor.
  *
- * Medições: data/medicoes.json, extraído da planilha "Controle de espessura"
- * por src/MedicaoEspessura/extrair_medicoes.py. Contornos: data/contornos.json
- * + o que for mapeado no navegador.
+ * Medições: vêm do banco (carga: php artisan hull-thickness:import).
  */
 
-const NOMES = { AS: 'Atlântico Sul', CMI: 'Ciências do Mar I' };
-
-function lerUrl() {
+function lerUrl(tags) {
     const p = new URLSearchParams(window.location.search);
-    return { aba: p.get('aba') === 'mapeamento' ? 'mapeamento' : 'painel', emb: EMBARCACOES.includes(p.get('emb')) ? p.get('emb') : 'AS', regiao: p.get('regiao') };
+    return { aba: p.get('aba') === 'mapeamento' ? 'mapeamento' : 'painel', emb: tags.includes(p.get('emb')) ? p.get('emb') : tags[0], regiao: p.get('regiao') };
 }
 
 function Segmentado({ opcoes, valor, onChange }) {
@@ -56,27 +51,26 @@ function Kpi({ rotulo, valor, detalhe, cor }) {
     );
 }
 
-export default function Index({ embarcacoesSistema = [] }) {
-    const { auth } = usePage().props;
-    const user = auth?.user;
-    const gestao = ehDevOuTI(user) || ehEngenheiro(user) || ehCoordenador(user);
-    // Mapeamento: gestão em qualquer embarcação; estagiário só na embarcação em que está lotado.
-    const podeMapearEmb = (e) => gestao || (ehEstagiario(user) && Boolean(user?.vessel_id)
-        && embarcacoesSistema.some((v) => v.id === user.vessel_id && v.tag === carregarDesenho(e).tagSistema));
-    const podeMapear = EMBARCACOES.some(podeMapearEmb);
-
-    const inicial = useMemo(lerUrl, []);
-    const [aba, setAba] = useState(podeMapear ? inicial.aba : 'painel');
+export default function Index({ embarcacoes = [] }) {
+    const tags = embarcacoes.map((e) => e.tag);
+    const inicial = useMemo(() => lerUrl(tags), []); // eslint-disable-line react-hooks/exhaustive-deps
     const [emb, setEmb] = useState(inicial.emb);
-    const [versaoContornos, setVersaoContornos] = useState(0);
-    const desenho = useMemo(() => carregarDesenho(emb), [emb, versaoContornos]); // eslint-disable-line react-hooks/exhaustive-deps
+    const embarcacao = embarcacoes.find((e) => e.tag === emb) ?? embarcacoes[0];
+    const podeMapear = embarcacoes.some((e) => e.podeMapear);
+    const [aba, setAba] = useState(podeMapear ? inicial.aba : 'painel');
+
+    const desenho = useMemo(() => (embarcacao ? montarDesenho(embarcacao) : { regioes: {}, contornos: [] }), [embarcacao]);
     // A visão geral (todas as partes juntas) é a primeira aba e a padrão.
-    const [regiao, setRegiao] = useState(() => (inicial.regiao && carregarDesenho(inicial.emb).regioes[inicial.regiao] ? inicial.regiao : VISAO_GERAL));
+    const [regiao, setRegiao] = useState(inicial.regiao || VISAO_GERAL);
     const regiaoValida = regiao === VISAO_GERAL || desenho.regioes[regiao] ? regiao : VISAO_GERAL;
     const [chapaParaEditar, setChapaParaEditar] = useState(null);
 
-    const dados = medicoes[emb];
-    const anos = dados.campanhas.map((c) => Number(c.id));
+    const dados = useMemo(() => ({
+        construcao: embarcacao?.construcao,
+        campanhas: embarcacao?.campanhas ?? [],
+        chapas: embarcacao?.chapas ?? {},
+    }), [embarcacao]);
+    const anos = dados.campanhas.map((c) => c.id);
     const [ateAno, setAteAno] = useState(null);
     const anoVisto = ateAno && anos.includes(ateAno) ? ateAno : anos[anos.length - 1];
 
@@ -95,13 +89,16 @@ export default function Index({ embarcacoesSistema = [] }) {
     const trocarEmb = (e) => { setEmb(e); setSelecionada(null); setAteAno(null); atualizarUrl({ emb: e }); };
     const trocarRegiao = (r) => { setRegiao(r); setSelecionada(null); setChapaParaEditar(null); atualizarUrl({ regiao: r === VISAO_GERAL ? null : r }); };
 
+    // "Até a campanha X": data dela como limite (o rótulo pode ser só o ano).
+    const limiteCampanha = dados.campanhas.find((c) => c.id === anoVisto)?.data;
     const analises = useMemo(() => {
         const out = {};
+        const ateAnoDecimal = limiteCampanha ? Number(limiteCampanha.slice(0, 4)) : 9999;
         for (const [chave, chapa] of Object.entries(dados.chapas)) {
-            out[chave] = analisarChapa(chapa, dados.campanhas, { modo, ateAno: anoVisto, anoBase: dados.construcao, proximaDocagem });
+            out[chave] = analisarChapa(chapa, dados.campanhas, { modo, ateAno: ateAnoDecimal, anoBase: dados.construcao, proximaDocagem });
         }
         return out;
-    }, [dados, modo, anoVisto, proximaDocagem]);
+    }, [dados, modo, limiteCampanha, proximaDocagem]);
 
     const corDe = (a) => (corPor === 'prazo' ? PRAZO[a?.prazo ?? 'semDados'].cor : STATUS[a?.status ?? 'semMedicao'].cor);
 
@@ -127,7 +124,7 @@ export default function Index({ embarcacoesSistema = [] }) {
 
     // Lista de chapas abaixo do mapa: só da região, ou de todas agrupadas na visão geral.
     const gruposDeChapas = (regiaoValida === VISAO_GERAL ? Object.keys(desenho.regioes) : [regiaoValida])
-        .map((sigla) => ({ sigla, chaves: Array.from({ length: desenho.regioes[sigla].chapas }, (_, i) => `${sigla}-${i + 1}`) }));
+        .map((sigla) => ({ sigla, chaves: Array.from({ length: desenho.regioes[sigla].chapas }, (_, i) => `${sigla}-${i + 1}`).filter((k) => dados.chapas[k] || desenho.regioes[sigla]) }));
     const legenda = corPor === 'prazo' ? Object.values(PRAZO) : Object.values(STATUS);
     const analiseSelecionada = selecionada ? analises[selecionada] : null;
 
@@ -144,7 +141,7 @@ export default function Index({ embarcacoesSistema = [] }) {
                     </div>
                     {/* mr-14: espaço para o sino de notificações, fixo no canto superior direito */}
                     <div className="mr-14 flex flex-wrap items-center gap-3">
-                        <Segmentado opcoes={EMBARCACOES.map((e) => [e, `${e} · ${NOMES[e]}`])} valor={emb} onChange={trocarEmb} />
+                        <Segmentado opcoes={embarcacoes.map((e) => [e.tag, `${e.tag} · ${e.nome}`])} valor={emb} onChange={trocarEmb} />
                         {podeMapear && <Segmentado opcoes={[['painel', 'Painel'], ['mapeamento', 'Mapeamento']]} valor={aba} onChange={trocarAba} />}
                     </div>
                 </div>
@@ -159,9 +156,9 @@ export default function Index({ embarcacoesSistema = [] }) {
                     ))}
                 </div>
 
-                {aba === 'mapeamento' && !podeMapearEmb(emb) ? (
+                {aba === 'mapeamento' && !embarcacao?.podeMapear ? (
                     <p className="rounded-lg border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-400">
-                        O mapeamento do {NOMES[emb]} fica com a gestão e com o estagiário lotado nessa embarcação.
+                        O mapeamento do {embarcacao?.nome} fica com a gestão e com o estagiário lotado nessa embarcação.
                     </p>
                 ) : aba === 'mapeamento' && regiaoValida === VISAO_GERAL ? (
                     <OverviewMapper
@@ -171,27 +168,15 @@ export default function Index({ embarcacoesSistema = [] }) {
                     />
                 ) : aba === 'mapeamento' ? (
                     <MapperTool
+                        key={embarcacao.id}
                         chapaInicial={chapaParaEditar}
-                        embarcacao={emb}
+                        emb={embarcacao}
                         desenho={desenho}
                         regiao={regiaoValida}
                         onRegiao={trocarRegiao}
-                        onContornosAlterados={() => setVersaoContornos((v) => v + 1)}
-                        usuario={user?.nickname || user?.name || 'Usuário'}
                     />
                 ) : (
                     <>
-                        {dados.observacoes?.length > 0 && (
-                            <details className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-2 text-xs text-amber-200">
-                                <summary className="cursor-pointer font-semibold">
-                                    {dados.observacoes.length} observaç{dados.observacoes.length === 1 ? 'ão' : 'ões'} sobre a planilha ({dados.fonte}) — clique para ver
-                                </summary>
-                                <ul className="mt-2 list-disc space-y-1 pl-5 text-amber-100/90">
-                                    {dados.observacoes.map((o) => <li key={o}>{o}</li>)}
-                                </ul>
-                            </details>
-                        )}
-
                         {/* Indicadores */}
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
                             <Kpi rotulo="Chapas" valor={resumo.total} detalhe={`${resumo.mapeadas} desenhadas no mapa`} />
