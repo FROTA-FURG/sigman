@@ -122,6 +122,11 @@ class WorkOrderController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $os = WorkOrder::with('equipment')->findOrFail($id);
+        if (! $this->canEdit($request->user(), $os->equipment?->vessel_id)) {
+            abort(403, 'Só dev, coordenador, engenheiro ou o estagiário da embarcação editam esta OS.');
+        }
+
         $validatedData = $request->validate([
             'equipment_id'     => 'required|uuid|exists:equipment,id',
             'description'      => 'sometimes|string',
@@ -138,6 +143,13 @@ class WorkOrderController extends Controller
             'completed_at'     => 'nullable|date',
             'started_at'       => 'nullable|date',
         ]);
+
+        // Trocar o equipamento não pode levar a OS para uma embarcação onde
+        // quem edita não tem permissão (ex.: estagiário mover OS do AS pro CM1).
+        $novoEquipamento = Equipment::find($validatedData['equipment_id']);
+        if (! $this->canEdit($request->user(), $novoEquipamento?->vessel_id)) {
+            abort(403, 'Você não pode mover a OS para um equipamento de outra embarcação.');
+        }
 
         // A observação do engenheiro é dele: estagiário e marinheiro abrem o
         // mesmo modal (podem editar outros campos da OS da sua embarcação),
@@ -161,8 +173,13 @@ class WorkOrderController extends Controller
         return redirect()->back()->with('success', 'Work Order updated successfully.');
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        $os = WorkOrder::with('equipment')->findOrFail($id);
+        if (! $this->canEdit($request->user(), $os->equipment?->vessel_id)) {
+            abort(403, 'Só dev, coordenador, engenheiro ou o estagiário da embarcação excluem esta OS.');
+        }
+
         $this->workOrderService->deleteWorkOrder($id);
 
         return redirect()->route('work-orders.index')
@@ -189,19 +206,36 @@ class WorkOrderController extends Controller
     }
 
     /**
-     * TI/engenheiro mudam status de qualquer OS. Estagiário também pode,
-     * mas só na OS da própria embarcação -- fora dela, continua só
-     * aprovando (intern_status) pelo Planejamento.
+     * Editar e excluir OS: gestão (dev, coordenador, engenheiro) em qualquer
+     * OS; estagiário só na OS da própria embarcação. É a mesma regra da tela
+     * (EditWorkOrderModal/Show) -- aqui é a trava que vale, porque o pedido
+     * pode chegar ao servidor sem passar pelo botão.
      */
-    private function canChangeStatus(?User $user, ?string $vesselId = null): bool
+    private function canEdit(?User $user, ?string $vesselId): bool
     {
         $roleName = $user?->role->name ?? null;
 
-        if (in_array($roleName, ['dev', 'engineer'], true)) {
+        if (in_array($roleName, ['dev', 'coordinator', 'engineer'], true)) {
             return true;
         }
 
         return $roleName === 'intern' && $vesselId !== null && $user->coversVessel($vesselId);
+    }
+
+    /**
+     * Status segue a mesma regra da edição: gestão em qualquer OS;
+     * estagiário só na OS da própria embarcação -- fora dela, continua só
+     * aprovando (intern_status) pelo Planejamento.
+     */
+    private function canChangeStatus(?User $user, ?string $vesselId = null): bool
+    {
+        return $this->canEdit($user, $vesselId);
+    }
+
+    /** Avaliação do estagiário (intern_status): estagiário e gestão. */
+    private function canEvaluate(?User $user): bool
+    {
+        return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer', 'intern'], true);
     }
 
     /** Quem pode inativar/reprogramar uma OS do plano -- decisão de planejamento, não de execução. */
@@ -220,6 +254,10 @@ class WorkOrderController extends Controller
 
     public function updateInternStatus(Request $request, $id)
     {
+        if (! $this->canEvaluate($request->user())) {
+            abort(403, 'Só estagiário ou gestão avaliam a OS.');
+        }
+
         $validated = $request->validate([
             'intern_status' => 'required|in:pending,approved,waiting',
             'intern_reason' => 'nullable|string|max:2000',
@@ -286,7 +324,7 @@ class WorkOrderController extends Controller
         $os = WorkOrder::with('equipment.vessel')->findOrFail($id);
 
         if (! $this->canChangeStatus($request->user(), $os->equipment?->vessel_id)) {
-            abort(403, 'Só engenheiro, TI ou estagiário da própria embarcação mudam o status da OS.');
+            abort(403, 'Só dev, coordenador, engenheiro ou estagiário da própria embarcação mudam o status da OS.');
         }
 
         $request->validate([

@@ -2,7 +2,7 @@ import SIGMANLayout from '@/Layouts/SIGMANLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import EditWorkOrderModal from './components/EditWorkOrderModal';
-import { ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
+import { ehCoordenador, ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 
 const STATUS = {
     open:        { label: 'Aberta',       classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -149,8 +149,8 @@ export default function Show({ workOrder, equipments = [] }) {
     const isEngenheiro = ehEngenheiro(auth?.user);
     const isEstagiario = ehEstagiario(auth?.user);
     const isLinkedToVessel = String(vessel.id) === String(auth?.user?.vessel_id);
-    const canEditFields = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
-    const canChangeStatus = !workOrder.is_inactive && (isTI || isEngenheiro || (isEstagiario && isLinkedToVessel));
+    const canEditFields = isTI || isEngenheiro || ehCoordenador(auth?.user) || (isEstagiario && isLinkedToVessel);
+    const canChangeStatus = !workOrder.is_inactive && canEditFields;
 
     const handleStatusChange = (e) => {
         const newStatus = e.target.value;

@@ -5,7 +5,7 @@ import EditWorkOrderModal from './EditWorkOrderModal';
 import InactivateOSModal from './InactivateOSModal';
 import WeekPickerModal from './WeekPickerModal';
 import { getMonday, formatWeekRange, formatBr as formatBrDate } from '@/utils/weeks';
-import { ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
+import { ehCoordenador, ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 
 const renderPeriodicityBadge = (period) => {
     switch (period) {
@@ -113,6 +113,9 @@ export default function FutureOS({
     const isEngenheiro = ehEngenheiro(currentUser);
     const isTI = ehDevOuTI(currentUser);
     const isEstagiario = ehEstagiario(currentUser);
+    // Avaliar a OS (aprovar/aguardar/observação): estagiário e gestão --
+    // mesma regra de WorkOrderController::canEvaluate. Os demais só veem.
+    const podeAvaliar = isEstagiario || isTI || isEngenheiro || ehCoordenador(currentUser);
     
     // Quem responde pela frota inteira agora vem do cadastro do usuário
     // (has_fleet_access), não mais do cargo: um engenheiro pode ser
@@ -374,7 +377,13 @@ export default function FutureOS({
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-center justify-center gap-2">
-                                                            {currentStatus === 'pending' && (
+                                                            {currentStatus === 'pending' && !podeAvaliar && (
+                                                                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                                                    <span className="h-2 w-2 rounded-full bg-slate-500" />
+                                                                    Pendente de Checagem
+                                                                </span>
+                                                            )}
+                                                            {currentStatus === 'pending' && podeAvaliar && (
                                                                 <div className="flex items-center justify-center gap-2">
                                                                     <button
                                                                         onClick={() => { setActiveInput(os.id); setTempReason(os.intern_reason || ''); setReasonTargetStatus('waiting'); }}
@@ -418,7 +427,7 @@ export default function FutureOS({
                                                                 </span>
                                                             )}
 
-                                                            {/* Sempre disponível, qualquer que seja o status da
+                                                            {podeAvaliar && (<>{/* Sempre disponível, qualquer que seja o status da
                                                                 checagem -- só grava o texto, não muda o status. */}
                                                             <button
                                                                 onClick={() => { setActiveInput(os.id); setTempReason(os.intern_reason || ''); setReasonTargetStatus(currentStatus); }}
@@ -426,7 +435,7 @@ export default function FutureOS({
                                                                 title={os.intern_reason ? 'Editar observação (já tem uma)' : 'Escrever observação'}
                                                             >
                                                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                            </button>
+                                                            </button></>)}
                                                         </div>
                                                     )}
                                                 </div>
