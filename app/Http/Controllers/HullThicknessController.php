@@ -20,29 +20,28 @@ use Inertia\Inertia;
  * Medição de Espessura de chapas do casco.
  *
  * Leitura: todos (menos terceiro, barrado pelo middleware third_party).
- * Mapeamento (contornos e imagens): gestão em qualquer embarcação;
- * estagiário só na embarcação em que está lotado.
+ * Mapeamento (contornos e imagens): gestão e estagiários, em qualquer
+ * embarcação (estagiário lotado ou não).
  *
  * Taxa de corrosão, vida residual e status são calculados na tela a partir
  * das leituras -- nada disso é gravado.
  */
 class HullThicknessController extends Controller
 {
-    private const GESTAO = ['dev', 'coordinator', 'engineer'];
+    // Quem mapeia (imagens e contornos): gestão e qualquer estagiário, em
+    // todas as embarcações -- o mapeamento é tarefa dos estagiários, lotados
+    // numa embarcação ou não.
+    private const MAPEIAM = ['dev', 'coordinator', 'engineer', 'intern'];
 
-    public static function podeMapear(?User $user, Vessel|string $vessel): bool
+    public static function podeMapear(?User $user, Vessel|string|null $vessel = null): bool
     {
-        $vesselId = $vessel instanceof Vessel ? $vessel->id : $vessel;
-        $cargo = $user?->role->name ?? null;
-
-        return in_array($cargo, self::GESTAO, true)
-            || ($cargo === 'intern' && $user->vessel_id && $user->vessel_id === $vesselId);
+        return in_array($user?->role->name ?? null, self::MAPEIAM, true);
     }
 
     private function autorizarMapeamento(Request $request, string $vesselId): void
     {
         if (! self::podeMapear($request->user(), $vesselId)) {
-            abort(403, 'O mapeamento desta embarcação fica com a gestão e com o estagiário lotado nela.');
+            abort(403, 'O mapeamento fica com a gestão e com os estagiários.');
         }
     }
 
