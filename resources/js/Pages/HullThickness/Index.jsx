@@ -15,8 +15,8 @@ import { PRAZO, STATUS, analisarChapa, fmtPct } from './lib/espessura';
  *  - Painel: mapa do casco por região (ou visão geral), pintado pela
  *    condição de cada chapa, com detalhe da chapa (curva, TC norma/tendência,
  *    vida residual).
- *  - Mapeamento: imagem de cada região e contorno das chapas (gestão; e o
- *    estagiário lotado na embarcação). Tudo salvo no servidor.
+ *  - Mapeamento: imagem de cada região e contorno das chapas (gestão e
+ *    estagiários, em todas as embarcações). Tudo salvo no servidor.
  *
  * Medições: vêm do banco (carga: php artisan hull-thickness:import).
  */
@@ -158,7 +158,7 @@ export default function Index({ embarcacoes = [] }) {
 
                 {aba === 'mapeamento' && !embarcacao?.podeMapear ? (
                     <p className="rounded-lg border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-400">
-                        O mapeamento do {embarcacao?.nome} fica com a gestão e com o estagiário lotado nessa embarcação.
+                        O mapeamento fica com a gestão e com os estagiários.
                     </p>
                 ) : aba === 'mapeamento' && regiaoValida === VISAO_GERAL ? (
                     <OverviewMapper

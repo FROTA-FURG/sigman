@@ -41,7 +41,7 @@ it('carrega a página com regiões, chapas e leituras', function () {
             ->has('embarcacoes', 1)
             ->where('embarcacoes.0.tag', 'AS')
             ->where('embarcacoes.0.construcao', 1973)
-            ->where('embarcacoes.0.podeMapear', false) // estagiário de outra embarcação
+            ->where('embarcacoes.0.podeMapear', true) // estagiário mapeia qualquer embarcação
             ->where('embarcacoes.0.regioes.0.code', 'BE')
             ->where('embarcacoes.0.regioes.0.quadro', null)
             ->where('embarcacoes.0.chapas.BE-34.ep', 7.94)
@@ -119,11 +119,31 @@ it('ajusta a posição, tira de uso e volta a usar uma imagem', function () {
     Storage::disk('local')->assertExists($nova->path);
 });
 
+it('qualquer estagiário mapeia qualquer embarcação, mesmo sem estar lotado', function () use ($contorno) {
+    $semLotacao = User::factory()->create(['role_id' => Role::firstOrCreate(['name' => 'intern'])->id, 'vessel_id' => null]);
+
+    $this->actingAs($semLotacao)
+        ->get(route('hull-thickness.index'))
+        ->assertInertia(fn (Assert $page) => $page->where('embarcacoes.0.podeMapear', true));
+    $this->actingAs($semLotacao)
+        ->post(route('hull-thickness.images.store', $this->regiao->id), ['imagem' => UploadedFile::fake()->image('x.png', 100, 30)])
+        ->assertSessionHasNoErrors();
+    $this->actingAs($this->estagiarioCM1) // lotado em outra embarcação
+        ->put(route('hull-thickness.contours.update', $this->regiao->id), ['contornos' => [['numero' => 34, 'pontos' => $contorno]]])
+        ->assertSessionHasNoErrors();
+    expect($this->chapa->fresh()->contour_updated_by)->toBe($this->estagiarioCM1->id);
+});
+
 it('bloqueia o mapeamento de quem não pode', function () use ($contorno) {
-    $this->actingAs($this->estagiarioCM1)
+    $marinheiro = User::factory()->create(['role_id' => Role::firstOrCreate(['name' => 'seaman'])->id, 'vessel_id' => $this->vessel->id]);
+    $this->actingAs($marinheiro)
+        ->get(route('hull-thickness.index'))
+        ->assertOk() // vê o painel
+        ->assertInertia(fn (Assert $page) => $page->where('embarcacoes.0.podeMapear', false));
+    $this->actingAs($marinheiro)
         ->post(route('hull-thickness.images.store', $this->regiao->id), ['imagem' => UploadedFile::fake()->image('x.png', 100, 30)])
         ->assertForbidden();
-    $this->actingAs($this->estagiarioCM1)
+    $this->actingAs($marinheiro)
         ->put(route('hull-thickness.contours.update', $this->regiao->id), ['contornos' => [['numero' => 34, 'pontos' => $contorno]]])
         ->assertForbidden();
 
