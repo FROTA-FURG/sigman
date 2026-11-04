@@ -137,13 +137,15 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     const userVesselId = currentUser?.vessel_id;
     const isLinkedToVessel = String(eqVesselId) === String(userVesselId);
 
-    // O modal só é editável se for TI, Engenheiro, ou o Estagiário daquela exata embarcação
-    const canEdit = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
+    // Editável por TI, coordenador, engenheiro ou o estagiário daquela embarcação
+    // (mesma regra de WorkOrderController::canEdit, que é a trava que vale).
+    const isCoordenador = ehCoordenador(currentUser);
+    const canEdit = isTI || isEngenheiro || isCoordenador || (isEstagiario && isLinkedToVessel);
 
     // Status: TI/Engenheiro mudam em qualquer OS; estagiário também pode,
     // mas só na OS da própria embarcação -- fora dela, continua só
     // aprovando (intern_status, no seu Planejamento).
-    const canChangeStatus = isTI || isEngenheiro || (isEstagiario && isLinkedToVessel);
+    const canChangeStatus = canEdit;
 
     // A observação do engenheiro é da gestão. O estagiário até abre este modal
     // (edita outros campos da OS da embarcação dele), mas o campo fica só de
