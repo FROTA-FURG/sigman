@@ -183,6 +183,20 @@ const translatePriority = (priority) => {
     return priority || '-';
 };
 
+// Mesmos nomes da tela da OS. OS inativada fica com status 'cancelled' por
+// baixo, mas no papel é diferente de "cancelada de vez".
+const translateStatus = (status, isInactive = false) => {
+    if (isInactive) return 'Inativada';
+    const nomes = {
+        open: 'Aberta',
+        scheduled: 'Agendada',
+        in_progress: 'Em andamento',
+        completed: 'Concluída',
+        cancelled: 'Cancelada',
+    };
+    return nomes[status] || status || '-';
+};
+
 const formatDateTime = (isoString) => {
     if (!isoString) return ' : ';
     
@@ -280,7 +294,7 @@ const OSPdfTemplate = ({ os }) => {
                         <Text style={[styles.cellLabel, { width: '25%' }]}>Empresa encarregada:</Text>
                         <Text style={[styles.cellValue, { width: '35%' }]}>{os.vendor_name || '-'}</Text>
                         <Text style={[styles.cellLabel, { width: '15%' }]}>Status:</Text>
-                        <Text style={[styles.cellValueLast, { width: '25%' }]}>{os.status === 'open' ? 'Aberta' : os.status}</Text>
+                        <Text style={[styles.cellValueLast, { width: '25%' }]}>{translateStatus(os.status, os.is_inactive)}</Text>
                     </View>
                 </View>
 

@@ -291,7 +291,7 @@ const SSPdfTemplate = ({ ss }) => {
                         <Text style={[styles.cellLabel, { width: '25%' }]}>Empresa encarregada:</Text>
                         <Text style={[styles.cellValue, { width: '35%' }]}>{ss.vendor_name || '-'}</Text>
                         <Text style={[styles.cellLabel, { width: '15%' }]}>Status:</Text>
-                        <Text style={[styles.cellValueLast, { width: '25%' }]}>{ss.status === 'pending' ? 'Pendente' : ss.status === 'approved' ? 'Aprovada' : ss.status}</Text>
+                        <Text style={[styles.cellValueLast, { width: '25%' }]}>{({ pending: 'Pendente', approved: 'Aprovada', rejected: 'Rejeitada' })[ss.status] || ss.status || '-'}</Text>
                     </View>
                 </View>
 
