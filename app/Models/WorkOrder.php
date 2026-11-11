@@ -24,6 +24,8 @@ class WorkOrder extends Model
         'priority',
         'periodicity',
         'in_52_week_plan', // OS faz parte do Plano de 52 Semanas (cronograma anual), não é avulsa
+        'is_docking',        // OS da docagem
+        'is_extra_activity', // Atividade extra (não pode ser do plano de 52 semanas ao mesmo tempo)
         'status',
         'vendor_name',
         'third_party_id',
@@ -49,6 +51,8 @@ class WorkOrder extends Model
 
     protected $casts = [
         'in_52_week_plan' => 'boolean',
+        'is_docking'       => 'boolean',
+        'is_extra_activity' => 'boolean',
         'engineer_comment_at' => 'datetime',
         'is_inactive'      => 'boolean',
         'inactivated_at'   => 'datetime',
@@ -58,6 +62,49 @@ class WorkOrder extends Model
         'approved_at'   => 'datetime',
         'created_at'    => 'datetime',
     ];
+
+    /**
+     * Quem salvou a OS por último: a cada gravação, o usuário logado. Sem
+     * usuário (rotina agendada, importação), fica null = "sistema".
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (WorkOrder $os) {
+            $os->updated_by = auth()->id();
+        });
+    }
+
+    /**
+     * Aprovada pela gestão (engenheiro/coordenação/TI): ou deu a validação
+     * final ao disparar (approved_at), ou a última checagem "aprovada" foi
+     * marcada por alguém da gestão. A partir daí o estagiário não mexe mais
+     * na checagem.
+     */
+    public function aprovadaPelaGestao(): bool
+    {
+        if ($this->approved_at !== null) {
+            return true;
+        }
+        if (($this->intern_status ?: 'pending') !== 'approved') {
+            return false;
+        }
+        $ultima = $this->events()->where('action', 'checagem')->reorder()->orderByDesc('created_at')->orderByDesc('id')->first();
+
+        return $ultima !== null && $ultima->to_value === 'approved'
+            && in_array($ultima->user_role, ['dev', 'coordinator', 'engineer'], true);
+    }
+
+    /** Histórico (mais antigo primeiro). */
+    public function events()
+    {
+        return $this->hasMany(WorkOrderEvent::class)->orderBy('created_at')->orderBy('id');
+    }
+
+    /** Quem atualizou por último ("updater" para não colidir com a coluna updated_by). */
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     // Nome "approver" (e não "approvedBy") para o relacionamento não colidir
     // com a coluna approved_by na serialização para o front.

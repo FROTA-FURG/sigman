@@ -309,7 +309,7 @@ const OSPdfTemplate = ({ os }) => {
                     </View>
                     {atividades.map((ativ, i) => {
                         const user = ativ.responsible_user;
-                        const nomeExecutante = user ? (user.username || user.nickname || ' ') : ' ';
+                        const nomeExecutante = user ? (user.username || user.nickname || ' ') : (ativ.responsible_name || ' ');
 
                         return (
                             <View key={i} style={i === atividades.length - 1 ? styles.rowNoBorder : styles.gridRow}>

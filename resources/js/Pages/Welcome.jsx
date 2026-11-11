@@ -28,7 +28,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </span>
                         </div>
 
-                        {/* Roteamento de Login / Register mantido intacto */}
+                        {/* Só login: não há cadastro público (a gestão cria os usuários). */}
                         <nav className="-mx-3 flex flex-1 justify-end">
                             {auth.user ? (
                                 <Link
@@ -38,20 +38,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     Painel de Controle
                                 </Link>
                             ) : (
-                                <>
-                                    <Link
-                                        href={route('login')}
-                                        className="rounded-md px-4 py-2 font-semibold text-white/80 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                    >
-                                        Log in
-                                    </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="rounded-md px-4 py-2 font-semibold text-blue-400 transition hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                    >
-                                        Register
-                                    </Link>
-                                </>
+                                <Link
+                                    href={route('login')}
+                                    className="rounded-md px-4 py-2 font-semibold text-white/80 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                >
+                                    Entrar
+                                </Link>
                             )}
                         </nav>
                     </header>

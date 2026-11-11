@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router, usePage } from '@inertiajs/react';
 import BrDateTimeFields from '@/Components/BrDateTimeFields';
+import ResponsavelField from './ResponsavelField';
+import { nomeResponsavel, ultimaAtualizacaoAtividade } from '../lib/os';
 
 export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, osNumber, activities = [], users = [] }) {
     const { auth } = usePage().props; // Pega os dados do usuário logado
@@ -16,6 +18,7 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         work_order_id: '',
         responsible_user_id: '',
+        responsible_name: '',
         description: '',
         started_at: '',
         completed_at: '',
@@ -26,7 +29,7 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
             setData(d => ({ ...d, work_order_id: workOrderId }));
             setIsFormOpen(false);
             setEditingId(null);
-            reset('description', 'started_at', 'completed_at', 'responsible_user_id');
+            reset('description', 'started_at', 'completed_at', 'responsible_user_id', 'responsible_name');
             clearErrors();
         }
     }, [isOpen, workOrderId]);
@@ -75,7 +78,8 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
         setData(d => ({ 
             ...d, 
             work_order_id: workOrderId, 
-            responsible_user_id: auth.user.id 
+            responsible_user_id: auth.user.id,
+            responsible_name: '',
         }));
         clearErrors();
         setIsFormOpen(true);
@@ -88,6 +92,7 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
         setData({
             work_order_id: workOrderId,
             responsible_user_id: activity.responsible_user_id || '',
+            responsible_name: activity.responsible_name || '',
             description: activity.description || '',
             // Já vem como ISO UTC do backend -- é o mesmo contrato que o
             // BrDateTimeInput espera, não precisa de conversão aqui.
@@ -153,9 +158,16 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="font-semibold text-blue-400 text-sm">
                                             Responsável: <span className="text-slate-200">
-                                                {/* Puxa o nome do usuário que veio do backend (responsible_user) */}
-                                                {activity.responsible_user?.username || activity.responsible_user?.name || 'Usuário'}
+                                                {nomeResponsavel(activity) || 'Não informado'}
                                             </span>
+                                            {!activity.responsible_user && activity.responsible_name && (
+                                                <span className="ml-1.5 rounded bg-slate-700/60 px-1.5 py-px align-middle text-[9px] font-semibold uppercase tracking-wide text-slate-400" title="Pessoa fora do sistema">externo</span>
+                                            )}
+                                            {ultimaAtualizacaoAtividade(activity) && (
+                                                <p className="mt-0.5 text-[10px] font-normal text-slate-500">
+                                                    Lançada/atualizada por {ultimaAtualizacaoAtividade(activity).quem} em {ultimaAtualizacaoAtividade(activity).quando}
+                                                </p>
+                                            )}
                                         </div>
                                         
                                         <div className="flex items-start gap-2">
@@ -215,19 +227,15 @@ export default function WorkOrderDetailsModal({ isOpen, onClose, workOrderId, os
                             {/* CAMPO DE SELEÇÃO DE USUÁRIO */}
                             <div className="sm:col-span-2">
                                 <label className="mb-1 block text-xs font-medium text-slate-400">Responsável pela Atividade <span className="text-red-500">*</span></label>
-                                <select 
-                                    value={data.responsible_user_id}
-                                    onChange={e => setData('responsible_user_id', e.target.value)}
+                                <ResponsavelField
+                                    key={editingId || 'nova'}
+                                    userId={data.responsible_user_id}
+                                    nome={data.responsible_name}
+                                    users={users}
                                     className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
-                                >
-                                    <option value="">Selecione um usuário...</option>
-                                    {users.map(user => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.username} {user.nickname ? `(${user.nickname})` : ''}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.responsible_user_id && <span className="text-xs text-red-500">{errors.responsible_user_id}</span>}
+                                    erro={errors.responsible_user_id || errors.responsible_name}
+                                    onChange={(campos) => setData(d => ({ ...d, ...campos }))}
+                                />
                             </div>
 
                             <div>

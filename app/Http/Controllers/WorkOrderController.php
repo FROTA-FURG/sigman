@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Equipment;
 use App\Models\ThirdParty;
 use App\Models\WorkOrder;
+use App\Models\WorkOrderEvent;
 use App\Services\WorkOrderDispatchNotifier;
 use App\Services\WorkOrderService;
 use Illuminate\Http\Request;
@@ -28,7 +29,8 @@ class WorkOrderController extends Controller
         // O terceiro só enxerga as OS da própria empresa; os demais veem todas.
         $thirdPartyId = $this->isThirdParty($request->user()) ? $request->user()->third_party_id : null;
 
-        $workOrders = $this->workOrderService->getAllWorkOrders($thirdPartyId);
+        // Só o que esse usuário pode ver (ver WorkOrderService::getAllWorkOrders).
+        $workOrders = $this->workOrderService->getAllWorkOrders($thirdPartyId, $request->user());
 
         $equipments = Equipment::with('vessel')->orderBy('name')->get();
 
@@ -54,8 +56,11 @@ class WorkOrderController extends Controller
             'maintenance_type' => 'required|in:corrective,preventive,predictive',
             'priority'         => 'required|in:low,medium,high,critical',
             'status'           => 'required|in:open,in_progress,completed,cancelled',
-            'periodicity'      => 'nullable|string|max:50',
+            // Docagem deixou de ser periodicidade: agora é a flag is_docking.
+            'periodicity'      => 'nullable|string|max:50|not_in:docking',
             'in_52_week_plan'  => 'boolean',
+            'is_docking'       => 'boolean',
+            'is_extra_activity' => 'boolean',
             'vendor_name'      => 'nullable|string|max:255',
             'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
@@ -63,6 +68,8 @@ class WorkOrderController extends Controller
             'started_at'       => 'nullable|date',
             'completed_at'     => 'nullable|date',
         ]);
+
+        $this->validarOrigem($validatedData);
 
         $equipment = Equipment::with('vessel')->findOrFail($validatedData['equipment_id']);
         $vesselCode = $equipment->vessel->tag; // Ex: 'AS' ou 'CM1'
@@ -110,6 +117,11 @@ class WorkOrderController extends Controller
             abort(403, 'Esta OS não pertence à sua empresa.');
         }
 
+        // Os demais: gestão vê qualquer OS; quem é de uma embarcação, só as dela.
+        if (! $this->isThirdParty($request->user()) && ! $this->canView($request->user(), $workOrder->equipment?->vessel_id)) {
+            abort(403, 'Esta OS é de uma embarcação que você não acompanha.');
+        }
+
         return Inertia::render('WorkOrders/Show', [
             'workOrder' => $workOrder,
             'equipments' => Equipment::with('vessel')->orderBy('name')->get(),
@@ -117,6 +129,8 @@ class WorkOrderController extends Controller
             // parâmetro do componente) -- precisa estar aqui pra funcionar
             // igual já funciona a partir da listagem de OS.
             'thirdParties' => ThirdParty::orderBy('razao_social')->get(['id', 'razao_social', 'cnpj']),
+            // Responsáveis para lançar atividade direto no modal da OS.
+            'users' => User::orderBy('username')->get(['id', 'username', 'nickname']),
         ]);
     }
 
@@ -132,9 +146,12 @@ class WorkOrderController extends Controller
             'description'      => 'sometimes|string',
             'maintenance_type' => 'sometimes|in:corrective,preventive,predictive',
             'priority'         => 'sometimes|in:low,medium,high,critical',
-            'status'           => 'sometimes|in:open,in_progress,completed,cancelled',
-            'periodicity'      => 'nullable|string|max:50',
+            'status'           => 'sometimes|in:open,in_progress,scheduled,completed,cancelled',
+            // Docagem deixou de ser periodicidade: agora é a flag is_docking.
+            'periodicity'      => 'nullable|string|max:50|not_in:docking',
             'in_52_week_plan'  => 'boolean',
+            'is_docking'       => 'boolean',
+            'is_extra_activity' => 'boolean',
             'vendor_name'      => 'nullable|string|max:255',
             'third_party_id'   => 'nullable|uuid|exists:third_parties,id',
             'estimated_hours' => 'nullable|numeric|min:0',
@@ -150,6 +167,8 @@ class WorkOrderController extends Controller
         if (! $this->canEdit($request->user(), $novoEquipamento?->vessel_id)) {
             abort(403, 'Você não pode mover a OS para um equipamento de outra embarcação.');
         }
+
+        $this->validarOrigem($validatedData, $os);
 
         // A observação do engenheiro é dele: estagiário e marinheiro abrem o
         // mesmo modal (podem editar outros campos da OS da sua embarcação),
@@ -168,7 +187,17 @@ class WorkOrderController extends Controller
             }
         }
 
+        // Mesma trava do disparo: "Agendada" só para data no futuro (a do formulário).
+        if (($validatedData['status'] ?? null) === 'scheduled' && $os->status !== 'scheduled') {
+            $this->barrarAgendamentoNoPassado(substr((string) $validatedData['created_at'], 0, 10));
+        }
+
+        $statusAntes = $os->status;
         $this->workOrderService->updateWorkOrder($id, $validatedData, $request->user());
+
+        if (isset($validatedData['status']) && $validatedData['status'] !== $statusAntes) {
+            WorkOrderEvent::registrar($os, 'status', ['de' => $statusAntes, 'para' => $validatedData['status']]);
+        }
 
         return redirect()->back()->with('success', 'Work Order updated successfully.');
     }
@@ -199,10 +228,31 @@ class WorkOrderController extends Controller
         return ($user?->role->name ?? null) === 'terceiro';
     }
 
-    /** Quem pode deixar a observação do engenheiro na OS. */
+    /**
+     * Quem pode deixar a observação do engenheiro na OS: engenheiro e
+     * coordenador. O dev não -- não escreve em nome da engenharia.
+     */
     private function canComment(?User $user): bool
     {
-        return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
+        return in_array($user?->role->name ?? null, ['coordinator', 'engineer'], true);
+    }
+
+    /**
+     * Origem da OS: plano de 52 semanas, docagem e atividade extra podem
+     * ser combinadas, menos plano de 52 semanas + atividade extra (a
+     * atividade extra é justamente o que está fora do plano). Campo não
+     * enviado vale o que a OS já tem.
+     */
+    private function validarOrigem(array $dados, ?WorkOrder $os = null): void
+    {
+        $plano = (bool) ($dados['in_52_week_plan'] ?? $os?->in_52_week_plan);
+        $extra = (bool) ($dados['is_extra_activity'] ?? $os?->is_extra_activity);
+
+        if ($plano && $extra) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'is_extra_activity' => 'Uma OS do Plano de 52 Semanas não pode ser também Atividade Extra.',
+            ]);
+        }
     }
 
     /**
@@ -232,30 +282,69 @@ class WorkOrderController extends Controller
         return $this->canEdit($user, $vesselId);
     }
 
-    /** Avaliação do estagiário (intern_status): estagiário e gestão. */
-    private function canEvaluate(?User $user): bool
+    /**
+     * Avaliação do estagiário (intern_status): gestão em qualquer OS; o
+     * estagiário só nas OS das embarcações que ele acompanha.
+     */
+    private function canEvaluate(?User $user, ?string $vesselId = null): bool
     {
-        return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer', 'intern'], true);
+        $roleName = $user?->role->name ?? null;
+
+        if (in_array($roleName, ['dev', 'coordinator', 'engineer'], true)) {
+            return true;
+        }
+
+        return $roleName === 'intern' && $vesselId !== null && $user->coversVessel($vesselId);
     }
 
-    /** Quem pode inativar/reprogramar uma OS do plano -- decisão de planejamento, não de execução. */
-    private function canInactivate(?User $user): bool
+    /**
+     * Inativar/reprogramar uma OS do plano: gestão e o estagiário da
+     * embarcação (fica registrado no histórico quem fez).
+     */
+    private function canInactivate(?User $user, ?string $vesselId = null): bool
+    {
+        return $this->canEdit($user, $vesselId);
+    }
+
+    /** "Agendada" só faz sentido para data depois de hoje (a rotina diária libera na data). */
+    private function barrarAgendamentoNoPassado(string $data): void
+    {
+        if ($data <= now('America/Sao_Paulo')->toDateString()) { // datas de OS guardam só o dia
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'status' => 'Esta OS está atrasada (ou é para hoje): não dá para agendá-la nessa data. Dispare agora ou reagende para o próximo ciclo ou uma nova data.',
+            ]);
+        }
+    }
+
+    private function ehGestao(?User $user): bool
     {
         return in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true);
+    }
+
+    /** Abrir a OS: gestão em qualquer uma; os demais, só da embarcação que acompanham. */
+    private function canView(?User $user, ?string $vesselId): bool
+    {
+        if (in_array($user?->role->name ?? null, ['dev', 'coordinator', 'engineer'], true)) {
+            return true;
+        }
+
+        return $user !== null && $vesselId !== null && $user->coversVessel($vesselId);
     }
 
     public function getAllWorkOrders()
     {
         // Traz a OS + Equipamento + Navio + Atividades + Quem fez a atividade + se existir uma SS vinculada
-        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser', 'serviceRequest'])
+        return WorkOrder::with(['equipment.vessel', 'activities.responsibleUser', 'activities.updater:id,username,nickname', 'serviceRequest'])
                         ->orderBy('created_at', 'desc')
                         ->get();
     }
 
     public function updateInternStatus(Request $request, $id)
     {
-        if (! $this->canEvaluate($request->user())) {
-            abort(403, 'Só estagiário ou gestão avaliam a OS.');
+        $os = WorkOrder::with('equipment')->findOrFail($id);
+
+        if (! $this->canEvaluate($request->user(), $os->equipment?->vessel_id)) {
+            abort(403, 'Só a gestão ou o estagiário da embarcação avaliam esta OS.');
         }
 
         $validated = $request->validate([
@@ -263,18 +352,47 @@ class WorkOrderController extends Controller
             'intern_reason' => 'nullable|string|max:2000',
         ]);
 
-        $os = WorkOrder::findOrFail($id);
-
         $reason = trim((string) ($validated['intern_reason'] ?? ''));
+        $reason = $reason === '' ? null : $reason;
+        $statusAntes = $os->intern_status ?: 'pending';
+        $mudouStatus = $validated['intern_status'] !== $statusAntes;
 
-        $os->update([
-            'intern_status' => $validated['intern_status'],
-            'intern_reason' => $reason === '' ? null : $reason,
-            // Vem de quem está logado, não do corpo do request: antes o nome
-            // era enviado pelo front e dava para assinar a validação com o
-            // nome de outra pessoa.
-            'intern_name'   => $request->user()?->nickname ?: $request->user()?->username,
-        ]);
+        // Depois que a gestão aprovou, só a gestão desfaz: o estagiário não
+        // muda mais a checagem (nem volta para Aguardando/Pendente).
+        if ($mudouStatus && ! $this->ehGestao($request->user()) && $os->aprovadaPelaGestao()) {
+            abort(403, 'Esta OS já foi aprovada pela engenharia: só o engenheiro (ou a coordenação) pode mudar a checagem.');
+        }
+        $mudouTexto = $reason !== $os->intern_reason;
+
+        if (! $mudouStatus && ! $mudouTexto) {
+            return back();
+        }
+
+        $dados = ['intern_status' => $validated['intern_status'], 'intern_reason' => $reason];
+
+        // O nome de quem checou só muda quando a checagem muda -- editar o
+        // texto (inclusive pelo engenheiro) não troca a assinatura. Vem de
+        // quem está logado, não do corpo do request.
+        if ($mudouStatus) {
+            $dados['intern_name'] = $request->user()?->nickname ?: $request->user()?->username;
+        }
+
+        // A gestão tirando a OS de "aprovada": desfaz a aprovação dela.
+        $desfezAprovacao = $mudouStatus && $validated['intern_status'] !== 'approved' && $os->approved_at !== null;
+        if ($desfezAprovacao) {
+            $dados['approved_by'] = null;
+            $dados['approved_at'] = null;
+        }
+
+        $os->update($dados);
+
+        // Histórico: cada mudança e cada texto ficam guardados com o autor e o cargo.
+        $mudouStatus
+            ? WorkOrderEvent::registrar($os, 'checagem', ['de' => $statusAntes, 'para' => $validated['intern_status'], 'nota' => $reason])
+            : WorkOrderEvent::registrar($os, 'observacao', ['nota' => $reason ?? '(observação apagada)']);
+        if ($desfezAprovacao) {
+            WorkOrderEvent::registrar($os, 'aprovacao_desfeita', ['nota' => $reason]);
+        }
 
         return back();
     }
@@ -287,14 +405,17 @@ class WorkOrderController extends Controller
      */
     public function inactivate(Request $request, string $id)
     {
-        if (! $this->canInactivate($request->user())) {
-            abort(403, 'Só dev, coordenador ou engenheiro podem inativar/reprogramar uma OS.');
+        $alvo = WorkOrder::with('equipment')->findOrFail($id);
+
+        if (! $this->canInactivate($request->user(), $alvo->equipment?->vessel_id)) {
+            abort(403, 'Só a gestão ou o estagiário da embarcação inativam/reprogramam esta OS.');
         }
 
         $validated = $request->validate([
             'modo' => 'required|in:periodicidade,nova_data,sem_reagendamento',
             'nova_data' => 'required_if:modo,nova_data|nullable|date',
             'motivo' => 'nullable|string|max:2000',
+            'agendar' => 'boolean', // atrasada: reagendar (nova OS já nasce agendada)
         ]);
 
         $resultado = $this->workOrderService->inactivateWorkOrder(
@@ -303,6 +424,7 @@ class WorkOrderController extends Controller
             $request->user(),
             $validated['nova_data'] ?? null,
             $validated['motivo'] ?? null,
+            (bool) ($validated['agendar'] ?? false),
         );
 
         if ($resultado['nova']) {
@@ -328,8 +450,31 @@ class WorkOrderController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|string|in:open,in_progress,scheduled,completed,cancelled'
+            'status' => 'required|string|in:open,in_progress,scheduled,completed,cancelled',
+            'justificativa' => 'nullable|string|max:2000',
         ]);
+
+        // Disparo: aberta -> agendada/andamento, ou agendada -> andamento.
+        $statusAntes = $os->status;
+        $disparo = $statusAntes !== $request->status
+            && in_array($statusAntes, ['open', 'scheduled'], true)
+            && in_array($request->status, ['scheduled', 'in_progress'], true);
+        $justificativa = trim((string) $request->input('justificativa', ''));
+
+        // O estagiário marcou "Aguardando" (falta algo): dá para disparar
+        // mesmo assim, mas com o motivo escrito -- fica no histórico.
+        if ($disparo && $os->intern_status === 'waiting' && $justificativa === '') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'justificativa' => 'A checagem está em "Aguardando". Para disparar mesmo assim, escreva o motivo.',
+            ]);
+        }
+
+        // Trava: OS atrasada não vai para "Agendada" (agendar para uma data que
+        // já passou não libera nunca). Ou dispara agora, ou reagenda para o
+        // próximo ciclo / nova data (rota de inativação com agendar=true).
+        if ($request->status === 'scheduled' && $statusAntes !== 'scheduled') {
+            $this->barrarAgendamentoNoPassado($os->created_at->toDateString());
+        }
 
         $updateData = ['status' => $request->status];
 
@@ -345,7 +490,23 @@ class WorkOrderController extends Controller
             $updateData['completed_at'] = now();
         }
 
+        $checagemAntes = $os->intern_status ?: 'pending';
+        $motivoAguardando = $os->intern_reason;
         $os->update($updateData);
+
+        // Histórico: disparo ou mudança de status. Disparo sem a checagem
+        // aprovada registra em que pé ela estava e o motivo de quem disparou.
+        if ($statusAntes !== $request->status) {
+            $nota = $justificativa !== '' ? $justificativa : null;
+            if ($disparo && $checagemAntes === 'waiting') {
+                $nota = 'Disparada mesmo com a checagem em "Aguardando"'
+                    . ($motivoAguardando ? " (falta: {$motivoAguardando})" : '')
+                    . ". Motivo: {$justificativa}";
+            } elseif ($disparo && $checagemAntes === 'pending' && $nota) {
+                $nota = "Disparada com a checagem ainda pendente. Comentário: {$nota}";
+            }
+            WorkOrderEvent::registrar($os, $disparo ? 'disparo' : 'status', ['de' => $statusAntes, 'para' => $request->status, 'nota' => $nota]);
+        }
 
         // Disparar (ou agendar) é a validação final do engenheiro. Registra quem aprovou
         // e avisa os estagiários daquela embarcação no sino do perfil.

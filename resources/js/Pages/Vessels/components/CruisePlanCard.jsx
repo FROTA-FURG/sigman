@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import CruiseLegModal from './CruiseLegModal';
+import { getISOWeek } from '@/utils/weeks';
 import { autoria } from './autoriaEtapa';
 
 /*
@@ -38,38 +39,58 @@ function gradeDoMes(ano, mes) {
 }
 
 function Mes({ ano, mes, etapaDoDia, corDaArea, etapaSobCursor, setEtapaSobCursor, onAbrir, diaDeHoje }) {
-    const celulas = useMemo(() => gradeDoMes(ano, mes), [ano, mes]);
+    const semanas = useMemo(() => {
+        const celulas = gradeDoMes(ano, mes);
+        const linhas = [];
+        for (let i = 0; i < celulas.length; i += 7) linhas.push(celulas.slice(i, i + 7));
+        return linhas;
+    }, [ano, mes]);
+
+    const celula = (dia, chaveReact) => {
+        if (!dia) return <span key={chaveReact} />;
+        const chave = iso(ano, mes, dia);
+        const etapa = etapaDoDia.get(chave);
+        const ehHoje = chave === diaDeHoje;
+        if (!etapa) {
+            return (
+                <span key={chaveReact} className={`flex h-5 items-center justify-center text-[10px] ${ehHoje ? 'rounded font-bold text-white ring-1 ring-white/60' : 'text-slate-500'}`}>{dia}</span>
+            );
+        }
+        const cor = corDaArea(etapa.area);
+        const ponta = `${chave === etapa.startsAt ? 'rounded-l-md' : ''} ${chave === etapa.endsAt ? 'rounded-r-md' : ''}`;
+        const emFoco = etapaSobCursor === etapa.id;
+        return (
+            <button
+                key={chaveReact}
+                type="button"
+                onMouseEnter={() => setEtapaSobCursor(etapa.id)}
+                onMouseLeave={() => setEtapaSobCursor(null)}
+                onClick={() => onAbrir(etapa)}
+                title={[`${nomeEtapa(etapa)} · ${etapa.area}`, `${br(etapa.startsAt)} a ${br(etapa.endsAt)} (${dias(etapa)} dias)`, `${etapa.embarkPort} → ${etapa.disembarkPort}`, ...autoria(etapa)].join('\n')}
+                className={`flex h-5 items-center justify-center text-[10px] font-semibold text-slate-950 transition ${ponta} ${ehHoje ? 'ring-2 ring-inset ring-white' : ''}`}
+                style={{ backgroundColor: cor, opacity: etapaSobCursor && !emFoco ? 0.35 : 1 }}
+            >
+                {dia}
+            </button>
+        );
+    };
+
     return (
         <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-2">
             <h5 className="mb-1 text-center text-[11px] font-bold uppercase tracking-wide text-slate-300">{MESES[mes]}</h5>
-            <div className="grid grid-cols-7 gap-y-0.5 text-center">
+            {/* 8 colunas: a 1ª é o nº da semana do ano (ISO), como no calendário de manutenção. */}
+            <div className="grid grid-cols-8 gap-y-0.5 text-center">
+                <span className="text-[9px] font-bold text-blue-400">Sem</span>
                 {DIAS_SEMANA.map((d, i) => <span key={i} className="text-[9px] font-semibold text-slate-600">{d}</span>)}
-                {celulas.map((dia, i) => {
-                    if (!dia) return <span key={i} />;
-                    const chave = iso(ano, mes, dia);
-                    const etapa = etapaDoDia.get(chave);
-                    const ehHoje = chave === diaDeHoje;
-                    if (!etapa) {
-                        return (
-                            <span key={i} className={`flex h-5 items-center justify-center text-[10px] ${ehHoje ? 'rounded font-bold text-white ring-1 ring-white/60' : 'text-slate-500'}`}>{dia}</span>
-                        );
-                    }
-                    const cor = corDaArea(etapa.area);
-                    const ponta = `${chave === etapa.startsAt ? 'rounded-l-md' : ''} ${chave === etapa.endsAt ? 'rounded-r-md' : ''}`;
-                    const emFoco = etapaSobCursor === etapa.id;
+                {semanas.map((semana, w) => {
+                    const diaValido = semana.find(d => d !== null);
                     return (
-                        <button
-                            key={i}
-                            type="button"
-                            onMouseEnter={() => setEtapaSobCursor(etapa.id)}
-                            onMouseLeave={() => setEtapaSobCursor(null)}
-                            onClick={() => onAbrir(etapa)}
-                            title={[`${nomeEtapa(etapa)} · ${etapa.area}`, `${br(etapa.startsAt)} a ${br(etapa.endsAt)} (${dias(etapa)} dias)`, `${etapa.embarkPort} → ${etapa.disembarkPort}`, ...autoria(etapa)].join('\n')}
-                            className={`flex h-5 items-center justify-center text-[10px] font-semibold text-slate-950 transition ${ponta} ${ehHoje ? 'ring-2 ring-inset ring-white' : ''}`}
-                            style={{ backgroundColor: cor, opacity: etapaSobCursor && !emFoco ? 0.35 : 1 }}
-                        >
-                            {dia}
-                        </button>
+                        <React.Fragment key={w}>
+                            <span className="flex h-5 items-center justify-center text-[9px] font-bold tabular-nums text-slate-600" title={diaValido ? `Semana ${getISOWeek(new Date(ano, mes, diaValido))}` : undefined}>
+                                {diaValido ? getISOWeek(new Date(ano, mes, diaValido)) : ''}
+                            </span>
+                            {semana.map((dia, d) => celula(dia, d))}
+                        </React.Fragment>
                     );
                 })}
             </div>

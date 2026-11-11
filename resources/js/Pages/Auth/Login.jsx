@@ -125,13 +125,9 @@ export default function Login({ status, canResetPassword }) {
                         </div>
                     </form>
                     
-                    {/* Link Rápido para Registro */}
-                    <div className="mt-6 text-center text-sm text-slate-400">
-                        Ainda não faz parte da tripulação?{' '}
-                        <Link href={route('register')} className="font-semibold text-blue-400 hover:text-blue-300">
-                            Cadastre-se
-                        </Link>
-                    </div>
+                    <p className="mt-6 text-center text-xs text-slate-500">
+                        Não tem acesso? Peça o cadastro à coordenação ou à engenharia da frota.
+                    </p>
 
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { FILTROS_VAZIOS, passaFiltros } from '../lib/os';
 import MaintenanceYearCalendar from '@/Components/MaintenanceYearCalendar';
 import CreateExecutionWindowModal from './CreateExecutionWindowModal';
 import { ehDevOuTI } from '@/utils/roles';
@@ -14,11 +15,7 @@ export default function FleetCalendar({
     workOrders = [],
     equipments = [],
     cruisePlans = {},
-    vesselFilter,
-    statusFilter,
-    periodFilter,
-    typeFilter,
-    planFilter,
+    filtros = FILTROS_VAZIOS,
     currentUser,
 }) {
     const isTI = ehDevOuTI(currentUser);
@@ -39,16 +36,20 @@ export default function FleetCalendar({
         if (!isGlobalViewer) {
             lista = lista.filter(v => String(v.vesselId) === String(currentUser?.vessel_id));
         }
+        // Embarcações marcadas na barra de Filtros limitam a escolha aqui.
+        if (filtros.embarcacoes?.length) lista = lista.filter(v => filtros.embarcacoes.includes(v.tag));
         return lista;
-    }, [workOrders, equipments, isGlobalViewer, currentUser]);
+    }, [workOrders, equipments, isGlobalViewer, currentUser, filtros.embarcacoes]);
 
     const [selfSelectedTag, setSelfSelectedTag] = useState('');
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    // Prioridade: filtro global da barra de Filtros > seleção feita aqui
-    // dentro > única embarcação disponível (quem não vê a frota toda nem
-    // precisa escolher).
-    const selectedTag = vesselFilter || selfSelectedTag || (availableVessels.length === 1 ? availableVessels[0].tag : '');
+    // O calendário mostra uma embarcação por vez: a escolhida aqui dentro,
+    // ou a única disponível (uma só marcada nos Filtros, ou quem não vê a frota).
+    const tagValida = availableVessels.some(v => v.tag === selfSelectedTag) ? selfSelectedTag : '';
+    const selectedTag = tagValida || (availableVessels.length === 1 ? availableVessels[0].tag : '');
+    // A embarcação já é escolhida acima; os demais filtros valem nas OS.
+    const outrosFiltros = useMemo(() => ({ ...filtros, embarcacoes: [] }), [filtros]);
     const selectedVessel = availableVessels.find(v => v.tag === selectedTag);
 
     const filteredWorkOrders = useMemo(() => {
@@ -66,14 +67,11 @@ export default function FleetCalendar({
                 if (!userVesselId || String(eqVesselId) !== String(userVesselId)) return false;
             }
 
-            if (statusFilter && os.status !== statusFilter) return false;
-            if (periodFilter && os.periodicity !== periodFilter) return false;
-            if (typeFilter && os.maintenance_type !== typeFilter) return false;
-            if (planFilter && Boolean(os.in_52_week_plan) !== (planFilter === 'yes')) return false;
+            if (!passaFiltros(os, outrosFiltros)) return false;
 
             return true;
         });
-    }, [workOrders, equipments, selectedTag, statusFilter, periodFilter, typeFilter, planFilter, isGlobalViewer, currentUser]);
+    }, [workOrders, equipments, selectedTag, outrosFiltros, isGlobalViewer, currentUser]);
 
     if (availableVessels.length === 0) {
         return (
@@ -94,11 +92,11 @@ export default function FleetCalendar({
             />
 
             <div className="flex items-center justify-between gap-3">
-                {!vesselFilter && availableVessels.length > 1 ? (
+                {availableVessels.length > 1 ? (
                     <div className="flex items-center gap-3">
                         <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Embarcação</label>
                         <select
-                            value={selfSelectedTag}
+                            value={tagValida}
                             onChange={(e) => setSelfSelectedTag(e.target.value)}
                             className="rounded-lg border border-slate-700 bg-slate-800 py-2 pl-3 pr-8 text-sm font-medium text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         >

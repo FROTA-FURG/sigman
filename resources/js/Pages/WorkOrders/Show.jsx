@@ -3,6 +3,9 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import EditWorkOrderModal from './components/EditWorkOrderModal';
 import { ehCoordenador, ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
+import StyledTooltips from '@/Components/StyledTooltips';
+import OsHistorico from './components/OsHistorico';
+import { baixarOsPdf, nomeResponsavel, selosDeOrigem, ultimaAtualizacao, ultimaAtualizacaoAtividade } from './lib/os';
 
 const STATUS = {
     open:        { label: 'Aberta',       classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
@@ -104,9 +107,11 @@ function Card({ title, children, className = '' }) {
     );
 }
 
-export default function Show({ workOrder, equipments = [] }) {
+export default function Show({ workOrder, equipments = [], users = [] }) {
     const [changingStatus, setChangingStatus] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [baixando, setBaixando] = useState(false);
+    const atualizacao = ultimaAtualizacao(workOrder);
     const { auth } = usePage().props;
     const { url } = usePage();
 
@@ -154,9 +159,18 @@ export default function Show({ workOrder, equipments = [] }) {
 
     const handleStatusChange = (e) => {
         const newStatus = e.target.value;
+        // Disparar com a checagem em "Aguardando" exige o motivo (o servidor também confere).
+        const disparo = ['open', 'scheduled'].includes(workOrder.status) && ['scheduled', 'in_progress'].includes(newStatus) && newStatus !== workOrder.status;
+        let justificativa = '';
+        if (disparo && workOrder.intern_status === 'waiting') {
+            justificativa = window.prompt(`O estagiário marcou esta OS como Aguardando${workOrder.intern_reason ? ` (falta: ${workOrder.intern_reason})` : ''}.\n\nPara disparar mesmo assim, escreva o motivo (fica no histórico):`) || '';
+            if (!justificativa.trim()) return;
+        }
         setChangingStatus(true);
-        router.put(route('work-orders.update-status', workOrder.id), { status: newStatus }, {
+        router.put(route('work-orders.update-status', workOrder.id), { status: newStatus, justificativa }, {
             preserveScroll: true,
+            // Ex.: OS atrasada não vai para "Agendada" (use Disparar > Agendar no Planejamento).
+            onError: (e) => window.alert(e.status || e.justificativa || 'Não foi possível mudar o status.'),
             onFinish: () => setChangingStatus(false),
         });
     };
@@ -175,8 +189,10 @@ export default function Show({ workOrder, equipments = [] }) {
                 onClose={() => setIsEditOpen(false)}
                 osData={workOrder}
                 equipments={equipments}
+                users={users}
                 currentUser={auth?.user}
             />
+            <StyledTooltips />
 
             <div className="mx-auto max-w-6xl pb-10">
                 {/* VOLTAR */}
@@ -191,6 +207,17 @@ export default function Show({ workOrder, equipments = [] }) {
                         {backLabel}
                     </Link>
 
+                    <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        disabled={baixando}
+                        onClick={async () => { setBaixando(true); try { await baixarOsPdf(workOrder); } finally { setBaixando(false); } }}
+                        title="Baixar o PDF desta OS para impressão"
+                        className="flex items-center rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 ring-1 ring-inset ring-slate-700 transition hover:bg-slate-700 hover:text-emerald-400 disabled:opacity-50"
+                    >
+                        <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        {baixando ? 'Gerando...' : 'Baixar PDF'}
+                    </button>
                     {canEditFields && (
                         <button
                             onClick={() => setIsEditOpen(true)}
@@ -200,6 +227,7 @@ export default function Show({ workOrder, equipments = [] }) {
                             Editar OS
                         </button>
                     )}
+                    </div>
                 </div>
 
                 {/* CABEÇALHO */}
@@ -212,6 +240,9 @@ export default function Show({ workOrder, equipments = [] }) {
                             {equipment.name ? <span className="text-slate-600"> • </span> : null}
                             {equipment.name}
                         </p>
+                        {atualizacao && (
+                            <p className="mt-1 text-xs text-slate-500">Última atualização: <span className="text-slate-300">{atualizacao.quem}</span> em {atualizacao.quando}</p>
+                        )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -247,8 +278,11 @@ export default function Show({ workOrder, equipments = [] }) {
                         <dl className="grid grid-cols-2 gap-x-6 gap-y-5">
                             <Field label="Embarcação">{vessel.name}</Field>
                             <Field label="Equipamento">{equipment.name}</Field>
-                            <Field label="TAG">
-                                <span className="font-mono">{workOrder.tag_number}</span>
+                            <Field label="TAG nova">
+                                <span className="font-mono">{equipment.tag_number || workOrder.tag_number}</span>
+                            </Field>
+                            <Field label="TAG antiga">
+                                <span className="font-mono">{equipment.tag_antigo}</span>
                             </Field>
                             <Field label="Nº de Série">
                                 <span className="font-mono">{workOrder.series_number_id}</span>
@@ -277,6 +311,14 @@ export default function Show({ workOrder, equipments = [] }) {
                                         Avulsa
                                     </span>
                                 )}
+                            </Field>
+                            <Field label="Origem">
+                                <span className="flex flex-wrap gap-1.5">
+                                    {selosDeOrigem(workOrder).length === 0 && <span className="text-xs text-slate-400">Avulsa</span>}
+                                    {selosDeOrigem(workOrder).map((s) => (
+                                        <span key={s.rot} className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ring-1 ring-inset ${s.cls}`}>{s.titulo}</span>
+                                    ))}
+                                </span>
                             </Field>
                             <Field label="Data Prevista">{formatPureDate(workOrder.created_at)}</Field>
                             <Field label="Horas Estimadas">
@@ -375,8 +417,11 @@ export default function Show({ workOrder, equipments = [] }) {
                                             <p className="text-sm font-semibold text-blue-400">
                                                 Responsável:{' '}
                                                 <span className="text-slate-200">
-                                                    {activity.responsible_user?.username ?? 'Não informado'}
+                                                    {nomeResponsavel(activity) ?? 'Não informado'}
                                                 </span>
+                                                {!activity.responsible_user && activity.responsible_name && (
+                                                    <span className="ml-1.5 rounded bg-slate-700/60 px-1.5 py-px align-middle text-[9px] font-semibold uppercase tracking-wide text-slate-400" title="Pessoa fora do sistema">externo</span>
+                                                )}
                                             </p>
 
                                             <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -398,11 +443,21 @@ export default function Show({ workOrder, equipments = [] }) {
                                         <p className="mt-3 whitespace-pre-wrap border-t border-slate-800 pt-3 text-sm leading-relaxed text-slate-300">
                                             {activity.description}
                                         </p>
+                                        {ultimaAtualizacaoAtividade(activity) && (
+                                            <p className="mt-2 text-right text-[11px] text-slate-500">
+                                                Lançada/atualizada por <span className="text-slate-400">{ultimaAtualizacaoAtividade(activity).quem}</span> em {ultimaAtualizacaoAtividade(activity).quando}
+                                            </p>
+                                        )}
                                     </li>
                                 ))}
                             </ol>
                         )}
                     </Card>
+
+                    {/* HISTÓRICO: checagem, observações de cada um, disparo, reprogramação */}
+                    <div className="lg:col-span-2">
+                        <OsHistorico eventos={workOrder.events || []} inicialAberto />
+                    </div>
                 </div>
             </div>
         </SIGMANLayout>

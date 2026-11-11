@@ -170,6 +170,8 @@ Table work_orders [headercolor: #1D4ED8] {
   status              varchar(255) [not null, default: 'open', note: 'open | scheduled | in_progress | completed | cancelled (CHECK). scheduled = disparada para data futura; o comando app:check-scheduled-os libera no dia']
   periodicity         varchar(255) [note: 'Calendário: weekly, monthly, bimonthly, quarterly, semiannual, annual, biennial, triennial, quadrennial, sexennial. Horímetro: 100h, 250h, 350h, 500h, 1000h, 2000h, 3000h. Evento: docking. Preventiva concluída com intervalo fixo gera a próxima ocorrência']
   in_52_week_plan     boolean [not null, default: false, note: 'Faz parte do Plano de 52 Semanas (cronograma anual), não é OS avulsa']
+  is_docking          boolean [not null, default: false, note: 'OS da docagem']
+  is_extra_activity   boolean [not null, default: false, note: 'Atividade extra; não combina com in_52_week_plan']
   estimated_hours     decimal(8,2)
   vendor_name         varchar(255)
   third_party_id      uuid [note: 'Terceirizada responsável pela execução']
@@ -183,6 +185,7 @@ Table work_orders [headercolor: #1D4ED8] {
   intern_name         varchar(255) [note: 'Estagiário que conferiu (nome, sem FK)']
   approved_by         uuid
   approved_at         timestamp
+  updated_by          uuid [note: 'Quem salvou a OS por último (null = sistema)']
   engineer_comment    text [note: 'Observação do engenheiro no planejamento, antes do disparo']
   engineer_comment_by varchar(255) [note: 'Nome, sem FK']
   engineer_comment_at timestamp
@@ -195,13 +198,35 @@ Table work_orders [headercolor: #1D4ED8] {
   Note: 'Ordens de serviço. Fluxo: criada (open) -> conferida pelo estagiário -> aprovada/disparada pelo engenheiro (open ou scheduled) -> in_progress -> completed.'
 }
 
+Table work_order_events [headercolor: #1D4ED8] {
+  id            uuid [pk]
+  work_order_id uuid [not null]
+  user_id       uuid [note: 'Quem agiu (nulo se o usuário foi apagado)']
+  user_name     varchar(120) [note: 'Nome na hora do evento']
+  user_role     varchar(30) [note: 'Cargo na hora: intern, engineer, coordinator...']
+  action        varchar(40) [not null, note: 'checagem | observacao | comentario_engenheiro | disparo | status | inativacao | reprogramada_de']
+  from_value    varchar(120)
+  to_value      varchar(120)
+  note          text [note: 'Texto escrito (motivo, observação, comentário)']
+  created_at    timestamp [not null]
+
+  indexes {
+    (work_order_id, created_at)
+  }
+
+  Note: 'Histórico da OS: checagem do estagiário, observações de cada um, comentário do engenheiro, disparo e reprogramação, com autor e cargo. Só cresce.'
+}
+
 Table work_order_activity [headercolor: #1D4ED8] {
   id                  uuid [pk]
   work_order_id       uuid [not null]
-  responsible_user_id uuid [not null]
+  responsible_user_id uuid [note: 'Usuário do sistema que executou; nulo quando é alguém de fora ou o usuário foi apagado de vez (o nome fica em responsible_name)']
+  responsible_name    varchar(120) [note: 'Nome digitado de quem executou, para pessoa fora do sistema']
   description         text [not null]
   started_at          timestamp [not null, note: 'Instante real (UTC)']
   completed_at        timestamp [note: 'Nulo = em andamento']
+  created_by          uuid [note: 'Quem lançou a atividade']
+  updated_by          uuid [note: 'Quem alterou por último']
   created_at          timestamp
   updated_at          timestamp
 
@@ -604,10 +629,15 @@ Ref: component.equipment_id > equipment.id [delete: cascade]
 Ref: work_orders.equipment_id > equipment.id [delete: cascade]
 Ref: work_orders.third_party_id > third_parties.id [delete: set null]
 Ref: work_orders.approved_by > users.id [delete: set null]
+Ref: work_orders.updated_by > users.id [delete: set null]
 Ref: work_orders.inactivated_by > users.id [delete: set null]
 Ref: work_orders.rescheduled_from_id > work_orders.id [delete: set null]
+Ref: work_order_events.work_order_id > work_orders.id [delete: cascade]
+Ref: work_order_events.user_id > users.id [delete: set null]
 Ref: work_order_activity.work_order_id > work_orders.id [delete: cascade]
-Ref: work_order_activity.responsible_user_id > users.id [delete: cascade]
+Ref: work_order_activity.responsible_user_id > users.id [delete: set null]
+Ref: work_order_activity.created_by > users.id [delete: set null]
+Ref: work_order_activity.updated_by > users.id [delete: set null]
 
 // Janelas de execução
 Ref: cruise_legs.vessel_id > vessels.id [delete: cascade]
@@ -687,6 +717,7 @@ TableGroup frota_e_equipamentos {
 TableGroup ordens_de_servico {
   work_orders
   work_order_activity
+  work_order_events
   execution_windows
   execution_window_work_order
 }

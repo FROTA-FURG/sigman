@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import useSelecaoOs from '../lib/useSelecaoOs';
 import { pdf } from '@react-pdf/renderer';
-import OSPdfTemplate from './OSPdfTemplate';
 import ReportPdfTemplate from './ReportPdfTemplate';
+import ExportReportOptionsModal from './ExportReportOptionsModal';
+import useEstadoSessao from '@/utils/useEstadoSessao';
+import { FILTROS_VAZIOS, baixarBlob, baixarOsPdf, baixarVariasOsPdf, osDoAndamento, selosDeOrigem } from '../lib/os';
 import EditWorkOrderModal from './EditWorkOrderModal';
 import WorkOrderDetailsModal from './WorkOrderDetailsModal';
 import { getISOWeek } from '@/utils/weeks';
@@ -10,11 +13,7 @@ export default function WeeklyProgressTable({
     workOrders = [], 
     equipments = [], 
     users = [],
-    vesselFilter,
-    statusFilter,
-    periodFilter,
-    typeFilter,
-    planFilter,
+    filtros = FILTROS_VAZIOS,
     weekStart,
     weekEnd,
     currentUser
@@ -25,8 +24,18 @@ export default function WeeklyProgressTable({
     const [osToEdit, setOsToEdit] = useState(null);
 
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [busca, setBusca] = useState('');
+    // Progresso do "Baixar OS" em lote: { atual, total } ou null.
+    const [baixandoLote, setBaixandoLote] = useState(null);
+    const [gerandoRelatorio, setGerandoRelatorio] = useState(false);
+    const [opcoesAbertas, setOpcoesAbertas] = useState(false);
+    // Última escolha de conteúdo do relatório fica na sessão.
+    const [opcoesRelatorio, setOpcoesRelatorio] = useEstadoSessao(
+        'sigman.os.relatorio.opcoes',
+        { porStatus: true, comConcluidas: true, comHh: true, comAtividades: false },
+        (o) => ({ porStatus: true, comConcluidas: true, comHh: true, comAtividades: false, ...o }),
+    );
+    // Busca e filtros desta aba ficam na sessão (voltar à aba ou de uma OS mantém).
+    const [busca, setBusca] = useEstadoSessao('sigman.os.andamento.busca', '');
 
     const selectedOs = workOrders.find(os => os.id === selectedOsId);
     const workOrderActivities = selectedOs?.activities || [];
@@ -40,43 +49,20 @@ export default function WeeklyProgressTable({
         setSortConfig({ key, direction });
     };
 
+    // Concluídas recolhidas ou não (lembrado na sessão).
+    const [concluidasAbertas, setConcluidasAbertas] = useEstadoSessao('sigman.os.andamento.concluidas', true);
+
     const sortedAndFilteredWorkOrders = useMemo(() => {
-        let result = workOrders;
-
-        if (vesselFilter) result = result.filter(os => os.equipment?.vessel?.tag === vesselFilter);
-        if (statusFilter) result = result.filter(os => os.status === statusFilter);
-        if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
-        if (typeFilter) result = result.filter(os => os.maintenance_type === typeFilter);
-        if (planFilter) result = result.filter(os => Boolean(os.in_52_week_plan) === (planFilter === 'yes'));
-
-        if (weekStart && weekEnd) {
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
-            const isCurrentWeek = now >= weekStart && now <= weekEnd;
-
-            result = result.filter(os => {
-                if (!os.created_at) return false;
-                const [datePart] = os.created_at.split('T');
-                const [year, month, day] = datePart.split('-');
-                const osDate = new Date(year, month - 1, day, 12, 0, 0);
-                
-                const inRange = osDate >= weekStart && osDate <= weekEnd;
-                if (!inRange) return false;
-
-                if (isCurrentWeek && !statusFilter) {
-                    if (os.status !== 'open' && os.status !== 'in_progress') return false;
-                }
-
-                return true;
-            });
-        }
+        let result = osDoAndamento(workOrders, filtros, weekStart, weekEnd);
 
         const termo = busca.trim().toLowerCase();
         if (termo) {
             result = result.filter(os =>
                 os.os_number?.toLowerCase().includes(termo) ||
                 os.description?.toLowerCase().includes(termo) ||
-                os.equipment?.tag_number?.toLowerCase().includes(termo)
+                os.equipment?.tag_number?.toLowerCase().includes(termo) ||
+                os.equipment?.tag_antigo?.toLowerCase().includes(termo) ||
+                os.equipment?.name?.toLowerCase().includes(termo)
             );
         }
 
@@ -89,44 +75,56 @@ export default function WeeklyProgressTable({
                 return 0;
             });
         }
-        return result;
-    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, sortConfig, weekStart, weekEnd, busca]);
+        // Concluídas sempre no fim, depois de uma divisória.
+        return [...result.filter(os => os.status !== 'completed'), ...result.filter(os => os.status === 'completed')];
+    }, [workOrders, filtros, sortConfig, weekStart, weekEnd, busca]);
 
-    const isAllFilteredSelected = sortedAndFilteredWorkOrders.length > 0 && sortedAndFilteredWorkOrders.every(os => selectedIds.includes(os.id));
+    const qtdConcluidas = sortedAndFilteredWorkOrders.filter(os => os.status === 'completed').length;
+    // O que está à vista (seleção "todas" e Shift+clique agem só sobre isso).
+    const linhasVisiveis = concluidasAbertas ? sortedAndFilteredWorkOrders : sortedAndFilteredWorkOrders.filter(os => os.status !== 'completed');
 
-    const toggleSelectAll = () => {
-        if (isAllFilteredSelected) {
-            const filteredIds = sortedAndFilteredWorkOrders.map(os => os.id);
-            setSelectedIds(prev => prev.filter(id => !filteredIds.includes(id)));
-        } else {
-            const filteredIds = sortedAndFilteredWorkOrders.map(os => os.id);
-            const newSelected = new Set([...selectedIds, ...filteredIds]);
-            setSelectedIds(Array.from(newSelected));
+    // O modal recebe a versão mais recente da OS (lançar uma atividade recarrega a lista).
+    const osEmEdicao = osToEdit ? (workOrders.find(o => o.id === osToEdit.id) ?? osToEdit) : null;
+
+    // Seleção (clique, Shift+clique em trecho, todas) -- mesma do Planejamento.
+    const selecao = useSelecaoOs(linhasVisiveis);
+    const selectedIds = selecao.selecionados;
+    const isAllFilteredSelected = selecao.todosMarcados;
+    const toggleSelectAll = selecao.alternarTodos;
+    const toggleSelectRow = selecao.alternar;
+
+    const handleExportPDF = (os) => baixarOsPdf(os);
+
+    // Uma OS por arquivo, na mesma ordem em que aparecem na tabela.
+    const handleBaixarSelecionadas = async () => {
+        if (baixandoLote) return;
+        try {
+            await baixarVariasOsPdf(selecao.selecionadasEm(workOrders), (atual, total) => setBaixandoLote({ atual, total }));
+        } finally {
+            setBaixandoLote(null);
         }
     };
 
-    const toggleSelectRow = (e, id) => {
-        e.stopPropagation(); 
-        setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
-    };
-
-    const handleExportPDF = async (os) => {
-        const blob = await pdf(<OSPdfTemplate os={os} />).toBlob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url; link.download = `SIGMAN_OS_${os.os_number || 'Sem_Numero'}.pdf`;
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
-
     const handleExportReport = async () => {
-        const selectedOSObjects = workOrders.filter(os => selectedIds.includes(os.id));
-        const blob = await pdf(<ReportPdfTemplate workOrders={selectedOSObjects} weekStart={weekStart} weekEnd={weekEnd} />).toBlob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url; link.download = `SIGMAN_Relatorio_Progresso.pdf`;
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        if (gerandoRelatorio) return;
+        setGerandoRelatorio(true);
+        try {
+            const blob = await pdf(
+                <ReportPdfTemplate
+                    workOrders={selecao.selecionadasEm(workOrders)}
+                    weekStart={weekStart}
+                    weekEnd={weekEnd}
+                    comHh={opcoesRelatorio.comHh}
+                    comAtividades={opcoesRelatorio.comAtividades}
+                    porStatus={opcoesRelatorio.porStatus}
+                    comConcluidas={opcoesRelatorio.comConcluidas}
+                />
+            ).toBlob();
+            baixarBlob(blob, opcoesRelatorio.comAtividades ? 'SIGMAN_Relatorio_Andamento_Completo.pdf' : 'SIGMAN_Relatorio_Andamento.pdf');
+            setOpcoesAbertas(false);
+        } finally {
+            setGerandoRelatorio(false);
+        }
     };
 
     const renderPeriodicityBadge = (period) => {
@@ -183,9 +181,19 @@ export default function WeeklyProgressTable({
             <EditWorkOrderModal 
                 isOpen={isEditModalOpen} 
                 onClose={() => setIsEditModalOpen(false)} 
-                osData={osToEdit} equipments={equipments} 
+ osData={osEmEdicao} equipments={equipments} users={users}
                 currentUser={currentUser} 
             />
+            <ExportReportOptionsModal
+                isOpen={opcoesAbertas}
+                onClose={() => setOpcoesAbertas(false)}
+                quantidade={selectedIds.length}
+                opcoes={opcoesRelatorio}
+                setOpcoes={setOpcoesRelatorio}
+                onGerar={handleExportReport}
+                gerando={gerandoRelatorio}
+            />
+
             <WorkOrderDetailsModal 
                 isOpen={isDetailsModalOpen} 
                 onClose={() => setIsDetailsModalOpen(false)} 
@@ -195,27 +203,48 @@ export default function WeeklyProgressTable({
                 users={users}
             />
 
-            {selectedIds.length > 0 && (
-                <div className="absolute right-4 top-3 z-20">
-                    <button
-                        onClick={handleExportReport}
-                        className="flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-emerald-500 transition-colors animate-fade-in"
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        Exportar Relatório ({selectedIds.length})
-                    </button>
-                </div>
-            )}
 
-            <div className="relative mb-2 shrink-0">
-                <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                <input
-                    type="text"
-                    value={busca}
-                    onChange={(e) => setBusca(e.target.value)}
-                    placeholder="Buscar por número da OS, descrição ou TAG..."
-                    className="w-full max-w-sm rounded-lg border border-slate-700 bg-slate-950 py-1.5 pl-9 pr-3 text-xs text-slate-300 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
+            <div className="mb-2 flex shrink-0 flex-wrap items-center gap-2">
+                <div className="relative w-full max-w-sm">
+                    <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <input
+                        type="text"
+                        value={busca}
+                        onChange={(e) => setBusca(e.target.value)}
+                        placeholder="Buscar por número da OS, descrição ou TAG..."
+                        className="w-full rounded-lg border border-slate-700 bg-slate-950 py-1.5 pl-9 pr-3 text-xs text-slate-300 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                </div>
+                <span className="ml-auto rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-300 ring-1 ring-inset ring-slate-700">
+                    <span className="tabular-nums text-white">{sortedAndFilteredWorkOrders.length}</span> {sortedAndFilteredWorkOrders.length === 1 ? 'ordem de serviço' : 'ordens de serviço'}
+                    {selectedIds.length > 0 && <span className="text-blue-300"> · {selectedIds.length} selecionada{selectedIds.length === 1 ? '' : 's'}</span>}
+                </span>
+                {selectedIds.length > 0 && (
+                    <>
+                        <button
+                            onClick={handleBaixarSelecionadas}
+                            disabled={Boolean(baixandoLote)}
+                            title="Baixa um PDF para cada OS selecionada"
+                            className="flex items-center gap-1.5 rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-blue-500 transition-colors disabled:cursor-wait disabled:opacity-70"
+                        >
+                            {baixandoLote ? (
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                            ) : (
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            )}
+                            {baixandoLote ? `Baixando ${baixandoLote.atual} de ${baixandoLote.total}...` : `Baixar OS (${selectedIds.length})`}
+                        </button>
+                        <button
+                            onClick={() => setOpcoesAbertas(true)}
+                            disabled={gerandoRelatorio}
+                            title="Um PDF com as OS selecionadas: métricas, quadro por embarcação, atrasadas em destaque e atividades de cada OS"
+                            className="flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-emerald-500 transition-colors disabled:cursor-wait disabled:opacity-70"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            {gerandoRelatorio ? 'Gerando relatório...' : `Exportar Relatório (${selectedIds.length})`}
+                        </button>
+                    </>
+                )}
             </div>
 
             <div className="flex-1 overflow-auto bg-slate-900 border border-slate-600 custom-scrollbar mt-0">
@@ -246,11 +275,23 @@ export default function WeeklyProgressTable({
                                 <td colSpan="14" className="border border-slate-700 px-2 py-4 text-center text-slate-500 bg-slate-900">
                                     {busca.trim()
                                         ? `Nenhuma OS encontrada para "${busca}".`
-                                        : weekStart ? "Nenhuma OS em andamento ou aberta encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
+                                        : weekStart ? "Nenhuma OS encontrada para a semana e filtros selecionados." : "Nenhum registro encontrado."}
                                 </td>
                             </tr>
                         ) : (
-                            sortedAndFilteredWorkOrders.map((os) => {
+                            linhasVisiveis.flatMap((os, idx) => {
+                                // Divisória antes da 1ª concluída (com a seção recolhida, ela fica sozinha no fim).
+                                const divisoria = os.status === 'completed' && (idx === 0 || linhasVisiveis[idx - 1].status !== 'completed');
+                                return [divisoria && divisoriaConcluidas(), linhaDaOs(os)];
+                            }).concat(!concluidasAbertas && qtdConcluidas > 0 ? [divisoriaConcluidas()] : [])
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+
+    function linhaDaOs(os) {
                                 const equip = os.equipment || {};
                                 const vessel = equip.vessel || {};
                                 const isSelected = selectedIds.includes(os.id);
@@ -270,8 +311,13 @@ export default function WeeklyProgressTable({
                                         onClick={() => handleRowClick(os)} 
                                         className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-900/30' : 'bg-slate-900 even:bg-slate-800/50 hover:bg-slate-700/50'}`}
                                     >
-                                        <td className="border border-slate-700 px-2 py-1 text-center" onClick={(e) => e.stopPropagation()}>
-                                            <input type="checkbox" checked={isSelected} onChange={(e) => toggleSelectRow(e, os.id)} className="rounded border-slate-500 bg-slate-900 text-blue-500 focus:ring-blue-500 cursor-pointer h-3 w-3" />
+                                        <td
+                                            className="cursor-pointer select-none border border-slate-700 px-2 py-1 text-center"
+                                            title="Shift+clique seleciona o trecho desde a última marcada"
+                                            onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }}
+                                            onClick={(e) => toggleSelectRow(e, os.id)}
+                                        >
+                                            <input type="checkbox" checked={isSelected} readOnly className="pointer-events-none rounded border-slate-500 bg-slate-900 text-blue-500 focus:ring-blue-500 h-3 w-3" />
                                         </td>
                                         <td className="border border-slate-700 px-2 py-1 text-center">
                                             {isDelayed ? (
@@ -284,7 +330,12 @@ export default function WeeklyProgressTable({
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="border border-slate-700 px-2 py-1 font-mono text-blue-300 text-center">{os.os_number || '-'}</td>
+                                        <td className="border border-slate-700 px-2 py-1 font-mono text-blue-300 text-center">
+                                            {os.os_number || '-'}
+                                            {selosDeOrigem(os).map(selo => (
+                                                <span key={selo.rot} title={selo.titulo} className={`ml-1 rounded px-1 py-px align-middle font-sans text-[8px] font-bold ring-1 ring-inset ${selo.cls}`}>{selo.rot}</span>
+                                            ))}
+                                        </td>
                                         <td className="border border-slate-700 px-2 py-1 font-mono text-emerald-300 text-center">{os.ss_number || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-slate-300 text-center">
                                             {os.created_at ? (
@@ -296,7 +347,7 @@ export default function WeeklyProgressTable({
                                             ) : '-'}
                                         </td>
                                         <td className="border border-slate-700 px-2 py-1 font-bold text-white text-center">{vessel.tag || '-'}</td>
-                                        <td className="border border-slate-700 px-2 py-1 font-mono text-slate-400">{equip.tag_number || '-'}</td>
+                                        <td className="border border-slate-700 px-2 py-1 font-mono text-slate-400" title={equip.tag_antigo ? `TAG antiga: ${equip.tag_antigo}` : undefined}>{equip.tag_number || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-slate-300 max-w-[150px] truncate" title={equip.name}>{equip.name || '-'}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-slate-400 max-w-[250px] truncate" title={os.description}>{os.description}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center text-slate-300">{os.maintenance_type === 'corrective' ? 'CORR' : os.maintenance_type === 'preventive' ? 'PREV' : 'PRED'}</td>
@@ -305,7 +356,7 @@ export default function WeeklyProgressTable({
                                         <td className="border border-slate-700 px-2 py-1 text-center bg-slate-950/20">{renderStatusBadge(os.status, os.is_inactive)}</td>
                                         <td className="border border-slate-700 px-2 py-1 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button onClick={(e) => { e.stopPropagation(); handleExportPDF(os); }} className="text-slate-400 hover:text-emerald-400 transition-colors" title="Download OS Individual">
+                                                <button onClick={(e) => { e.stopPropagation(); handleExportPDF(os); }} className="text-slate-400 hover:text-emerald-400 transition-colors" title="Baixar o PDF desta OS">
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                                 </button>
                                                 <button onClick={(e) => { e.stopPropagation(); handleOpenDetailsModal(os.id); }} className="text-slate-400 hover:text-blue-400 transition-colors" title="Ver Atividades">
@@ -315,11 +366,26 @@ export default function WeeklyProgressTable({
                                         </td>
                                     </tr>
                                 );
-                            })
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
+    }
+
+    function divisoriaConcluidas() {
+        return (
+            <tr key="div-concluidas">
+                <td colSpan="14" className="border-y-2 border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5">
+                    <button
+                        type="button"
+                        onClick={() => setConcluidasAbertas(v => !v)}
+                        className="flex w-full items-center gap-2 text-left text-[11px] font-bold uppercase tracking-wider text-emerald-300 hover:text-emerald-200"
+                        title={concluidasAbertas ? 'Recolher as concluídas' : 'Mostrar as concluídas'}
+                    >
+                        <svg className={`h-3.5 w-3.5 transition-transform ${concluidasAbertas ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Concluídas {weekStart ? 'neste período' : ''}
+                        <span className="rounded-full bg-emerald-500/20 px-2 py-px tabular-nums text-emerald-200">{qtdConcluidas}</span>
+                        {!concluidasAbertas && <span className="font-normal normal-case tracking-normal text-emerald-400/70">clique para mostrar</span>}
+                    </button>
+                </td>
+            </tr>
+        );
+    }
 }
