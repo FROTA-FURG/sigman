@@ -333,7 +333,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Horas Estimadas (Hh)</label>
                                     <input
                                         type="number"
-                                        step="0.1"
+                                        step="0.01"
                                         min="0"
                                         value={data.estimated_hours}
                                         onChange={e => setData('estimated_hours', e.target.value)}
