@@ -239,6 +239,22 @@ it('o modal de edição também não agenda OS atrasada e mostra o motivo', func
         ->and($os->fresh()->events->last()->only(['action', 'from_value', 'to_value']))->toBe(['action' => 'status', 'from_value' => 'open', 'to_value' => 'scheduled']);
 });
 
+it('motivo da inativação pode ser escrito depois e fica no histórico', function () {
+    $os = ($this->novaOs)();
+    $this->actingAs($this->estagiarioAS)->post(route('work-orders.inactivate', $os->id), ['modo' => 'periodicidade']);
+    expect($os->fresh()->inactivation_reason)->toBeNull();
+
+    $this->actingAs($this->estagiarioAS)->put(route('work-orders.inactivation-reason', $os->id), ['motivo' => 'Embarcação em cruzeiro'])
+        ->assertSessionHasNoErrors();
+    expect($os->fresh()->inactivation_reason)->toBe('Embarcação em cruzeiro')
+        ->and($os->fresh()->events->last()->only(['action', 'note', 'user_role']))->toBe(['action' => 'motivo_inativacao', 'note' => 'Embarcação em cruzeiro', 'user_role' => 'intern']);
+
+    // Quem não pode inativar também não comenta; OS ativa não tem motivo de inativação
+    $this->actingAs($this->marinheiro)->put(route('work-orders.inactivation-reason', $os->id), ['motivo' => 'x'])->assertForbidden();
+    $ativa = ($this->novaOs)();
+    $this->actingAs($this->engenheiro)->put(route('work-orders.inactivation-reason', $ativa->id), ['motivo' => 'x'])->assertSessionHasErrors('motivo');
+});
+
 it('manda para a tela só as OS que o usuário pode ver', function () {
     ($this->novaOs)();
     ($this->novaOs)(['equipment_id' => $this->eqCM1->id, 'os_number' => 'CM10001']);

@@ -5,6 +5,7 @@ import EditWorkOrderModal from './components/EditWorkOrderModal';
 import { ehCoordenador, ehDevOuTI, ehEngenheiro, ehEstagiario } from '@/utils/roles';
 import StyledTooltips from '@/Components/StyledTooltips';
 import OsHistorico from './components/OsHistorico';
+import MotivoInativacao from './components/MotivoInativacao';
 import { baixarOsPdf, nomeResponsavel, selosDeOrigem, ultimaAtualizacao, ultimaAtualizacaoAtividade } from './lib/os';
 
 const STATUS = {
@@ -368,7 +369,7 @@ export default function Show({ workOrder, equipments = [], users = [] }) {
                                         </Field>
                                         <Field label="Inativada em">{formatDateTime(workOrder.inactivated_at)}</Field>
                                         <Field label="Motivo" className="sm:col-span-2">
-                                            {workOrder.inactivation_reason || 'Nenhum motivo registrado.'}
+                                            <MotivoInativacao os={workOrder} podeEditar={canEditFields} />
                                         </Field>
                                     </>
                                 )}
