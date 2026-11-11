@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, router, usePage } from '@inertiajs/react';
-import BrDateInput from '@/Components/BrDateInput';
+import DateInputWithCalendar from '@/Components/DateInputWithCalendar';
 import { ehDevOuTI, ehEngenheiro, ehEstagiario, ehCoordenador } from '@/utils/roles';
+import PriorityMatrix from './PriorityMatrix';
+import OriginFlags from './OriginFlags';
+import OsActivities from './OsActivities';
+import OsHistorico from './OsHistorico';
+import { baixarOsPdf, rotuloEquipamento, ultimaAtualizacao } from '../lib/os';
 
-export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], currentUser }) {
+export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], users: usersProp, currentUser }) {
     const [mounted, setMounted] = useState(false);
 
     // Empresas terceirizadas disponíveis para vincular (vem das props da página)
     const thirdParties = usePage().props.thirdParties ?? [];
+    // Responsáveis para lançar atividade: vêm por parâmetro ou das props da página.
+    const users = usersProp ?? usePage().props.users ?? [];
+    const [baixando, setBaixando] = useState(false);
 
     const { data, setData, put, processing, errors, reset } = useForm({
         equipment_id: '',
@@ -18,6 +26,8 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
         status: '',
         periodicity: '',
         in_52_week_plan: false,
+        is_docking: false,
+        is_extra_activity: false,
         engineer_comment: '',
         vendor_name: '',
         third_party_id: '',
@@ -52,20 +62,6 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     };
 
     /**
-     * Atividades já registradas nesta OS (vêm com a OS, relação
-     * activities.responsibleUser). started_at/completed_at daqui são
-     * instantes reais, então converte UTC -> local pra exibir.
-     */
-    const atividades = osData?.activities || [];
-
-    const formatarInstante = (iso) => {
-        if (!iso) return null;
-        return new Date(iso).toLocaleString('pt-BR', {
-            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-        });
-    };
-
-    /**
      * Quando o agendamento foi confirmado. approved_at é o carimbo da
      * validação do engenheiro (é o que existe numa OS agendada; o
      * dispatched_at só é preenchido quando a data chega e a OS é disparada
@@ -93,6 +89,8 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 status: osData.status || 'open',
                 periodicity: osData.periodicity || '',
                 in_52_week_plan: Boolean(osData.in_52_week_plan),
+                is_docking: Boolean(osData.is_docking),
+                is_extra_activity: Boolean(osData.is_extra_activity),
                 engineer_comment: osData.engineer_comment || '',
                 vendor_name: osData.vendor_name || '',
                 third_party_id: osData.third_party_id || '',
@@ -102,7 +100,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                 completed_at: toLocalDateInputValue(osData.completed_at),
             });
         }
-    }, [osData, isOpen]);
+    }, [osData?.id, isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const submit = (e) => {
         e.preventDefault();
@@ -140,6 +138,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     // Editável por TI, coordenador, engenheiro ou o estagiário daquela embarcação
     // (mesma regra de WorkOrderController::canEdit, que é a trava que vale).
     const isCoordenador = ehCoordenador(currentUser);
+    const atualizacao = ultimaAtualizacao(osData);
     const canEdit = isTI || isEngenheiro || isCoordenador || (isEstagiario && isLinkedToVessel);
 
     // Status: TI/Engenheiro mudam em qualquer OS; estagiário também pode,
@@ -150,7 +149,8 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
     // A observação do engenheiro é da gestão. O estagiário até abre este modal
     // (edita outros campos da OS da embarcação dele), mas o campo fica só de
     // leitura — a trava de verdade está no servidor, isto aqui é a interface.
-    const canComment = isTI || isEngenheiro || ehCoordenador(currentUser);
+    // O dev não escreve em nome da engenharia (mesma regra de WorkOrderController::canComment).
+    const canComment = isEngenheiro || isCoordenador;
 
     // Estilo padrão para os inputs dependendo da permissão
     const inputClasses = `w-full rounded-md border border-slate-700 p-2 text-sm focus:border-blue-500 ${!canEdit ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-slate-300'}`;
@@ -176,14 +176,26 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     {osData.os_number}
                                 </span>
                             </h3>
+                            {atualizacao && (
+                                <p className="mt-1 text-[11px] text-slate-500">Última atualização: <span className="text-slate-300">{atualizacao.quem}</span> em {atualizacao.quando}</p>
+                            )}
                             {!canEdit && (
                                 <p className="text-[10px] text-orange-400 mt-1">Você não tem permissão para editar os dados desta OS.</p>
                             )}
                         </div>
 
-                        <button onClick={onClose} type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <button type="button" disabled={baixando}
+                                    onClick={async () => { setBaixando(true); try { await baixarOsPdf(osData); } finally { setBaixando(false); } }}
+                                    className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-emerald-400 disabled:opacity-50"
+                                    title="Baixar o PDF desta OS para impressão">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                {baixando ? 'Gerando...' : 'Baixar PDF'}
+                            </button>
+                            <button onClick={onClose} type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white">
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div className="custom-scrollbar flex-1 overflow-y-auto bg-slate-900 p-6">
@@ -203,21 +215,25 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                     >
                                         <option value="">Selecione o Equipamento...</option>
                                         {equipments.map(eq => (
-                                            <option key={eq.id} value={eq.id}>{eq.tag_number ? `[${eq.tag_number}] ` : ''}{eq.name}</option>
+                                            <option key={eq.id} value={eq.id}>{rotuloEquipamento(eq)}</option>
                                         ))}
                                     </select>
                                     {errors.equipment_id && <span className="text-xs text-red-500">{errors.equipment_id}</span>}
                                 </div>
 
                                 {currentEq && (
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 pt-3 border-t border-slate-700/50 mt-3">
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 pt-3 border-t border-slate-700/50 mt-3">
                                         <div>
                                             <label className="block text-[10px] font-medium text-slate-500 uppercase">Embarcação</label>
                                             <span className="text-sm font-bold text-white">{vesselPrefix}</span>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG</label>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG nova</label>
                                             <span className="text-sm font-mono text-blue-300">{currentEq.tag_number || '-'}</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG antiga</label>
+                                            <span className="text-sm font-mono text-slate-400">{currentEq.tag_antigo || '-'}</span>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-medium text-slate-500 uppercase">Marca</label>
@@ -231,23 +247,33 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 )}
                             </div>
 
+                            {/* DESCRIÇÃO: uma das primeiras coisas da OS */}
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço {canEdit && <span className="text-red-500">*</span>}</label>
+                                <textarea
+                                    rows="4"
+                                    value={data.description}
+                                    onChange={e => setData('description', e.target.value)}
+                                    disabled={!canEdit}
+                                    className={`${inputClasses} resize-none`}
+                                />
+                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
+                            </div>
+
                             {/* RESTANTE DO FORMULÁRIO */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade e prazo para resolver {canEdit && <span className="text-red-500">*</span>}</label>
+                                <PriorityMatrix value={data.priority} onChange={v => setData('priority', v)} disabled={!canEdit} />
+                                {errors.priority && <span className="text-xs text-red-500">{errors.priority}</span>}
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. {canEdit && <span className="text-red-500">*</span>}</label>
                                     <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} disabled={!canEdit} className={inputClasses}>
                                         <option value="corrective">Corretiva</option>
                                         <option value="preventive">Preventiva</option>
                                         <option value="predictive">Preditiva</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade {canEdit && <span className="text-red-500">*</span>}</label>
-                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} disabled={!canEdit} className={inputClasses}>
-                                        <option value="low">Baixa</option>
-                                        <option value="medium">Média</option>
-                                        <option value="high">Alta</option>
-                                        <option value="critical">Crítica</option>
                                     </select>
                                 </div>
                                 <div>
@@ -265,6 +291,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                         <option value="completed">Concluída</option>
                                         <option value="cancelled">Cancelada</option>
                                     </select>
+                                    {errors.status && <p className="mt-1 text-xs font-medium text-red-400">{errors.status}</p>}
                                     {!canChangeStatus && canEdit && (
                                         <p className="mt-1 text-[10px] text-slate-500">Só engenheiro, TI ou estagiário da própria embarcação mudam o status da OS. Aprove pelo Planejamento.</p>
                                     )}
@@ -285,25 +312,12 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                         <option value="triennial">Trianual</option>
                                         <option value="quadrennial">Quadrienal</option>
                                         <option value="sexennial">Sexênio</option>
-                                        <option value="docking">Docagem</option>
                                     </select>
                                     {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
                                 </div>
                             </div>
 
-                            <label className={`flex items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors ${canEdit ? 'cursor-pointer hover:border-slate-600' : 'cursor-not-allowed opacity-60'}`}>
-                                <input
-                                    type="checkbox"
-                                    checked={data.in_52_week_plan}
-                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
-                                    disabled={!canEdit}
-                                    className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed"
-                                />
-                                <span>
-                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
-                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
-                                </span>
-                            </label>
+                            <OriginFlags data={data} setData={setData} disabled={!canEdit} error={errors.is_extra_activity} />
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div>
@@ -352,7 +366,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Data da OS {canEdit && <span className="text-red-500">*</span>}</label>
-                                        <BrDateInput
+                                        <DateInputWithCalendar
                                             value={data.created_at}
                                             onChange={value => setData('created_at', value)}
                                             disabled={!canEdit}
@@ -364,7 +378,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
                                     <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Data de Início Real</label>
-                                        <BrDateInput
+                                        <DateInputWithCalendar
                                             value={data.started_at}
                                             onChange={value => setData('started_at', value)}
                                             disabled={!canEdit}
@@ -378,7 +392,7 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
 
                                     <div>
                                         <label className="mb-1 block text-xs font-medium text-slate-400">Data Fim da OS</label>
-                                        <BrDateInput
+                                        <DateInputWithCalendar
                                             value={data.completed_at}
                                             onChange={value => setData('completed_at', value)}
                                             disabled={!canEdit}
@@ -422,63 +436,10 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                                 )}
                             </div>
 
-                            {/* ATIVIDADES REGISTRADAS NA OS (somente leitura aqui --
-                                quem registra/edita é o modal de Detalhamento) */}
-                            <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4">
-                                <div className="mb-3 flex items-center justify-between">
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Atividades Registradas</h4>
-                                    <span className="text-[10px] text-slate-500">{atividades.length} no total</span>
-                                </div>
+                            {/* ATIVIDADES: lançar/editar direto aqui (salva na hora) */}
+                            <OsActivities os={osData} users={users} />
 
-                                {atividades.length === 0 ? (
-                                    <div className="rounded-md border border-dashed border-slate-700 py-6 text-center">
-                                        <p className="text-xs text-slate-500">Nenhuma atividade registrada nesta OS ainda.</p>
-                                        <p className="mt-1 text-[10px] text-slate-600">As atividades são lançadas pelo botão de detalhamento da OS, na listagem.</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {atividades.map((atividade) => {
-                                            const inicio = formatarInstante(atividade.started_at);
-                                            const fim = formatarInstante(atividade.completed_at);
-                                            const responsavel = atividade.responsible_user?.nickname
-                                                || atividade.responsible_user?.username
-                                                || 'Não informado';
-
-                                            return (
-                                                <div key={atividade.id} className="rounded-md border border-slate-700/60 bg-slate-900/50 p-3">
-                                                    <p className="whitespace-pre-wrap text-sm text-slate-300">{atividade.description}</p>
-
-                                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-700/40 pt-2 text-[11px]">
-                                                        <span className="text-slate-500">
-                                                            Início: <span className="text-slate-300">{inicio || '—'}</span>
-                                                        </span>
-                                                        <span className="text-slate-500">
-                                                            Fim: {fim
-                                                                ? <span className="text-slate-300">{fim}</span>
-                                                                : <span className="text-yellow-400">Em andamento</span>}
-                                                        </span>
-                                                        <span className="ml-auto text-slate-500">
-                                                            Responsável: <span className="text-slate-300">{responsavel}</span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço {canEdit && <span className="text-red-500">*</span>}</label>
-                                <textarea
-                                    rows="4"
-                                    value={data.description}
-                                    onChange={e => setData('description', e.target.value)}
-                                    disabled={!canEdit}
-                                    className={`${inputClasses} resize-none`}
-                                />
-                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
-                            </div>
+                            <OsHistorico eventos={osData?.events || []} />
 
                             {/* INFORMAÇÕES DE VALIDAÇÃO (SOMENTE LEITURA) */}
                             <div className="rounded-lg border border-slate-700 bg-slate-800/30 p-4 space-y-4">

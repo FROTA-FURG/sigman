@@ -15,11 +15,11 @@ const PERIODICITY_LABELS = {
     quadrennial: 'Quadrienal', sexennial: 'Sexênio', docking: 'Docagem',
 };
 
-function temIntervalo(periodicity) {
+export function temIntervalo(periodicity) {
     return periodicity in DIAS || periodicity in MESES || periodicity in ANOS;
 }
 
-function proximaData(periodicity, dataBase) {
+export function proximaData(periodicity, dataBase) {
     if (!temIntervalo(periodicity)) return null;
     const d = new Date(dataBase);
     if (periodicity in DIAS) d.setDate(d.getDate() + DIAS[periodicity]);

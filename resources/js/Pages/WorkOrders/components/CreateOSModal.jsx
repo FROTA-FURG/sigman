@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, usePage } from '@inertiajs/react';
 import DateInputWithCalendar from '@/Components/DateInputWithCalendar';
+import PriorityMatrix from './PriorityMatrix';
+import OriginFlags from './OriginFlags';
+import { rotuloEquipamento } from '../lib/os';
 
 const VESSELS = [
     { id: 'AS', name: 'Atlântico Sul', prefix: 'AS' },
@@ -27,6 +30,8 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
         status: 'open',
         periodicity: '',
         in_52_week_plan: false,
+        is_docking: false,
+        is_extra_activity: false,
         estimated_hours: '',
         vendor_name: '',
         third_party_id: '',
@@ -121,7 +126,7 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                         >
                                             <option value="">Selecione o Equipamento...</option>
                                             {filteredEquipments.map(eq => (
-                                                <option key={eq.id} value={eq.id}>{eq.tag_number ? `[${eq.tag_number}] ` : ''}{eq.name}</option>
+                                                <option key={eq.id} value={eq.id}>{rotuloEquipamento(eq)}</option>
                                             ))}
                                         </select>
                                         {errors.equipment_id && <span className="text-xs text-red-500">{errors.equipment_id}</span>}
@@ -129,10 +134,14 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                 </div>
 
                                 {selectedEquipmentDetails && (
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 pt-3 border-t border-blue-500/20 mt-3">
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pt-3 border-t border-blue-500/20 mt-3">
                                         <div>
-                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG</label>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG nova</label>
                                             <span className="text-sm font-mono text-blue-300">{selectedEquipmentDetails.tag_number || '-'}</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-medium text-slate-500 uppercase">TAG antiga</label>
+                                            <span className="text-sm font-mono text-slate-400">{selectedEquipmentDetails.tag_antigo || '-'}</span>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-medium text-slate-500 uppercase">Marca</label>
@@ -146,23 +155,34 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                 )}
                             </div>
 
+                            {/* DESCRIÇÃO: uma das primeiras coisas da OS */}
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço <span className="text-red-500">*</span></label>
+                                <textarea 
+                                    rows="3" 
+                                    value={data.description} 
+                                    onChange={e => setData('description', e.target.value)}
+                                    placeholder="Descreva detalhadamente o que precisa ser feito..." 
+                                    className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
+                                />
+                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
+                            </div>
+
+                            {/* PRIORIDADE COMO MATRIZ DE PRAZOS */}
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade e prazo para resolver <span className="text-red-500">*</span></label>
+                                <PriorityMatrix value={data.priority} onChange={v => setData('priority', v)} />
+                                {errors.priority && <span className="text-xs text-red-500">{errors.priority}</span>}
+                            </div>
+
                             {/* BLOCO DA ORDEM DE SERVIÇO */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div>
                                     <label className="mb-1 block text-xs font-medium text-slate-400">Tipo de Manut. <span className="text-red-500">*</span></label>
                                     <select value={data.maintenance_type} onChange={e => setData('maintenance_type', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
                                         <option value="corrective">Corretiva</option>
                                         <option value="preventive">Preventiva</option>
                                         <option value="predictive">Preditiva</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-400">Prioridade <span className="text-red-500">*</span></label>
-                                    <select value={data.priority} onChange={e => setData('priority', e.target.value)} className="w-full rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500">
-                                        <option value="low">Baixa</option>
-                                        <option value="medium">Média</option>
-                                        <option value="high">Alta</option>
-                                        <option value="critical">Crítica</option>
                                     </select>
                                 </div>
                                 <div>
@@ -193,36 +213,13 @@ export default function CreateWorkOrderModal({ isOpen, onClose, equipments = [] 
                                         <option value="triennial">Trianual</option>
                                         <option value="quadrennial">Quadrienal</option>
                                         <option value="sexennial">Sexênio</option>
-                                        <option value="docking">Docagem</option>
                                     </select>
                                     {errors.periodicity && <span className="text-xs text-red-500">{errors.periodicity}</span>}
                                 </div>
                             </div>
 
-                            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-700 bg-slate-950/60 p-3 transition-colors hover:border-slate-600">
-                                <input
-                                    type="checkbox"
-                                    checked={data.in_52_week_plan}
-                                    onChange={e => setData('in_52_week_plan', e.target.checked)}
-                                    className="mt-0.5 h-4 w-4 cursor-pointer rounded border-slate-600 bg-slate-900 text-blue-500 focus:ring-blue-500"
-                                />
-                                <span>
-                                    <span className="block text-sm font-medium text-slate-200">Pertence ao Plano de 52 Semanas</span>
-                                    <span className="block text-xs text-slate-500">Marque se esta OS faz parte do cronograma anual de manutenção preventiva, e não de uma demanda avulsa.</span>
-                                </span>
-                            </label>
+                            <OriginFlags data={data} setData={setData} error={errors.is_extra_activity} />
 
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-400">Descrição do Problema / Serviço <span className="text-red-500">*</span></label>
-                                <textarea 
-                                    rows="3" 
-                                    value={data.description} 
-                                    onChange={e => setData('description', e.target.value)}
-                                    placeholder="Descreva detalhadamente o que precisa ser feito..." 
-                                    className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-2 text-sm text-slate-300 focus:border-blue-500"
-                                />
-                                {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
-                            </div>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>

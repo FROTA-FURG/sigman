@@ -1,19 +1,22 @@
 <?php
 
-test('registration screen can be rendered', function () {
-    $response = $this->get('/register');
+use App\Models\User;
 
-    $response->assertStatus(200);
-});
+/*
+ * Não existe cadastro público: usuário novo só pela gestão, na Tripulação
+ * (crew.store, restrito a dev/coordenador/engenheiro).
+ */
 
-test('new users can register', function () {
-    $response = $this->post('/register', [
+test('não existe tela nem rota de cadastro público', function () {
+    $this->get('/register')->assertNotFound();
+
+    $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
-    ]);
+    ])->assertNotFound();
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $this->assertGuest();
+    expect(User::where('email', 'test@example.com')->exists())->toBeFalse();
 });

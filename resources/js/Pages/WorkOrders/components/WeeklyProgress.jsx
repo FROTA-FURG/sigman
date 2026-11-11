@@ -1,3 +1,4 @@
+import { FILTROS_VAZIOS, osDoAndamento } from '../lib/os';
 import React, { useMemo } from 'react';
 import WeeklyProgressTable from './WeeklyProgressTable';
 
@@ -5,52 +6,16 @@ export default function WeeklyProgress({
     workOrders = [],
     equipments = [],
     users = [],
-    vesselFilter,
-    statusFilter,
-    periodFilter,
-    typeFilter,
-    planFilter,
+    filtros = FILTROS_VAZIOS,
     weekStart,
     weekEnd,
     currentUser
 }) {
-    const filteredWorkOrders = useMemo(() => {
-        let result = workOrders;
-
-        if (vesselFilter) result = result.filter(os => os.equipment?.vessel?.tag === vesselFilter);
-        if (statusFilter) result = result.filter(os => os.status === statusFilter);
-        if (periodFilter) result = result.filter(os => os.periodicity === periodFilter);
-        if (typeFilter) result = result.filter(os => os.maintenance_type === typeFilter);
-        if (planFilter) result = result.filter(os => Boolean(os.in_52_week_plan) === (planFilter === 'yes'));
-
-        if (weekStart && weekEnd) {
-            const now = new Date();
-            now.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas o dia
-            
-            // Verifica se a data atual está dentro do intervalo selecionado (Semana Atual)
-            const isCurrentWeek = now >= weekStart && now <= weekEnd;
-
-            result = result.filter(os => {
-                if (!os.created_at) return false;
-                const [datePart] = os.created_at.split('T');
-                const [year, month, day] = datePart.split('-');
-                const osDate = new Date(year, month - 1, day, 12, 0, 0);
-                
-                const inRange = osDate >= weekStart && osDate <= weekEnd;
-                if (!inRange) return false;
-
-                // REGRA NOVA: Na semana atual, por padrão, mostrar apenas "Aberto" ou "Em Andamento".
-                // Isso esconde as OSs "Scheduled" (Agendadas) que ainda não foram liberadas pelo Cron Job.
-                if (isCurrentWeek && !statusFilter) {
-                    if (os.status !== 'open' && os.status !== 'in_progress') return false;
-                }
-
-                return true;
-            });
-        }
-
-        return result;
-    }, [workOrders, vesselFilter, statusFilter, periodFilter, typeFilter, planFilter, weekStart, weekEnd]);
+    // Mesma lista da tabela; o "Necessário" conta só o que ainda falta fazer.
+    const filteredWorkOrders = useMemo(
+        () => osDoAndamento(workOrders, filtros, weekStart, weekEnd).filter(os => !os.is_inactive && !['completed', 'cancelled'].includes(os.status)),
+        [workOrders, filtros, weekStart, weekEnd],
+    );
 
     const isWeekly = Boolean(weekStart && weekEnd);
     const weeksMultiplier = isWeekly ? 1 : 52;
@@ -62,20 +27,33 @@ export default function WeeklyProgress({
     const dispPreventiva = 0.6 * disponivelEquipe;
     const dispTripulacao = 30 * weeksMultiplier;
     
+    // Demanda acima do que a equipe tem disponível no mesmo período.
+    const excedente = necessarioTotal - disponivelEquipe;
+    const ultrapassa = excedente > 0.05;
+
     const capacidadeSemanalEquipe = 44 * 0.75;
     const backlog = capacidadeSemanalEquipe > 0 ? (necessarioTotal / capacidadeSemanalEquipe) : 0;
 
-    const MiniCard = ({ title, value, unit, highlight }) => (
-        <div className="flex flex-col justify-center rounded-lg border border-slate-700/50 bg-slate-800/40 p-3 shadow-sm">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate" title={title}>
-                {title}
+    const MiniCard = ({ title, value, unit, highlight, alerta }) => (
+        <div
+            className={`relative flex flex-col justify-center rounded-lg border p-3 shadow-sm ${alerta ? 'border-red-500/60 bg-red-500/10' : 'border-slate-700/50 bg-slate-800/40'}`}
+            title={alerta || undefined}
+        >
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400" title={alerta ? undefined : title}>
+                <span className="truncate">{title}</span>
+                {alerta && (
+                    <svg className="h-3.5 w-3.5 shrink-0 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-label="Atenção">
+                        <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                )}
             </span>
             <div className="mt-1 flex items-baseline gap-1">
-                <span className={`text-xl font-bold leading-none ${highlight ? 'text-blue-400' : 'text-white'}`}>
+                <span className={`text-xl font-bold leading-none ${alerta ? 'text-red-300' : highlight ? 'text-blue-400' : 'text-white'}`}>
                     {value}
                 </span>
                 {unit && <span className="text-[10px] font-medium text-slate-500">{unit}</span>}
             </div>
+            {alerta && <span className="mt-1 text-[10px] font-medium text-red-300">Acima do disponível</span>}
         </div>
     );
 
@@ -87,6 +65,7 @@ export default function WeeklyProgress({
                     value={necessarioTotal.toFixed(1)} 
                     unit="Hh" 
                     highlight={true} 
+                    alerta={ultrapassa ? `Ultrapassa em ${excedente.toFixed(1)} Hh o disponível da equipe (${disponivelEquipe.toFixed(1)} Hh, ${periodLabel.toLowerCase()})` : null}
                 />
                 <MiniCard 
                     title={`Disponível Equipe (${periodLabel})`} 
@@ -116,11 +95,7 @@ export default function WeeklyProgress({
                     workOrders={workOrders}
                     equipments={equipments}
                     users={users}
-                    vesselFilter={vesselFilter}
-                    statusFilter={statusFilter}
-                    periodFilter={periodFilter}
-                    typeFilter={typeFilter}
-                    planFilter={planFilter}
+                    filtros={filtros}
                     weekStart={weekStart}
                     weekEnd={weekEnd}
                     currentUser={currentUser}

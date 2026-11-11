@@ -14,6 +14,18 @@ class User extends Authenticatable
 
     use SoftDeletes;
     
+    protected static function booted(): void
+    {
+        // Ao apagar de vez (não o soft delete da tela), a FK zera o vínculo das
+        // atividades que a pessoa executou; antes disso o nome fica gravado
+        // nelas, para o histórico continuar dizendo quem fez.
+        static::forceDeleting(function (User $user) {
+            WorkOrderActivity::where('responsible_user_id', $user->id)
+                ->whereNull('responsible_name')
+                ->update(['responsible_name' => $user->nickname ?: $user->username]);
+        });
+    }
+
     protected $fillable = [
         'username',
         'nickname',
@@ -77,6 +89,12 @@ class User extends Authenticatable
     }
 
     /** Este usuário enxerga/responde pela embarcação informada? */
+    /** Enxerga a frota inteira (lista de OS): quem responde pela frota e o dev. */
+    public function seesWholeFleet(): bool
+    {
+        return (bool) $this->has_fleet_access || ($this->role?->name === 'dev');
+    }
+
     public function coversVessel(?string $vesselId): bool
     {
         if ($this->has_fleet_access) {
