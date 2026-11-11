@@ -78,6 +78,7 @@ Route::middleware(['auth', 'verified', 'third_party'])->group(function () {
     Route::put('/work-orders/{id}/intern-status', [WorkOrderController::class, 'updateInternStatus'])->name('work-orders.intern-status');
     Route::put('/work-orders/{id}/status', [WorkOrderController::class, 'updateStatus'])->name('work-orders.update-status');
     Route::post('/work-orders/{id}/inactivate', [WorkOrderController::class, 'inactivate'])->name('work-orders.inactivate');
+    Route::put('/work-orders/{id}/inactivation-reason', [WorkOrderController::class, 'updateInactivationReason'])->name('work-orders.inactivation-reason');
 
     // Janelas de Execução (lote de OS agrupado por disponibilidade da embarcação)
     Route::resource('execution-windows', ExecutionWindowController::class)->only(['index', 'show', 'store', 'update', 'destroy']);

@@ -190,6 +190,7 @@ export function descreverEvento(ev) {
             return ev.to_value
                 ? { texto: `Inativou e reprogramou ${ROTULO_MODO[ev.from_value] || ''}: ${ev.to_value}`, cor: 'text-orange-400' }
                 : { texto: 'Inativou sem reagendar', cor: 'text-orange-400' };
+        case 'motivo_inativacao': return { texto: 'Escreveu o motivo da inativação/reprogramação', cor: 'text-orange-300' };
         case 'aprovacao_desfeita': return { texto: 'Desfez a aprovação da engenharia', cor: 'text-orange-300' };
         case 'reagendamento':
             return { texto: `Reagendou a OS atrasada ${ev.from_value === 'periodicidade' ? 'para o próximo ciclo' : 'para nova data'}: ${ev.to_value}`, cor: 'text-purple-300' };

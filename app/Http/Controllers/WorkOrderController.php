@@ -398,6 +398,33 @@ class WorkOrderController extends Controller
     }
 
     /**
+     * Motivo da inativação/reprogramação escrito (ou corrigido) depois: quem
+     * pode inativar pode comentar. O texto anterior fica no histórico.
+     */
+    public function updateInactivationReason(Request $request, string $id)
+    {
+        $os = WorkOrder::with('equipment')->findOrFail($id);
+
+        if (! $this->canInactivate($request->user(), $os->equipment?->vessel_id)) {
+            abort(403, 'Só a gestão ou o estagiário da embarcação comentam esta inativação.');
+        }
+        if (! $os->is_inactive) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['motivo' => 'Esta OS não está inativada.']);
+        }
+
+        $validated = $request->validate(['motivo' => 'nullable|string|max:2000']);
+        $motivo = trim((string) ($validated['motivo'] ?? ''));
+        $motivo = $motivo === '' ? null : $motivo;
+
+        if ($motivo !== $os->inactivation_reason) {
+            $os->update(['inactivation_reason' => $motivo]);
+            WorkOrderEvent::registrar($os, 'motivo_inativacao', ['nota' => $motivo ?? '(motivo apagado)']);
+        }
+
+        return back()->with('success', 'Motivo da inativação salvo.');
+    }
+
+    /**
      * A ocorrência marcada não vai acontecer: inativa a OS e cria a
      * próxima, conforme a periodicidade ou numa nova data escolhida pelo
      * engenheiro (que também reancora as ocorrências futuras da mesma

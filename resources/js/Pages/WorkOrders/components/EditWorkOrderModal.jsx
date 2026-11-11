@@ -7,6 +7,7 @@ import PriorityMatrix from './PriorityMatrix';
 import OriginFlags from './OriginFlags';
 import OsActivities from './OsActivities';
 import OsHistorico from './OsHistorico';
+import MotivoInativacao from './MotivoInativacao';
 import { baixarOsPdf, rotuloEquipamento, ultimaAtualizacao } from '../lib/os';
 
 export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments = [], users: usersProp, currentUser }) {
@@ -437,6 +438,13 @@ export default function EditWorkOrderModal({ isOpen, onClose, osData, equipments
                             </div>
 
                             {/* ATIVIDADES: lançar/editar direto aqui (salva na hora) */}
+                            {osData?.is_inactive && (
+                                <div className="rounded-lg border border-orange-500/30 bg-orange-500/5 p-4">
+                                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-orange-300">OS inativada · motivo</h4>
+                                    <MotivoInativacao os={osData} podeEditar={canEdit} />
+                                </div>
+                            )}
+
                             <OsActivities os={osData} users={users} />
 
                             <OsHistorico eventos={osData?.events || []} />
